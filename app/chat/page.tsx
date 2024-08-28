@@ -5,11 +5,7 @@ import React from "react";
 type Props = {};
 
 const page = (props: Props) => {
-  return <main className="chat">
-    <Conversations />
-    <ChatBox />
-    
-  </main>;
+  return <ChatBox isEmpty={false} />;
 };
 
 export default page;

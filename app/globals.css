@@ -60,23 +60,3 @@ body {
   height: 33px;
 }
 
-.chat{
-  display: flex;
-  background: turquoise;
-  height: 100vh;
-  width: 100%;
-}
-
-.left {
-  display: flex;
-  flex-direction: column;
-  background: white;
-  width:20%;
-}
-
-.right{
-  display: flex;
-  flex-direction: column;
-  background: burlywood;
-  width: 80%;
-}
