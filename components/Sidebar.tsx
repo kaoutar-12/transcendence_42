@@ -11,6 +11,7 @@ import { IoSettingsSharp } from "react-icons/io5";
 import { IoPersonCircle } from "react-icons/io5";
 import { IoLogIn } from "react-icons/io5";
 import { MdOutlineEqualizer } from "react-icons/md";
+import { IoLogOut } from "react-icons/io5";
 import { useState } from "react";
 import Image from 'next/image'
 import '@/styles/sidebar.css'
@@ -27,7 +28,7 @@ const Sidebar = (props: Props) => {
 
   const routes = [
     {
-      href: "#",
+      href: "/home",
       icon: <IoHome className="icon" />,
     },
     {
@@ -35,15 +36,15 @@ const Sidebar = (props: Props) => {
       icon: <IoChatbubbleEllipses className="icon" />,
     },
     {
-      href: "#",
+      href: "/game",
       icon: <IoGameController className="icon" />,
     },
     {
-      href: "#",
+      href: "/settings",
       icon: <IoSettingsSharp className="icon" />,
     },
     {
-      href: "#",
+      href: "/leaderboard",
       icon: <MdOutlineEqualizer className="icon" />,
     },
   ];
@@ -63,7 +64,11 @@ const Sidebar = (props: Props) => {
             );
           })}
         </div>
+        <div className="logout">
+          <IoLogOut className="icon" />
+        </div>
       </div>
+      <div className="sidebar-mobile"></div>
     </Fragment>
   );
 };

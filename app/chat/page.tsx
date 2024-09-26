@@ -5,7 +5,7 @@ import React from "react";
 type Props = {};
 
 const page = (props: Props) => {
-  return <ChatBox isEmpty={false} />;
+  return <ChatBox isEmpty={true} />;
 };
 
-export default page;
+export default page;ga
