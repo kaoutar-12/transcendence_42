@@ -4,59 +4,6 @@ body {
   margin: 0;
 }
 
-.sidebar {
-  background: black;
-  height: 100vh;
-  width: 80px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: space-between;
-}
 
-.sidebar-logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 80px;
-  height: 80px;
-  color: white;
-}
 
-.icons {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 40px;
-}
-
-.icon {
-  color: #bb151f;
-  width: 33px;
-  height: 33px;
-}
-
-.icon-setting {
-  margin-bottom: 50px;
-}
-
-.drop {
-  display: flex;
-  flex-direction: column;
-  background: black;
-  height: 120px;
-  width: 50px;
-  position: absolute;
-  left: 90px;
-  bottom: 10px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-}
-
-.icon-drop{
-  color: #bb151f;
-  width: 20px;
-  height: 33px;
-}
 

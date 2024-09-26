@@ -10,7 +10,11 @@ import { IoEllipsisVerticalCircleSharp } from "react-icons/io5";
 import { IoSettingsSharp } from "react-icons/io5";
 import { IoPersonCircle } from "react-icons/io5";
 import { IoLogIn } from "react-icons/io5";
+import { MdOutlineEqualizer } from "react-icons/md";
 import { useState } from "react";
+import Image from 'next/image'
+import '@/styles/sidebar.css'
+
 
 type Props = {};
 
@@ -36,7 +40,11 @@ const Sidebar = (props: Props) => {
     },
     {
       href: "#",
-      icon: <IoPeople className="icon" />,
+      icon: <IoSettingsSharp className="icon" />,
+    },
+    {
+      href: "#",
+      icon: <MdOutlineEqualizer className="icon" />,
     },
   ];
 
@@ -44,7 +52,9 @@ const Sidebar = (props: Props) => {
     <Fragment>
       <div className="sidebar">
         <div className="icons">
-          <div className="sidebar-logo">LOGO</div>
+          <div className="sidebar-logo">
+            <Image src="/logo.svg" alt="logo" width="100" height="100" />
+          </div>
           {routes.map((route, index) => {
             return (
               <Link key={index} href={route.href}>
@@ -53,26 +63,7 @@ const Sidebar = (props: Props) => {
             );
           })}
         </div>
-        <Link href="#" onClick={handleDrop}>
-          <IoEllipsisVerticalCircleSharp className="icon icon-setting" />
-        </Link>
       </div>
-      {dropActive && (
-        <div className="drop">
-          <Link href="#">
-            {" "}
-            <IoPersonCircle className="icon-drop"/>
-          </Link>
-          <Link href="#">
-            {" "}
-            <IoSettingsSharp className="icon-drop"/>
-          </Link>
-          <Link href="#">
-            {" "}
-            <IoLogIn className="icon-drop" />{" "}
-          </Link>
-        </div>
-      )}
     </Fragment>
   );
 };
