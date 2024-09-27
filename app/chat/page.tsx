@@ -8,4 +8,4 @@ const page = (props: Props) => {
   return <ChatBox isEmpty={true} />;
 };
 
-export default page;ga
+export default page;

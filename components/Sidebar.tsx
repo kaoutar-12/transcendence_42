@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Fragment } from "react";
+import React, { Fragment, useEffect } from "react";
 import Link from "next/link";
 import { IoHome } from "react-icons/io5";
 import { IoChatbubbleEllipses } from "react-icons/io5";
@@ -13,18 +13,17 @@ import { IoLogIn } from "react-icons/io5";
 import { MdOutlineEqualizer } from "react-icons/md";
 import { IoLogOut } from "react-icons/io5";
 import { useState } from "react";
-import Image from 'next/image'
-import '@/styles/sidebar.css'
-
+import Image from "next/image";
+import "@/styles/sidebar.css";
+import { usePathname } from "next/navigation";
 
 type Props = {};
 
 const Sidebar = (props: Props) => {
-  const [dropActive, setDropActive] = useState(false);
 
-  const handleDrop = () => {
-    setDropActive(!dropActive);
-  };
+  const pathname = usePathname();
+  useEffect(() => {
+  }, [pathname]);
 
   const routes = [
     {
@@ -57,8 +56,15 @@ const Sidebar = (props: Props) => {
             <Image src="/logo.svg" alt="logo" width="100" height="100" />
           </div>
           {routes.map((route, index) => {
+            const isActive = pathname === route.href;
+            console.log("isActive", isActive);
             return (
-              <Link key={index} href={route.href}>
+              <Link
+                key={index}
+                href={route.href}
+                className="icon"
+                style={{ color: isActive ? "white" : " #bb151f" , transform: isActive ? "scale(1.2)" : ""}}
+              >
                 {route.icon}
               </Link>
             );
@@ -68,7 +74,6 @@ const Sidebar = (props: Props) => {
           <IoLogOut className="icon" />
         </div>
       </div>
-      <div className="sidebar-mobile"></div>
     </Fragment>
   );
 };

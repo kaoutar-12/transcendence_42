@@ -18,6 +18,11 @@
     justify-content: center;
     width: 80px;
     height: 80px;
+
+    @media screen and (max-width: 768px) {
+      display: none;
+      
+    }
   }
   
   .icons {
@@ -28,23 +33,31 @@
   }
   
   .icon {
-    color: #bb151f;
+    /* color: #bb151f; */
     width: 33px;
     height: 33px;
     transition-property: transform, color;
     transition-duration: 0.2s;
     transition-timing-function: linear;
 
+    @media screen and (max-width: 768px) and (min-width: 321px){
+      width: 30px;
+      height: 30px;
+    }
+    @media screen and (max-width: 320px){
+      width: 25px;
+      height: 25px;
+    }
   }
 
+.tst{
+  color: white;
+}
+
   .icon:hover{
-    color: #fff;
+    color: #ffffff;
     transform: scale(1.2);
     cursor: pointer;
-  }
-  icon:active{
-    color: #fff;
-    transform: scale(1.2);
   }
   
   .icon-setting {
@@ -54,33 +67,77 @@
 
   .logout{
     margin-bottom: 30px;
+
+    @media screen and (max-width: 768px) {
+      display: none;
+    }
   }
 
 
-  @media screen and (max-width: 768px) {
-    /* .sidebar {
-      display: none;
-    } */
+  @media screen and (max-width: 599px) and (min-width: 321px){
 
-    /* .sidebar-mobile{
+    .sidebar{
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 20px;
       background: black;
+      justify-content: center;
+      align-items: center;
       position: absolute;
-      bottom: -20px;
+      bottom: 0px;
       width: 100%;
-      height: 100px;
+      height: 80px;
+      border-radius: 40px 40px 0 0;
     }
-  
-    .icons {
-      gap: 20px;
+    .icons{
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
     }
-  
-    .icon {
-      width: 25px;
-      height: 25px;
-    } */
-    
+  }
+
+  @media screen and (max-width: 320px){
+    .sidebar{
+      display: flex;
+      background: black;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      bottom: 0px;
+      width: 100%;
+      height: 80px;
+      border-radius: 40px 40px 0 0;
+    }
+    .icons{
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: 30px;
+    }
+  }
+
+  @media screen and (max-width: 768px) and (min-width: 600px){
+
+    .sidebar{
+      display: flex;
+      background: black;
+      justify-content: center;
+      align-items: center;
+      position: absolute;
+      bottom: 0px;
+      width: 100%;
+      height: 80px;
+      border-radius: 40px 40px 0 0;
+    }
+    .icons{
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      gap: 70px;
+    }
+    .icon{
+      width: 35px;
+      height: 35px;
+    }
   }
