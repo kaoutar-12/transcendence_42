@@ -1,10 +1,13 @@
 "use client";
 
+import { useParams } from "next/navigation";
 import React, { useEffect } from "react";
 
 type Props = {};
 
 const page = (props: Props) => {
+  const params = useParams<{ id: string }>();
+
   useEffect(() => {
     const conversations = document.querySelector("div .left");
     const sidebar = document.querySelector(".sidebar");
@@ -19,7 +22,7 @@ const page = (props: Props) => {
 
   return (
     <>
-      <div></div>
+      <div>{params.id}</div>
     </>
   );
 };
