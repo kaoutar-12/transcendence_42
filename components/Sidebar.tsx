@@ -20,10 +20,8 @@ import { usePathname } from "next/navigation";
 type Props = {};
 
 const Sidebar = (props: Props) => {
-
   const pathname = usePathname();
-  useEffect(() => {
-  }, [pathname]);
+  useEffect(() => {}, [pathname]);
 
   const routes = [
     {
@@ -57,13 +55,15 @@ const Sidebar = (props: Props) => {
           </div>
           {routes.map((route, index) => {
             const isActive = pathname === route.href;
-            console.log("isActive", isActive);
             return (
               <Link
                 key={index}
                 href={route.href}
                 className="icon"
-                style={{ color: isActive ? "white" : " #bb151f" , transform: isActive ? "scale(1.2)" : ""}}
+                style={{
+                  color: isActive ? "white" : " #bb151f",
+                  transform: isActive ? "scale(1.2)" : "",
+                }}
               >
                 {route.icon}
               </Link>

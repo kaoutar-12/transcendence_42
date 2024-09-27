@@ -1,144 +1,154 @@
 .sidebar {
-    background: black;
-    height: 100vh;
-    width: 80px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-between;
+  background: black;
+  height: 100vh;
+  width: 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
 
-    @media screen and (max-width: 768px) {
-      display: none;
-    }
+  @media screen and (max-width: 768px) {
+    display: none;
   }
-  
-  .sidebar-logo {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 50px;
-    height: 50px;
-    margin-top: 30px;
+}
 
-    @media screen and (max-width: 768px) {
-      display: none;
-      
-    }
-  }
-  
-  .icons {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 40px;
-  }
-  
-  .icon {
-    /* color: #bb151f; */
-    width: 33px;
-    height: 33px;
-    transition-property: transform, color;
-    transition-duration: 0.2s;
-    transition-timing-function: linear;
+.sidebar-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+  height: 50px;
+  margin-top: 30px;
 
-    @media screen and (max-width: 768px) and (min-width: 321px){
-      width: 30px;
-      height: 30px;
-    }
-    @media screen and (max-width: 320px){
-      width: 25px;
-      height: 25px;
-    }
+  @media screen and (max-width: 768px) {
+    display: none;
   }
+}
 
-.tst{
+.icons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.icon {
+  /* color: #bb151f; */
+  width: 33px;
+  height: 33px;
+  transition-property: transform, color;
+  transition-duration: 0.2s;
+  transition-timing-function: linear;
+
+  @media screen and (max-width: 768px) and (min-width: 321px) {
+    width: 30px;
+    height: 30px;
+  }
+  @media screen and (max-width: 320px) {
+    width: 25px;
+    height: 25px;
+  }
+}
+
+.tst {
   color: white;
 }
 
-  .icon:hover{
-    color: #ffffff;
-    transform: scale(1.2);
-    cursor: pointer;
+.icon:hover {
+  color: #ffffff;
+  transform: scale(1.2);
+  cursor: pointer;
+}
+
+.icon-setting {
+  margin-bottom: 50px;
+}
+
+.logout {
+  margin-bottom: 30px;
+  color: #bb151f;
+}
+
+@media screen and (max-width: 599px) and (min-width: 321px) {
+  .sidebar {
+    display: flex;
+    background: black;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    height: 80px;
+    border-radius: 40px 40px 0 0;
+    flex-direction: row;
+    gap: 30px;
   }
-  
-  .icon-setting {
-    margin-bottom: 50px;
+  .icons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
   }
-  
-
-  .logout{
-    margin-bottom: 30px;
-
-    @media screen and (max-width: 768px) {
-      display: none;
-    }
+  .logout {
+    margin-bottom: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
+}
 
-
-  @media screen and (max-width: 599px) and (min-width: 321px){
-
-    .sidebar{
-      display: flex;
-      background: black;
-      justify-content: center;
-      align-items: center;
-      position: absolute;
-      bottom: 0px;
-      width: 100%;
-      height: 80px;
-      border-radius: 40px 40px 0 0;
-    }
-    .icons{
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-    }
+@media screen and (max-width: 320px) {
+  .sidebar {
+    display: flex;
+    background: black;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    height: 80px;
+    border-radius: 40px 40px 0 0;
+    gap: 30px;
   }
-
-  @media screen and (max-width: 320px){
-    .sidebar{
-      display: flex;
-      background: black;
-      justify-content: center;
-      align-items: center;
-      position: absolute;
-      bottom: 0px;
-      width: 100%;
-      height: 80px;
-      border-radius: 40px 40px 0 0;
-    }
-    .icons{
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-      gap: 30px;
-    }
+  .icons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
   }
+}
 
-  @media screen and (max-width: 768px) and (min-width: 600px){
-
-    .sidebar{
-      display: flex;
-      background: black;
-      justify-content: center;
-      align-items: center;
-      position: absolute;
-      bottom: 0px;
-      width: 100%;
-      height: 80px;
-      border-radius: 40px 40px 0 0;
-    }
-    .icons{
-      display: flex;
-      flex-direction: row;
-      justify-content: center;
-      align-items: center;
-      gap: 70px;
-    }
-    .icon{
-      width: 35px;
-      height: 35px;
-    }
+@media screen and (max-width: 768px) and (min-width: 600px) {
+  .sidebar {
+    display: flex;
+    background: black;
+    justify-content: center;
+    align-items: center;
+    position: absolute;
+    bottom: 0px;
+    width: 100%;
+    height: 80px;
+    border-radius: 40px 40px 0 0;
+    flex-direction: row;
+    gap: 70px;
   }
+  .logout {
+    margin-bottom: 0px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .icons {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 70px;
+  }
+  .icon {
+    width: 35px;
+    height: 35px;
+  }
+}
