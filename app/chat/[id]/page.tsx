@@ -19,7 +19,7 @@ const page = (props: Props) => {
 
   return (
     <>
-      <div>page</div>
+      <div></div>
     </>
   );
 };
