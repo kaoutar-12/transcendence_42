@@ -15,13 +15,13 @@ import { IoLogOut } from "react-icons/io5";
 import { useState } from "react";
 import Image from "next/image";
 import "@/styles/sidebar.css";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 type Props = {};
 
 const Sidebar = (props: Props) => {
   const pathname = usePathname();
-  useEffect(() => {}, [pathname]);
+  const router = useRouter();
 
   const routes = [
     {
@@ -50,11 +50,16 @@ const Sidebar = (props: Props) => {
     <Fragment>
       <div className="sidebar">
         <div className="icons">
-          <div className="sidebar-logo">
+          <div
+            className="sidebar-logo"
+            onClick={() => {
+              router.push("/home");
+            }}
+          >
             <Image src="/logo.svg" alt="logo" width="100" height="100" />
           </div>
           {routes.map((route, index) => {
-            const isActive = pathname === route.href;
+            const isActive = pathname.startsWith(route.href);
             return (
               <Link
                 key={index}

@@ -22,7 +22,7 @@ const page = (props: Props) => {
 
   return (
     <>
-      <div>{params.id}</div>
+      <div className="messages-wrraper">{params.id}</div>
     </>
   );
 };

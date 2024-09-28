@@ -11,7 +11,7 @@
   background: black;
   width: 30%;
   height: 100vh;
-  width: 35%;
+  width: 20%;
   gap: 20px;
   align-items: center;
 
@@ -106,5 +106,7 @@
   color: white;
 }
 
+.messages-wrraper {
+  background: plum;
 
-
+}

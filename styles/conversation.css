@@ -8,6 +8,7 @@
     display: flex;
     align-items: center;
     gap: 20px;
+    padding: 20px;
 }
 
 .conversation:hover{
@@ -57,4 +58,5 @@
     width: 100%;
     height: 100%;
     overflow-y: auto;
+    margin-bottom: 100px;
   }
