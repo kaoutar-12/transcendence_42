@@ -3,22 +3,19 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function Login() {
-  const [credentials, setCredentials] = useState({
+  const [formData, setFormData] = useState({
     username: '',
-    password: '',
+    password: ''
   });
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     try {
       const res = await fetch('http://localhost:8000/api/login/', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
 
       if (res.ok) {
@@ -32,15 +29,15 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6">Login</h2>
+        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
         <div className="mb-4">
           <input
             type="text"
             placeholder="Username"
             className="w-full p-2 border rounded"
-            onChange={(e) => setCredentials({...credentials, username: e.target.value})}
+            onChange={(e) => setFormData({...formData, username: e.target.value})}
           />
         </div>
         <div className="mb-6">
@@ -48,13 +45,10 @@ export default function Login() {
             type="password"
             placeholder="Password"
             className="w-full p-2 border rounded"
-            onChange={(e) => setCredentials({...credentials, password: e.target.value})}
+            onChange={(e) => setFormData({...formData, password: e.target.value})}
           />
         </div>
-        <button
-          type="submit"
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
+        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">
           Login
         </button>
       </form>
