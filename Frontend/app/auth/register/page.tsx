@@ -1,0 +1,70 @@
+'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+export default function Register() {
+  const [userData, setUserData] = useState({
+    username: '',
+    email: '',
+    password: '',
+  });
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    try {
+      const res = await fetch('http://localhost:8000/api/register/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(userData),
+      });
+
+      if (res.ok) {
+        router.push('/login');
+      }
+    } catch (error) {
+      console.error('Registration failed:', error);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex items-center justify-center">
+      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-96">
+        <h2 className="text-2xl font-bold mb-6">Register</h2>
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Username"
+            className="w-full p-2 border rounded"
+            onChange={(e) => setUserData({...userData, username: e.target.value})}
+          />
+        </div>
+        <div className="mb-4">
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full p-2 border rounded"
+            onChange={(e) => setUserData({...userData, email: e.target.value})}
+          />
+        </div>
+        <div className="mb-6">
+          <input
+            type="password"
+            placeholder="Password"
+            className="w-full p-2 border rounded"
+            onChange={(e) => setUserData({...userData, password: e.target.value})}
+          />
+        </div>
+        <button
+          type="submit"
+          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
+        >
+          Register
+        </button>
+      </form>
+    </div>
+  );
+}
