@@ -1,1 +1,18 @@
-# to do
+version: "3.8"
+services:
+  backend:
+    build:
+      context: ./src/backend
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src/backend:/app
+    environment:
+      - DEBUG=True
+  frontend:
+    build:
+      context: ./src/frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./src/frontend:/app
