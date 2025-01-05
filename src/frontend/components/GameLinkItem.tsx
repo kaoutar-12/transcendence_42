@@ -7,6 +7,7 @@ type Props = {
     title: string;
     image: string;
     href: string;
+    status: string;
 };
 
 const GameLinkItem = (props: Props) => {
@@ -16,6 +17,7 @@ const GameLinkItem = (props: Props) => {
         <div className='title'>{props.title}</div>
         <Image src={props.image} alt={props.title} width={100} height={100} />
         </Link>
+        <div className='status'>{props.status || "new"}</div>
     </div>
   );
 };
