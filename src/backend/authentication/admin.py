@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .modesls import User
+from .models import User
 
 # Register your models here.
 admin.site.register(User)
