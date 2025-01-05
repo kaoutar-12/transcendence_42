@@ -11,8 +11,8 @@ const Games = (props: Props) => {
         <h1>List Of Games</h1>
       </div>
       <div className="games-list">
-        <GameLinkItem title="2D Ping Pong" image="/pinpong-game-icon.png" href="/games/pingpong" />
-        <GameLinkItem title="Tic Tac Toe" image="/tictac-game-icon.png" href="/games/tictactoe" />
+        <GameLinkItem title="2D Ping Pong" image="/pinpong-game-icon.png" href="/games/pingpong" status="New" />
+        <GameLinkItem title="Tic Tac Toe" image="/tictac-game-icon.png" href="/games/tictactoe" status="In progress"/>
       </div>
     </div>
   )
