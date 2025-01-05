@@ -6,7 +6,10 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "pwd": "echo $(PWD)",
+    "build-image": "docker build -t frontend:latest .",
+    "container": "npm run build-image && docker run -it -p 3000:3000 -v $(PWD):/app -v /app/node_modules frontend:latest"
   },
   "dependencies": {
     "micromatch": "^4.0.8",
