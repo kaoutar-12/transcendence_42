@@ -21,12 +21,10 @@ ngnix:
 
 # stop application
 stop:
-	docker stop $(docker ps -a -q)
-
+	docker stop $(shell docker ps -a -q)
 # stop & clean
 clean:
-	docker stop $(docker ps -a -q)
-	docker rm $(docker ps -a -q)
+	docker rm -f $(shell docker ps -a -q)
 
 # stop, clean & all
 re: clean all
