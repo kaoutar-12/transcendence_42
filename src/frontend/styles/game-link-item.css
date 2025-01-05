@@ -1,0 +1,31 @@
+.game-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 250px;
+    margin: 10px;
+    border: 1px solid black;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+}
+
+
+.game-item:hover {
+    transform: scale(1.05);
+    transition: transform 0.3s ease-in-out;
+}
+
+.game-item .title {
+    text-decoration: none;
+    color: black;
+    border-bottom: 1px solid black;
+    padding: 5px;
+    margin-bottom: 8px;
+}
+
+.game-item a {
+    text-decoration: none;
+    color: black;
+    text-align: center;
+}
