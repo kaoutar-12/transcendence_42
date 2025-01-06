@@ -13,14 +13,19 @@ export default function Register() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+
+      console.log("body: ")
+      console.log(JSON.stringify(formData))
+        
       const res = await fetch('http://localhost:8000/api/register/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-
+      
       if (res.ok) {
-        router.push('/auth/login');
+        console.log("zebiiii")
+        // router.push('/auth/login');
       }
     } catch (error) {
       console.error('Registration failed:', error);
