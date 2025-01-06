@@ -8,25 +8,26 @@ db:
 
 # build & run the backend:
 backend:
-	docker build -t backend:latest ./src/backend
-	docker run -d -p 8000:8000 backend:latest
+	docker build -t backend:latest ./srcs/backend
+	-docker stop backend-container || true
+	-docker rm backend-container || true
+	docker run -d --name backend-container -p 8000:8000 -v $(PWD)/srcs/backend:/app backend:latest
+
 
 # build & run the frontend:
 frontend:
-	docker build -t frontend:latest ./src/frontend
-	docker run -d -p 3000:3000 -v $(PWD)/src/frontend:/app -v /app/node_modules frontend:latest
+	docker build -t frontend:latest ./srcs/frontend
+	docker run -d -p 3000:3000 -v $(PWD)/srcs/frontend:/app -v /app/node_modules frontend:latest
 
 # build & run the ngnix:
 ngnix:
 
 # stop application
 stop:
-	docker stop $(docker ps -a -q)
-
+	docker stop $(shell docker ps -a -q)
 # stop & clean
 clean:
-	docker stop $(docker ps -a -q)
-	docker rm $(docker ps -a -q)
+	docker rm -f $(shell docker ps -a -q)
 
 # stop, clean & all
 re: clean all

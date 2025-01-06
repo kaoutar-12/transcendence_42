@@ -33,7 +33,7 @@ const Sidebar = (props: Props) => {
       icon: <IoChatbubbleEllipses className="icon" />,
     },
     {
-      href: "/game",
+      href: "/games",
       icon: <IoGameController className="icon" />,
     },
     {
@@ -56,7 +56,7 @@ const Sidebar = (props: Props) => {
               router.push("/home");
             }}
           >
-            <Image src="/logo.svg" alt="logo" width="100" height="100" />
+            <Image src="/logo.webp" alt="logo" width="100" height="100" priority />
           </div>
           {routes.map((route, index) => {
             const isActive = pathname.startsWith(route.href);
