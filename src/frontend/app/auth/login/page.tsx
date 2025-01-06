@@ -8,8 +8,12 @@ export default function Login() {
     rememberMe: false
   });
 
+  const [error, setError] = useState('');
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
     try {
       const res = await fetch('http://localhost:8000/api/login/', {
         method: 'POST',
@@ -17,14 +21,19 @@ export default function Login() {
         body: JSON.stringify(formData)
       });
 
+      const data = await res.json();
+      
       if (res.ok) {
-        const data = await res.json();
-        localStorage.setItem('access_token', data.access);
-        localStorage.setItem('refresh_token', data.refresh);
-        window.location.href = '/dashboard';
+        console.log("ha howa dkhal");
+        localStorage.setItem('access_token', data.tokens.access);
+        localStorage.setItem('refresh_token', data.tokens.refresh);
+        // localStorage.setItem('user', JSON.stringify(data.user));
+        // window.location.href = '/dashboard';
+      } else {
+        setError(data.error || 'Login failed');
       }
     } catch (error) {
-      console.error('Login failed:', error);
+      setError('Network error. Please try again.');
     }
   };
 
@@ -37,6 +46,17 @@ export default function Login() {
       justifyContent: 'center',
       alignItems: 'center'
     }}>
+      {error && (
+        <div style={{
+          backgroundColor: '#fee2e2',
+          color: '#dc2626',
+          padding: '0.75rem',
+          borderRadius: '4px',
+          marginBottom: '1rem'
+        }}>
+          {error}
+        </div>
+      )}
       <div style={{
         width: '100%',
         maxWidth: '700px',
