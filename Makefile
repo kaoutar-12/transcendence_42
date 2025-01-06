@@ -11,7 +11,7 @@ backend:
 	docker build -t backend:latest ./src/backend
 	-docker stop backend-container || true
 	-docker rm backend-container || true
-	docker run -d --name backend-container -p 8000:8000 -v $(PWD)/src/backend:/app backend:latest
+	docker run --name backend-container -p 8000:8000 -v $(PWD)/src/backend:/app backend:latest
 
 
 # build & run the frontend:
