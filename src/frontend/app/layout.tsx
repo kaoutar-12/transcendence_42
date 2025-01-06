@@ -56,5 +56,4 @@ export default function RootLayout({
     </html>
   );
 }
-app/layout.tsx
-app/layout.tsx (Server Component)
+
