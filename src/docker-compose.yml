@@ -2,17 +2,17 @@ version: "3.8"
 services:
   backend:
     build:
-      context: ./src/backend
+      context: ./backend
     ports:
       - "8000:8000"
     volumes:
-      - ./src/backend:/app
+      - ./backend:/app
     environment:
       - DEBUG=True
   frontend:
     build:
-      context: ./src/frontend
+      context: ./frontend
     ports:
       - "3000:3000"
     volumes:
-      - ./src/frontend:/app
+      - ./frontend:/app
