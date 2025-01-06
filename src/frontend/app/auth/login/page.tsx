@@ -28,7 +28,7 @@ export default function Login() {
         localStorage.setItem('access_token', data.tokens.access);
         localStorage.setItem('refresh_token', data.tokens.refresh);
         // localStorage.setItem('user', JSON.stringify(data.user));
-        // window.location.href = '/dashboard';
+        window.location.href = '/home';
       } else {
         setError(data.error || 'Login failed');
       }
