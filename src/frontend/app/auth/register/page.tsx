@@ -29,7 +29,15 @@ export default function Register() {
       localStorage.setItem('refresh_token', data.tokens.refresh);
        router.push('/home');
      } else {
-       setError(data.error || 'Registration failed');
+      if (typeof data === 'object') {
+        const errorMessage = data.username?.[0] || 
+                           data.email?.[0] || 
+                           data.password?.[0] || 
+                           'Registration failed';
+        setError(errorMessage);
+      } else {
+        setError('Registration failed');
+      }
      }
    } catch (error) {
      setError('Network error occurred');

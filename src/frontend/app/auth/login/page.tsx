@@ -45,22 +45,22 @@ export default function Login() {
       justifyContent: 'center',
       alignItems: 'center'
     }}>
-      {error && (
-        <div style={{
-          backgroundColor: '#fee2e2',
-          color: '#dc2626',
-          padding: '0.75rem',
-          borderRadius: '4px',
-          marginBottom: '1rem'
-        }}>
-          {error}
-        </div>
-      )}
       <div style={{
         width: '100%',
         maxWidth: '700px',
         padding: '4rem'
       }}>
+        {error && (
+          <div style={{
+            backgroundColor: '#fee2e2',
+            color: '#dc2626',
+            padding: '0.75rem',
+            borderRadius: '4px',
+            marginBottom: '1rem'
+          }}>
+            {error}
+          </div>
+        )}
         <h1 style={{ 
           fontSize: '3rem', 
           fontWeight: 'bold',
