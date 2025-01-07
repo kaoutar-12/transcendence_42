@@ -163,7 +163,7 @@ export default function Login() {
           marginTop: '1.5rem'
         }}>
           Don't have an account?{' '}
-          <a href="/signup" style={{
+          <a href="/auth/register" style={{
             color: 'blue',
             textDecoration: 'underline'
           }}>
