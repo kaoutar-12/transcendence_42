@@ -24,8 +24,7 @@ export default function Register() {
       });
       
       if (res.ok) {
-        console.log("zebiiii")
-        // router.push('/auth/login');
+        router.push('/home');
       }
     } catch (error) {
       console.error('Registration failed:', error);
