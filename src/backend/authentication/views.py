@@ -75,3 +75,8 @@ def logout(request):
 def get_user(request):
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def verify_token(request):
+    return Response({'valid': True})
