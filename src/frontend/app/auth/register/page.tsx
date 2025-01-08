@@ -27,6 +27,7 @@ export default function Register() {
      if (res.ok) {
        localStorage.setItem('access_token', data.tokens.access);
        localStorage.setItem('refresh_token', data.tokens.refresh);
+
        router.push('/home');
      } else {
        if (typeof data === 'object') {

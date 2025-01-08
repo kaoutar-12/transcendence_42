@@ -4,6 +4,8 @@ import { usePathname } from 'next/navigation';
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
+import ProtectedRoute from "@/components/ProtectedRoute";
+
 
 const inter = Inter({ subsets: ["latin"] });
 
