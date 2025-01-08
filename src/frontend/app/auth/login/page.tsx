@@ -1,5 +1,7 @@
 'use client';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+
 
 export default function Login() {
   const [formData, setFormData] = useState({
@@ -8,6 +10,8 @@ export default function Login() {
     rememberMe: false
   });
   const [error, setError] = useState('');
+ const router = useRouter();
+
 
   const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
@@ -23,7 +27,8 @@ export default function Login() {
       if (res.ok) {
         localStorage.setItem('access_token', data.tokens.access);
         localStorage.setItem('refresh_token', data.tokens.refresh);
-        window.location.href = '/home';
+        router.push('/home');
+
       } else {
         setError(data.error || 'Login failed');
       }
