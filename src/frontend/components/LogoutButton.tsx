@@ -2,10 +2,14 @@
 'use client';
 import { useState } from 'react';
 import { IoLogOut } from "react-icons/io5";
+import { useRouter } from 'next/navigation';
+
 
 
 export default function LogoutButton() {
  const [isLoading, setIsLoading] = useState(false);
+ const router = useRouter();
+
 
  const handleLogout = async () => {
    setIsLoading(true);
@@ -24,7 +28,8 @@ export default function LogoutButton() {
 
      if (res.ok) {
        localStorage.clear();
-       window.location.href = '/auth/login';
+       router.push('/auth/login');
+
      } else {
        console.error('Logout failed');
      }
