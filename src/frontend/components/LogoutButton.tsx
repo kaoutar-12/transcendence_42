@@ -16,7 +16,22 @@ export default function LogoutButton() {
  const handleLogout = async () => {
    setIsLoading(true);
    try {
-    const res = await api.post('/logout/');
+     const access_token = localStorage.getItem('access_token');
+     const refresh_token = localStorage.getItem('refresh_token');
+
+     const res = await fetch('http://localhost:8000/api/logout/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${access_token}`
+      },
+       // Need to stringify the body
+        body: JSON.stringify({
+          refresh_token: refresh_token  // Remove the extra template literal
+      })
+
+    });
+    // const res = await api.post('/logout/');
 
      if (res.ok) {
        localStorage.clear();
