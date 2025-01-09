@@ -31,3 +31,7 @@ clean:
 
 # stop, clean & all
 re: clean all
+
+# 	docker run -it -p 3000:3000 -v C:\xampp\htdocs\transcendence_42\src\frontend:\app -v /app/node_modules frontend:latest
+
+#

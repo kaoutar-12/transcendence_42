@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LandingAnimation from './LandingAnimation/LandingAnimation';
+import api from '@/app/api';
+
 
 export default function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const router = useRouter();
@@ -20,14 +22,16 @@ export default function ProtectedRoute({ children }: { children: React.ReactNode
     const verifyAccess = async () => {
       try {
         const response = await fetch('http://localhost:8000/api/verify-token/', {
-        method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+          method: 'GET',
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }); 
+          // const response = await api.get('/verify-token/');
         
-        if (!response.ok) {
+        if (!response) {
           localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
           router.push('/auth/login');
         } else {
           setIsVerified(true);
