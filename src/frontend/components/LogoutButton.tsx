@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { IoLogOut } from "react-icons/io5";
 import { useRouter } from 'next/navigation';
+import api from '@/app/api';
 
 
 
@@ -11,20 +12,11 @@ export default function LogoutButton() {
  const router = useRouter();
 
 
+
  const handleLogout = async () => {
    setIsLoading(true);
    try {
-     const refresh_token = localStorage.getItem('refresh_token');
-     const access_token = localStorage.getItem('access_token');
-
-     const res = await fetch('http://localhost:8000/api/logout/', {
-       method: 'POST',
-       headers: {
-         'Content-Type': 'application/json',
-         'Authorization': `Bearer ${access_token}`
-       },
-       body: JSON.stringify({ refresh_token })
-     });
+    const res = await api.post('/logout/');
 
      if (res.ok) {
        localStorage.clear();
