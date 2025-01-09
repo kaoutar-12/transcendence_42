@@ -32,9 +32,13 @@ export default function LogoutButton() {
 
      } else {
        console.error('Logout failed');
+       router.push('/auth/login');
+
      }
    } catch (error) {
      console.error('Logout error:', error);
+     router.push('/auth/login');
+
    } finally {
      setIsLoading(false);
    }

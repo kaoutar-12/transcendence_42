@@ -1,5 +1,6 @@
 
 
+from datetime import datetime
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -75,6 +76,7 @@ def logout(request):
 def get_user(request):
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
