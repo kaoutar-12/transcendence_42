@@ -11,13 +11,13 @@ RUN python3 manage.py makemigrations
 
 RUN python3 manage.py migrate
 
-COPY ./docker-conf/entrypoint.sh /entrypoint.sh
+# COPY ./docker-conf/entrypoint.sh /entrypoint.sh
 
-RUN chmod +x /entrypoint.sh
+RUN chmod +x docker-conf/entrypoint.sh
 
 EXPOSE 8000
 
-ENTRYPOINT ["/entrypoint.sh"]
+# ENTRYPOINT ["./docker-conf/entrypoint.sh"]
 
 #run the backend server on port 8000
 CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]
