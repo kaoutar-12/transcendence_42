@@ -106,7 +106,7 @@ import Image from 'next/image';
 
 export default function LoginForm() {
   const [formData, setFormData] = useState({
-    username: '',
+    email: '',
     password: '',
   });
   const [error, setError] = useState('');
@@ -172,7 +172,7 @@ export default function LoginForm() {
               <input
                 type="email"
                 placeholder="Email"
-                onChange={(e) => setFormData({...formData, username: e.target.value})}
+                onChange={(e) => setFormData({...formData, email: e.target.value})}
                 className="w-full px-4 py-3 bg-transparent border-b border-gray-300 focus:border-gray-500 focus:outline-none"
               />
             </div>
