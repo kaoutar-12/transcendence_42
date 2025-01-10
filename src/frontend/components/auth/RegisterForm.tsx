@@ -1,6 +1,10 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+
+import ParticlesBackground from '@/components/auth/particales';
+
 
 export default function Register() {
   const [formData, setFormData] = useState({
@@ -45,73 +49,89 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-black bg-gradient-to-br from-black to-gray-800 flex justify-center items-center">
-      <div className="w-full max-w-md p-12 bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl">
-        <h1 className="text-4xl font-bold text-center mb-8 text-white">
+    <div className="min-h-screen w-full bg-black relative overflow-hidden">
+      <ParticlesBackground />
+
+    <div className="relative z-10 min-h-screen w-full flex flex-col items-center justify-center p-4">
+        {/* Logo */}
+        <div className="mb-8">
+          <Image
+            src="/logo_login.svg"
+            alt="Logo"
+            width={120}
+            height={50}
+            priority
+          />
+        </div>
+
+      <div className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-3xl shadow-xl p-8">
+        <h1 className="text-2xl text-gray-800 text-center mb-8">
           Create Account
         </h1>
 
-        {error && (
-          <div className="bg-red-500/10 text-red-400 p-3 rounded-lg mb-4 text-center">
-            {error}
-          </div>
-        )}
+        
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label className="block mb-2 text-lg text-white">
+            <label className="block text-gray-700 mb-2">
               Username
             </label>
             <input
               type="text"
               placeholder="Enter your username"
               onChange={(e) => setFormData({...formData, username: e.target.value})}
-              className="w-full p-3 text-base bg-white/10 border border-white/20 rounded-lg text-white outline-none focus:border-white/30"
+              className="w-full px-4 py-3 bg-transparent border-b border-gray-300 focus:border-gray-500 focus:outline-none"
               required
             />
           </div>
           <div>
-            <label className="block mb-2 text-lg text-white">
+            <label className="block text-gray-700 mb-2">
               Email
             </label>
             <input
               type="email"
               placeholder="Enter your email"
               onChange={(e) => setFormData({...formData, email: e.target.value})}
-              className="w-full p-3 text-base bg-white/10 border border-white/20 rounded-lg text-white outline-none focus:border-white/30"
+              className="w-full px-4 py-3 bg-transparent border-b border-gray-300 focus:border-gray-500 focus:outline-none"
               required
             />
           </div>
           <div>
-            <label className="block mb-2 text-lg text-white">
+            <label className="block text-gray-700 mb-2">
               Password
             </label>
             <input
               type="password"
               placeholder="**********"
               onChange={(e) => setFormData({...formData, password: e.target.value})}
-              className="w-full p-3 text-base bg-white/10 border border-white/20 rounded-lg text-white outline-none focus:border-white/30"
+              className="w-full px-4 py-3 bg-transparent border-b border-gray-300 focus:border-gray-500 focus:outline-none"
               required
             />
           </div>
+          {error && (
+          <div className="text-red-500 text-sm text-center">
+            {error}
+          </div>
+        )}
           <button 
             type="submit" 
-            className="w-full p-3 bg-red-600 text-white border-none rounded-lg text-lg cursor-pointer mt-4 transition-colors hover:bg-red-700"
+            className="w-2/4 mx-auto block py-3 px-4 bg-gray-200/80 hover:bg-gray-300/80 text-red-600 font-semibold text-xl rounded-xl border-2 border-red-600 transition-all duration-200"
           >
             Sign Up
           </button>
         </form>
 
-        <p className="text-center mt-8 text-white">
+        <p className="text-center text-gray-600 text-sm">
           Already have an account?{' '}
           <a 
             href="/auth/login"
-            className="text-red-600 no-underline font-bold hover:text-red-500"
+            className="text-red-500 hover:text-red-600"
           >
             Sign in
           </a>
         </p>
       </div>
+    </div>
     </div>
   );
 }
