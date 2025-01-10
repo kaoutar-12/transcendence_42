@@ -8,6 +8,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .serializers import UserSerializer
+# from .backends import EmailBackend
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -40,7 +41,8 @@ def login(request):
     
     if not user:
         return Response({
-            'error': 'Invalid credentials'
+            'email': request.data.get('email'),
+             'error': 'Invalid credentials'
         }, status=status.HTTP_401_UNAUTHORIZED)
         
     refresh = RefreshToken.for_user(user)
