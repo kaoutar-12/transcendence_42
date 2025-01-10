@@ -12,6 +12,8 @@
     "container": "npm run build-image && docker run -it -p 3000:3000 -v $(PWD):/app -v /app/node_modules frontend:latest"
   },
   "dependencies": {
+    "@tsparticles/react": "^3.0.0",
+    "@tsparticles/slim": "^3.7.1",
     "axios": "^1.7.9",
     "micromatch": "^4.0.8",
     "next": "^14.2.13",
