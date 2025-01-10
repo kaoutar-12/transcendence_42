@@ -16,7 +16,7 @@ import { useState } from "react";
 import Image from "next/image";
 import "@/styles/sidebar.css";
 import { usePathname, useRouter } from "next/navigation";
-import LogoutButton from '@/components/LogoutButton';
+import LogoutButton from '@/components/auth/LogoutButton';
 
 type Props = {};
 
