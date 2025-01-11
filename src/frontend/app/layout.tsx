@@ -1,32 +1,47 @@
-'use client';
+// 'use client';
 
-import { usePathname } from 'next/navigation';
-import { Inter } from "next/font/google";
+// import { Inter } from "next/font/google";
+// import "./globals.css";
+
+
+// const inter = Inter({ subsets: ["latin"] });
+
+// export default function RootLayout({
+//   children
+// }: {
+//   children: React.ReactNode;
+// }) {
+
+//   return (
+//     <html lang="en">
+//       <head>
+//         <link rel="icon" type="image/x-icon" href="logo.ico" />
+//       </head>
+//       <body className={inter.className}>
+//         {children}
+//       </body>
+//     </html>
+//   );
+// }
+
 import "./globals.css";
-import Sidebar from "@/components/Sidebar";
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
 
-
-const inter = Inter({ subsets: ["latin"] });
+export const metadata = {
+  title: 'PING PONG',
+  description: 'Ping PONG',
+  icons: {
+    icon: '/logo.webp',
+  },
+};
 
 export default function RootLayout({
   children
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-  const isAuthPage = pathname?.includes('/auth/');
-
   return (
     <html lang="en">
-      <head>
-        <link rel="icon" type="image/x-icon" href="logo.ico" />
-      </head>
-      <body className={inter.className}>
-        {!isAuthPage && <Sidebar />}
-        {children}
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
-
