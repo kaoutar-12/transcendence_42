@@ -102,7 +102,8 @@ export default function LoginForm() {
 
             <p className="text-center text-gray-600 text-sm">
               Don&apos;t have an account?{' '}
-              <a href="/auth/register" className="text-red-500 hover:text-red-600">
+       
+              <a  onClick={ ()=>{ router.push('/auth/register')}} className="text-red-500 hover:text-red-600 cursor-pointer">
                 Register here
               </a>
             </p>

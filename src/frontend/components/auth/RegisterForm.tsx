@@ -119,17 +119,17 @@ export default function Register() {
           >
             Sign Up
           </button>
-        </form>
 
         <p className="text-center text-gray-600 text-sm">
           Already have an account?{' '}
           <a 
-            href="/auth/login"
-            className="text-red-500 hover:text-red-600"
-          >
+            onClick={ ()=>{ router.push('/auth/login')}}
+            className="text-red-500 hover:text-red-600 cursor-pointer"
+            >
             Sign in
           </a>
         </p>
+            </form>
       </div>
     </div>
     </div>
