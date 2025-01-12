@@ -1,89 +1,170 @@
 'use client';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
+
 
 export default function Login() {
   const [formData, setFormData] = useState({
     username: '',
-    password: ''
+    password: '',
+    rememberMe: false
   });
-  const router = useRouter();
+  const [error, setError] = useState('');
+ const router = useRouter();
 
-//   const handleSubmit = async (e: React.FormEvent) => {
-//     e.preventDefault();
-    
-//     try {
-//       const res = await fetch('http://localhost:8000/api/login/', {
-//         method: 'POST',
-//         headers: { 'Content-Type': 'application/json' },
-//         body: JSON.stringify(formData)
-//       });
 
-//       if (res.ok) {
-//         const data = await res.json();
-//         localStorage.setItem('token', data.access);
-//         // router.push('/dashboard');
-//         console.log('zbbbb');
-//       }
-//     } catch (error) {
-//       console.error('Login failed:', error);
-//     }
-//   };  
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  
-  try {
+  const handleSubmit = async (e: { preventDefault: () => void; }) => {
+    e.preventDefault();
+    try {
       const res = await fetch('http://localhost:8000/api/login/', {
-          method: 'POST',
-          headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json',
-          },
-          credentials: 'include',
-          mode: 'cors', // Add this line
-          body: JSON.stringify(formData)
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
       });
+
+      const data = await res.json();
       
       if (res.ok) {
-          const data = await res.json();
-          localStorage.setItem('token', data.access);
-          console.log('Login successful');
-          // router.push('/dashboard');
+        localStorage.setItem('access_token', data.tokens.access);
+        localStorage.setItem('refresh_token', data.tokens.refresh);
+        router.push('/home');
+
       } else {
-          const errorData = await res.json();
-          console.error('Login failed:', errorData);
+        setError(data.error || 'Login failed');
       }
-  } catch (error) {
-      console.error('Login error:', error);
-  }
-};
-
-
+    } catch (error) {
+      setError('Network error. Please try again.');
+    }
+  };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">Login</h2>
-        <div className="mb-4">
-          <input
-            type="text"
-            placeholder="Username"
-            className="w-full p-2 border rounded"
-            onChange={(e) => setFormData({...formData, username: e.target.value})}
-          />
-        </div>
-        <div className="mb-6">
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full p-2 border rounded"
-            onChange={(e) => setFormData({...formData, password: e.target.value})}
-          />
-        </div>
-        <button type="submit" className="w-full bg-blue-500 text-white p-2 rounded">
-          Login
-        </button>
-      </form>
+    <div style={{ 
+      minHeight: '100vh',
+      width: '100%',
+      backgroundColor: '#000000',
+      backgroundImage: 'linear-gradient(147deg, #000000 0%, #2c3e50 74%)',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      position: 'relative'
+    }}>
+      <div style={{
+        width: '100%',
+        maxWidth: '450px',
+        padding: '3rem',
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        backdropFilter: 'blur(10px)',
+        borderRadius: '20px',
+        boxShadow: '0 8px 32px 0 rgba(31, 38, 135, 0.37)'
+      }}>
+        <h1 style={{ 
+          fontSize: '2.5rem', 
+          fontWeight: 'bold',
+          marginBottom: '2rem',
+          color: '#ffffff',
+          textAlign: 'center'
+        }}>Welcome Back !</h1>
+
+        {error && (
+          <div style={{
+            backgroundColor: 'rgba(220, 38, 38, 0.1)',
+            color: '#ff4444',
+            padding: '0.75rem',
+            borderRadius: '8px',
+            marginBottom: '1rem',
+            textAlign: 'center'
+          }}>
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} style={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.5rem'
+        }}>
+          <div>
+            <label style={{ 
+              display: 'block',
+              marginBottom: '0.5rem',
+              fontSize: '1.1rem',
+              color: '#ffffff'
+            }}>Email</label>
+            <input
+              type="text"
+              placeholder="Enter your email"
+              onChange={(e) => setFormData({...formData, username: e.target.value})}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                fontSize: '1rem',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '8px',
+                color: '#ffffff',
+                outline: 'none'
+              }}
+            />
+          </div>
+
+          <div>
+            <label style={{ 
+              display: 'block',
+              marginBottom: '0.5rem',
+              fontSize: '1.1rem',
+              color: '#ffffff'
+            }}>Password</label>
+            <input
+              type="password"
+              placeholder="**********"
+              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              style={{
+                width: '100%',
+                padding: '0.75rem',
+                fontSize: '1rem',
+                backgroundColor: 'rgba(255, 255, 255, 0.1)',
+                border: '1px solid rgba(255, 255, 255, 0.2)',
+                borderRadius: '8px',
+                color: '#ffffff',
+                outline: 'none'
+              }}
+            />
+          </div>
+
+          <button
+            type="submit"
+            style={{
+              width: '100%',
+              padding: '0.75rem',
+              backgroundColor: '#dc2626',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              fontSize: '1.1rem',
+              cursor: 'pointer',
+              marginTop: '1rem',
+              transition: 'background-color 0.3s ease'
+            }}
+          >
+            Log in
+          </button>
+        </form>
+
+        <p style={{
+          textAlign: 'center',
+          marginTop: '2rem',
+          color: '#ffffff'
+        }}>
+          Don't have an account?{' '}
+          <a href="/auth/register" style={{
+            color: '#dc2626',
+            textDecoration: 'none',
+            fontWeight: 'bold'
+          }}>
+            Register here
+          </a>
+        </p>
+      </div>
     </div>
   );
 }

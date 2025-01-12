@@ -27,7 +27,8 @@ SECRET_KEY = 'django-insecure-&kvhuv8b49v3-!!#is8x9r%%w*9*-zlhq@rnu4wwsa2k(u*^8a
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
+
 
 
 # Application definition
@@ -42,14 +43,15 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'authentication',
-	'game',
-	'channels',
-	'rest_framework'
+	  'game',
+	  'channels',
+    'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
