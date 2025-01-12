@@ -1,7 +1,7 @@
 from django.db import models
 from authentication.models import User
 
-class Game(models.Model):
+class GameSession(models.Model):
 	status_choices = (
 		('P', 'Pending'),
 		('A', 'Active'),
@@ -16,13 +16,15 @@ class Game(models.Model):
 
 class Player(models.Model):
 	user = models.ForeignKey(User, on_delete=models.CASCADE)
-	game_session = models.ForeignKey(Game, on_delete=models.CASCADE)
+	game_session = models.ForeignKey(GameSession, on_delete=models.CASCADE)
 	score = models.IntegerField(default=0)
 	side = models.CharField(max_length=10)  # 'lefft' or 'right'
 	ready = models.BooleanField(default=False)
 	class Meta:
 		unique_together = ['game_session', 'side']
 class GameHistory(models.Model):
-	game_session = models.OneToOneField(Game, on_delete=models.CASCADE)
+	game_session = models.OneToOneField(GameSession, on_delete=models.CASCADE)
 	player1_score = models.IntegerField()
 	player2_score = models.IntegerField()
+	duration = models.DurationField()
+	completed = models.BooleanField(default=False)
