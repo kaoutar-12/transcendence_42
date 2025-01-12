@@ -43,6 +43,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'authentication',
+	  'game',
+	  'channels',
     'rest_framework_simplejwt.token_blacklist',
 ]
 
@@ -77,7 +79,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'backend.wsgi.application'
-
+ASGI_APPLICATION = 'backend.asgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
