@@ -16,6 +16,7 @@ import { useState } from "react";
 import Image from "next/image";
 import "@/styles/sidebar.css";
 import { usePathname, useRouter } from "next/navigation";
+import LogoutButton from '@/components/LogoutButton';
 
 type Props = {};
 
@@ -46,6 +47,7 @@ const Sidebar = (props: Props) => {
     },
   ];
 
+  
   return (
     <Fragment>
       <div className="sidebar">
@@ -68,6 +70,7 @@ const Sidebar = (props: Props) => {
                 style={{
                   color: isActive ? "white" : " #bb151f",
                   transform: isActive ? "scale(1.2)" : "",
+                  
                 }}
               >
                 {route.icon}
@@ -76,7 +79,9 @@ const Sidebar = (props: Props) => {
           })}
         </div>
         <div className="logout">
-          <IoLogOut className="icon" />
+          <LogoutButton />
+     {/* <IoLogOut className="icon" /> */}
+
         </div>
       </div>
     </Fragment>

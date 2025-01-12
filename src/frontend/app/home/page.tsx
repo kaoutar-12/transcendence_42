@@ -1,10 +1,12 @@
 import React from 'react'
-
+import ProtectedRoute from '@/components/ProtectedRoute';
 type Props = {}
 
 const Home = (props: Props) => {
   return (
-    <div>Home</div>
+    <ProtectedRoute>
+      <div>Home</div>
+    </ProtectedRoute> 
   )
 }
 

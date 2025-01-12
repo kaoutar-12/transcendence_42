@@ -1,26 +1,32 @@
-import type { Metadata } from "next";
+'use client';
+
+import { usePathname } from 'next/navigation';
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
+import ProtectedRoute from "@/components/ProtectedRoute";
+
+
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  title: "Ping Pong Game",
-  description: "Ping Pong with next-js & Django",
-};
-
 export default function RootLayout({
-  children,
-}: Readonly<{
+  children
+}: {
   children: React.ReactNode;
-}>) {
+}) {
+  const pathname = usePathname();
+  const isAuthPage = pathname?.includes('/auth/');
+
   return (
     <html lang="en">
-      <link rel="icon" type="image/x-icon" href="logo.ico"></link>
+      <head>
+        <link rel="icon" type="image/x-icon" href="logo.ico" />
+      </head>
       <body className={inter.className}>
-        <Sidebar />
+        {!isAuthPage && <Sidebar />}
         {children}
       </body>
     </html>
   );
 }
+
