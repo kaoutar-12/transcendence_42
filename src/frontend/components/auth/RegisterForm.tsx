@@ -129,7 +129,7 @@ export default function Register() {
             Sign in
           </a>
         </p>
-            </form>
+        </form>
       </div>
     </div>
     </div>
