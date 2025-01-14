@@ -30,7 +30,7 @@ export default function LoginForm() {
       if (res.ok) {
         localStorage.setItem('access_token', data.tokens.access);
         localStorage.setItem('refresh_token', data.tokens.refresh);
-        router.push('/home');
+        router.push('/dashboard/home');
       } else {
         setError(data.error || 'Login failed');
       }

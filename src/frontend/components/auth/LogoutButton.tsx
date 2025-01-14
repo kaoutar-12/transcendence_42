@@ -35,16 +35,16 @@ export default function LogoutButton() {
 
      if (res.ok) {
        localStorage.clear();
-       router.push('/auth/login');
+       router.push('/');
 
      } else {
        console.error('Logout failed');
-       router.push('/auth/login');
+       router.push('/');
 
      }
    } catch (error) {
      console.error('Logout error:', error);
-     router.push('/auth/login');
+     router.push('/');
 
    } finally {
      setIsLoading(false);
