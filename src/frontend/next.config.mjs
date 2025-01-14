@@ -4,11 +4,11 @@ const nextConfig = {
     remotePatterns: [
       {
         hostname: "loremflickr.com",
-        pathname: "*/**",
+        pathname: "/**", // Correct pattern for all paths
         protocol: "https",
       },
     ],
   },
 };
 
-// module.exports = nextConfig;
+export default nextConfig;
