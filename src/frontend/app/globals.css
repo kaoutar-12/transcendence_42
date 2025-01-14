@@ -8,6 +8,11 @@
   box-sizing: border-box;
 }
 
+img {
+  width: auto;
+  height: auto;
+}
+
 body {
   display: flex;
   background: pink;
