@@ -8,14 +8,14 @@ const HomePage = () => {
   const router = useRouter();
 
   const teamMembers = [
-    { id: 1, name: 'Houdaifa Znagui', seed: 'john'},
-    { id: 2, name: 'Yahya Rhiba', avatar: '/api/placeholder/80/80' },
+    { id: 1, name: 'Houdaifa Znagui', seed: 'test'},
+    { id: 2, name: 'Yahya Rhiba', avatar: 'john' },
     { id: 3, name: 'Reda Ghouzraf', avatar: '/api/placeholder/80/80' },
-    { id: 4, name: 'Kaoutar Mouradi', seed: 'sarah' },
+    { id: 4, name: 'Kaoutar Mouradi', seed: '' },
   ];
 
   return (
-    <div className="w-screen bg-black text-white">
+    <div className="w-screen min-h-screen bg-black text-white ">
       {/* Navigation */}
       <nav className="flex justify-between items-center p-6 max-w-screen-2xl mx-auto">
         <div className="flex items-center">
@@ -28,17 +28,17 @@ const HomePage = () => {
           </div>
         </div>
         <div className="flex gap-4">
-          <button className="bg-red-700 px-6 py-2 rounded-md hover:bg-red-800 transition" onClick={ ()=>{ router.push('/auth/login')}}>
+          <button className="bg-red-700 px-6 py-2 rounded-md hover:bg-red-500 transition" onClick={ ()=>{ router.push('/auth/login')}}>
             Sign in
           </button>
-          <button className="bg-red-700 px-6 py-2 rounded-md hover:bg-red-800 transition" onClick={ ()=>{ router.push('/auth/register')}}>
+          <button className="bg-red-700 px-6 py-2 rounded-md hover:bg-red-500 transition" onClick={ ()=>{ router.push('/auth/register')}}>
             Register
           </button>
         </div>
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-screen-2xl mx-auto px-6">
+      <main className="max-w-screen-2xl mx-auto px-6 ">
         {/* Hero Section */}
         <div className="py-16 lg:py-24">
           <p className="text-red-600 text-sm lg:text-base mb-6">ONLINE PONG GAME</p>
@@ -52,7 +52,7 @@ const HomePage = () => {
             typesetting industry. Lorem Ipsum has been the industry's 
             standard.
           </p>
-          <button className="bg-red-700 px-8 py-3 rounded-md hover:bg-red-800 transition" onClick={ ()=>{ router.push('/auth/login')}}>
+          <button className="text-black w-48 bg-gradient-to-r from-red-500 via-red-550 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-full text-sm px-5 py-2.5 text-center " onClick={ ()=>{ router.push('/auth/login')}}>
             PLAY NOW
           </button>
         </div>
@@ -78,10 +78,10 @@ const HomePage = () => {
         </section>
 
         {/* Game Preview Section */}
-        <section className="py-12">
+        {/* <section className="py-12">
           <h2 className="text-2xl font-bold mb-8">Game Preview</h2>
           <div className="w-full aspect-video bg-zinc-900 rounded-lg"></div>
-        </section>
+        </section> */}
       </main>
     </div>
   );

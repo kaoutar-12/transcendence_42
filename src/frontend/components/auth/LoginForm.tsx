@@ -53,6 +53,7 @@ export default function LoginForm() {
             width={120}
             height={50}
             priority
+            onClick={()=>{router.push('/')}}
           />
         </div>
 
