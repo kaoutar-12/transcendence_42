@@ -17,7 +17,7 @@ const HomePage = () => {
   return (
     <div className="w-screen bg-black text-white">
       {/* Navigation */}
-      <nav className="flex justify-between items-center p-6 max-w-7xl mx-auto">
+      <nav className="flex justify-between items-center p-6 max-w-screen-2xl mx-auto">
         <div className="flex items-center">
           <div className="h-12 w-24 relative">
             <img
@@ -38,7 +38,7 @@ const HomePage = () => {
       </nav>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6">
+      <main className="max-w-screen-2xl mx-auto px-6">
         {/* Hero Section */}
         <div className="py-16 lg:py-24">
           <p className="text-red-600 text-sm lg:text-base mb-6">ONLINE PONG GAME</p>
