@@ -34,7 +34,7 @@ export default function ProtectedRoute({
             const response = await api.get('/verify-token/');
             if (response.status === 200) {
               // If tokens are valid, redirect to home
-              router.push('/home');
+              router.push('/dashboard/home');
             } else {
               // If tokens are invalid, clear them but stay on auth page
               localStorage.clear();

@@ -1,10 +1,11 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import HomePage from '@/components/auth/HomePage';
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
-export default function App() {
+
+export default function LoginPage() {
   return (
-    <main>
-      hhhhhhhhhh
-    </main>
-  );
+  <ProtectedRoute isAuthPage>
+    <HomePage />
+  </ProtectedRoute>
+  )
 }
