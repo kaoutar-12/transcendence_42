@@ -27,6 +27,11 @@
   }
 }
 
+.sidebar-logo img {
+  width: auto;
+  height: auto;
+}
+
 .icons {
   display: flex;
   flex-direction: column;
