@@ -26,7 +26,7 @@ const Sidebar = (props: Props) => {
 
   const routes = [
     {
-      href: "/home",
+      href: "/dashboard/home",
       icon: <IoHome className="icon" />,
     },
     {
@@ -55,7 +55,7 @@ const Sidebar = (props: Props) => {
           <div
             className="sidebar-logo"
             onClick={() => {
-              router.push("/home");
+              router.push("/dashboard/home");
             }}
           >
             <Image src="/logo.webp" alt="logo" width="100" height="100" priority />
