@@ -61,6 +61,8 @@ export default function Register() {
             width={120}
             height={50}
             priority
+            className='cursor-pointer'
+            onClick={()=>{router.push('/')}}
           />
         </div>
 

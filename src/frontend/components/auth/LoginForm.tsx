@@ -52,6 +52,7 @@ export default function LoginForm() {
             alt="Logo"
             width={120}
             height={50}
+            className='cursor-pointer'
             priority
             onClick={()=>{router.push('/')}}
           />
