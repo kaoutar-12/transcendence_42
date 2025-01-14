@@ -38,7 +38,7 @@ const Sidebar = (props: Props) => {
       icon: <IoGameController className="icon" />,
     },
     {
-      href: "/settings",
+      href: "/dashboard/settings",
       icon: <IoSettingsSharp className="icon" />,
     },
     {
@@ -80,7 +80,6 @@ const Sidebar = (props: Props) => {
         </div>
         <div className="logout">
           <LogoutButton />
-     {/* <IoLogOut className="icon" /> */}
 
         </div>
       </div>
