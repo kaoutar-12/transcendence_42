@@ -8,10 +8,10 @@ const HomePage = () => {
   const router = useRouter();
 
   const teamMembers = [
-    { id: 1, name: 'Houdaifa Znagui', seed: 'test'},
-    { id: 2, name: 'Yahya Rhiba', avatar: 'john' },
-    { id: 3, name: 'Reda Ghouzraf', avatar: '/api/placeholder/80/80' },
-    { id: 4, name: 'Kaoutar Mouradi', seed: '' },
+    { id: 1, name: 'Houdaifa Znagui', src: './clarence/houdaifa.webp'},
+    { id: 2, name: 'Yahya Rhiba', src: './clarence/yahya.webp' },
+    { id: 3, name: 'Reda Ghouzraf', src: './clarence/reda.webp' },
+    { id: 4, name: 'Kaoutar Mouradi', src: './clarence/kaoutar.webp' },
   ];
 
   return (
@@ -67,7 +67,7 @@ const HomePage = () => {
                 className="bg-zinc-900/80 p-6 rounded-lg flex flex-col items-center"
               >
                 <img
-                  src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${member.seed}&backgroundColor=b6e3f4`}
+                  src={`${member.src}`}
                   alt={`${member.name} avatar`}
                   className="w-16 h-16 rounded-full mb-4"
                 />
