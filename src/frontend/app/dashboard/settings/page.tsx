@@ -30,7 +30,7 @@ const ProfileSettings = () => {
           <div className="flex items-center space-x-4">
             <div className="w-20 h-20 rounded-full bg-gray-300 -mt-16 overflow-hidden border-4 border-black">
               <img
-                src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userData.nickname}`}
+                src='/prfl.png'
                 alt="Profile avatar"
                 className="w-full h-full"
               />
@@ -61,7 +61,7 @@ const ProfileSettings = () => {
           </div>
 
           <div>
-            <label className="block text-gray-400 mb-2">Password</label>
+            <label className="block text-gray-400 mb-2">Current Password</label>
             <input
               type="password"
               name="password"
@@ -72,7 +72,7 @@ const ProfileSettings = () => {
           </div>
 
           <div>
-            <label className="block text-gray-400 mb-2">Repeat Password</label>
+            <label className="block text-gray-400 mb-2">New Password</label>
             <input
               type="password"
               name="repeatPassword"
