@@ -8,12 +8,14 @@ export default function DashboardLayout({
 }) {
   return (
         <ProtectedRoute>
-            <div className="flex  h-screen">
+            <div className="w-full flex  h-screen">
+              <div className="flex-2">
               <Sidebar />
-            </div>
+              </div>
               <main className="flex-1 overflow-y-auto">
                 {children}
               </main>
+            </div>
         </ProtectedRoute>
   );
 }
