@@ -17,7 +17,7 @@ const HomePage = () => {
   return (
     <div className="w-screen min-h-screen bg-black text-white ">
       {/* Navigation */}
-      <nav className="flex justify-between items-center p-6 max-w-screen-2xl mx-auto">
+      <nav className="flex justify-between items-center p-8 max-w-screen-2xl mx-auto">
         <div className="flex items-center">
           <div className="h-12 w-24 relative">
             <img
