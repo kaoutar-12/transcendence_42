@@ -1,16 +1,21 @@
 @import 'tailwindcss/base';
 @import 'tailwindcss/components';
 @import 'tailwindcss/utilities';
+
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
+img {
+  width: auto;
+  height: auto;
+}
+
 body {
   display: flex;
   background: pink;
-  margin: 0;
   width: 100%;
   height: 100%;
 }
