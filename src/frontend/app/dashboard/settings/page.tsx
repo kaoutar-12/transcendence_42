@@ -18,7 +18,7 @@ const ProfileSettings = () => {
       {/* Banner Image */}
       <div className="w-full h-48 overflow-hidden">
         <img
-          src="/api/placeholder/1920/400"
+          src="/background.jpeg"
           alt="Profile banner"
           className="w-full h-full object-cover"
         />
