@@ -1,5 +1,3 @@
-'use client';
-
 import Sidebar from "@/components/Sidebar";
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
@@ -10,12 +8,12 @@ export default function DashboardLayout({
 }) {
   return (
         <ProtectedRoute>
-            <div className="flex h-screen">
+            <div className="flex  h-screen">
               <Sidebar />
+            </div>
               <main className="flex-1 overflow-y-auto">
                 {children}
               </main>
-            </div>
         </ProtectedRoute>
   );
 }
