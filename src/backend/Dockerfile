@@ -13,7 +13,7 @@ RUN python3 manage.py migrate
 
 # COPY ./docker-conf/entrypoint.sh /entrypoint.sh
 
-RUN chmod +x docker-conf/entrypoint.sh
+# RUN chmod +x docker-conf/entrypoint.sh
 
 EXPOSE 8000
 

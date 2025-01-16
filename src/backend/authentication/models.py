@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
     email = models.EmailField(unique=True)
+    nickname = models.CharField(max_length=50, blank=True, null=True)
     
     class Meta:
         app_label = 'authentication'
