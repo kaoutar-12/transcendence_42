@@ -1,10 +1,12 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState , useEffect} from 'react';
+import api from '@/app/api';
+
 
 const ProfileSettings = () => {
   const [userData, setUserData] = useState({
-    nickname: 'test',
-    username: 'test',
+    email: '',
+    username: '',
     password: '',
     repeatPassword: ''
   });
@@ -12,6 +14,24 @@ const ProfileSettings = () => {
   const handleChange = (e: { target: { name: any; value: any; }; }) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
   };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const response = await api.get('/user');
+
+        if ( !(response.status === 200) ) {
+          throw new Error('Failed to fetch user data');
+        }
+        const data = await response.data;
+        setUserData(data);
+      } catch (error) {
+        console.error('Error fetching user data:', error);
+      }
+    };
+
+    fetchUserData();
+  }, []);
 
   return (
     <div className="w-full min-h-screen bg-black text-white">
@@ -36,8 +56,8 @@ const ProfileSettings = () => {
               />
             </div>
             <div>
-              <h1 className="text-2xl font-semibold">{userData.nickname}</h1>
-              <p className="text-gray-400">{userData.username}</p>
+              <h1 className="text-2xl font-semibold">{userData.username}</h1>
+              <p className="text-gray-400">{userData.email}</p>
             </div>
           </div>
           <div className="flex items-center space-x-3">
@@ -50,11 +70,11 @@ const ProfileSettings = () => {
         {/* Form */}
         <div className="space-y-8 py-8">
           <div>
-            <label className="block text-gray-400 mb-2">Nickname</label>
+            <label className="block text-gray-400 mb-2">username</label>
             <input
               type="text"
               name="nickname"
-              value={userData.nickname}
+              value={userData.username}
               onChange={handleChange}
               className="w-full bg-white text-black px-4 py-3 rounded"
             />

@@ -6,7 +6,4 @@ class User(AbstractUser):
     
     class Meta:
         app_label = 'authentication'
-
-
-
 # Create your models here.
