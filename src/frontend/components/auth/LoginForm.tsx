@@ -30,7 +30,7 @@ export default function LoginForm() {
       if (res.ok) {
         localStorage.setItem('access_token', data.tokens.access);
         localStorage.setItem('refresh_token', data.tokens.refresh);
-        router.push('/dashboard/home');
+        router.push('/home');
       } else {
         setError(data.error || 'Login failed');
       }
@@ -105,7 +105,7 @@ export default function LoginForm() {
             <p className="text-center text-gray-600 text-sm">
               Don&apos;t have an account?{' '}
        
-              <a  onClick={ ()=>{ router.push('/auth/register')}} className="text-red-500 hover:text-red-600 cursor-pointer">
+              <a  onClick={ ()=>{ router.push('/register')}} className="text-red-500 hover:text-red-600 cursor-pointer">
                 Register here
               </a>
             </p>

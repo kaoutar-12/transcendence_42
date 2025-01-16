@@ -34,7 +34,7 @@ export default function ProtectedRoute({
             const response = await api.get('/verify-token/');
             if (response.status === 200) {
               // If tokens are valid, redirect to home
-              router.push('/dashboard/home');
+              router.push('/home');
             } else {
               // If tokens are invalid, clear them but stay on auth page
               localStorage.clear();
@@ -54,7 +54,7 @@ export default function ProtectedRoute({
       // Handle protected routes
       if (!accessToken || !refreshToken) {
         setIsLoading(false);
-        router.push('/auth/login');
+        router.push('/login');
         return;
       }
 
@@ -66,11 +66,11 @@ export default function ProtectedRoute({
           setIsVerified(true);
         } else {
           localStorage.clear();
-          router.push('/auth/login');
+          router.push('/login');
         }
       } catch (error) {
         localStorage.clear();
-        router.push('/auth/login');
+        router.push('/login');
       } finally {
         isVerifying = false;
         setIsLoading(false);

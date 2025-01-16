@@ -31,7 +31,7 @@ export default function Register() {
       if (res.ok) {
         localStorage.setItem('access_token', data.tokens.access);
         localStorage.setItem('refresh_token', data.tokens.refresh);
-        router.push('/dashboard/home');
+        router.push('/home');
       } else {
         if (typeof data === 'object') {
           const errorMessage = data.username?.[0] || 
@@ -125,7 +125,7 @@ export default function Register() {
         <p className="text-center text-gray-600 text-sm">
           Already have an account?{' '}
           <a 
-            onClick={ ()=>{ router.push('/auth/login')}}
+            onClick={ ()=>{ router.push('/login')}}
             className="text-red-500 hover:text-red-600 cursor-pointer"
             >
             Sign in
