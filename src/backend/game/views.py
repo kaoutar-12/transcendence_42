@@ -39,9 +39,24 @@ class QueueManager:
 		try:
 			# find and then will delete the user from the queue
 			queue_position = QueuePosition.objects.get(user=user)
-			position = queue_position.position
+			curr_position = queue_position.position
 			queue_position.delete()
+			# update postions of the older players
+			QueuePosition.objects.filter(
+				position__gt = curr_position
+			).update(position=models.F('position') - 1)
+			# update total players in the queue
+			queue_state = QueueState.objects.get(id=1)
+			queue_state.total_players -= 1
+			queue_state.save()
+			return JsonResponse({'success': 'User removed from queue'},\
+					    status=200)
 		except ObjectDoesNotExist:
 			return JsonResponse({'error': 'User not in queue'}, status=400)
 		except Exception as e:
 			return JsonResponse({'error': str(e)}, status=500)
+	# create match
+	@staticmethod
+	@transaction.atomic
+	def create_match():
+		# i should get playes
