@@ -52,11 +52,37 @@ class QueueManager:
 			return JsonResponse({'success': 'User removed from queue'},\
 					    status=200)
 		except ObjectDoesNotExist:
-			return JsonResponse({'error': 'User not in queue'}, status=400)
+			return JsonResponse({'error': 'User not in queue'})
 		except Exception as e:
-			return JsonResponse({'error': str(e)}, status=500)
+			return JsonResponse({'error': str(e)})
 	# create match
 	@staticmethod
 	@transaction.atomic
 	def create_match():
-		# i should get playes
+		try:
+			# i should get two  players from the out of the queue and create a game session=
+			players = QueuePosition.objects.order_by('position')[:2]
+			if players.count() < 2:
+				return JsonResponse({'error': 'Not enough players in the queue'})
+			# create game session
+			game_session = GameSession.objects.create()
+			sides = ['left', 'right']
+			if random.randint & 1:
+				sides.reverse()
+			random.shuffle(sides)
+			#create players
+			for i, player in enumerate(players):
+				Player.objects.create(user=player.user,\
+					game_session=game_session,\
+					side=sides[i])
+				player.delete()
+			# update queue status
+			queue_state = QueueState.objects.get(id=1)
+			queue_state.total_players -= 2
+			queue_state.save()
+			QueuePosition.objects.filter(
+				position__gt=2
+			).update(position=models.F('position') - 2)
+			return JsonResponse({'success': 'Match created'})
+		except Exception as e:
+			return JsonResponse({'error': str(e)})
