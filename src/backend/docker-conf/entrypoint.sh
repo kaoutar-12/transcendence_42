@@ -7,6 +7,7 @@ export DJANGO_SUPERUSER_PASSWORD=pass
 
 # Create superuser
 python3 manage.py createsuperuser --noinput
-
+python3 manage.py makemigration
+python3 manage.py migrate
 # Execute the main command passed to the container
 exec "$@"
