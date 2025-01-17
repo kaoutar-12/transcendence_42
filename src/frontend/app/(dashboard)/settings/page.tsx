@@ -1,18 +1,62 @@
 'use client';
-import React, { useState , useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import api from '@/app/api';
-
 
 const ProfileSettings = () => {
   const [userData, setUserData] = useState({
     email: '',
     username: '',
+    nickname: '',
     password: '',
     repeatPassword: ''
   });
+  
+  // Add loading and error states
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
 
   const handleChange = (e: { target: { name: any; value: any; }; }) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
+  };
+
+  // Add form submission handler
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setError('');
+
+    try {
+      const updateData: any = {
+        nickname: userData.nickname
+      };
+
+      // Only include password update if both fields are filled
+      if (userData.password && userData.repeatPassword) {
+        updateData.currentPassword = userData.password;
+        updateData.newPassword = userData.repeatPassword;
+      }
+
+      const response = await api.put('/update_user/', updateData);
+
+      if (response.status === 200) {
+        // Clear password fields after successful update
+        setUserData(prev => ({
+          ...prev,
+          password: '',
+          repeatPassword: ''
+        }));
+        
+        // You might want to show a success message here
+        alert('Profile updated successfully!');
+      } else {
+        throw new Error('Failed to update profile');
+      }
+    } catch (error: any) {
+      setError(error.message || 'Failed to update profile');
+      console.error('Error updating profile:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -20,11 +64,15 @@ const ProfileSettings = () => {
       try {
         const response = await api.get('/user');
 
-        if ( !(response.status === 200) ) {
+        if (!(response.status === 200)) {
           throw new Error('Failed to fetch user data');
         }
         const data = await response.data;
-        setUserData(data);
+        setUserData(prevData => ({
+          ...data,
+          password: '',
+          repeatPassword: ''
+        }));
       } catch (error) {
         console.error('Error fetching user data:', error);
       }
@@ -68,49 +116,57 @@ const ProfileSettings = () => {
         </div>
 
         {/* Form */}
-        <div className="space-y-8 py-8">
-          <div>
-            <label className="block text-gray-400 mb-2">username</label>
-            <input
-              type="text"
-              name="nickname"
-              value={userData.username}
-              onChange={handleChange}
-              className="w-full bg-white text-black px-4 py-3 rounded"
-            />
-          </div>
+        <form onSubmit={handleSubmit}>
+          {error && <p className="text-red-500 mb-4">{error}</p>}
+          
+          <div className="space-y-8 py-8">
+            <div>
+              <label className="block text-gray-400 mb-2">nickname</label>
+              <input
+                type="text"
+                name="nickname"
+                value={userData.nickname}
+                onChange={handleChange}
+                className="w-full bg-white text-black px-4 py-3 rounded"
+              />
+            </div>
 
-          <div>
-            <label className="block text-gray-400 mb-2">Current Password</label>
-            <input
-              type="password"
-              name="password"
-              value={userData.password}
-              onChange={handleChange}
-              className="w-full bg-white text-black px-4 py-3 rounded"
-            />
-          </div>
+            <div>
+              <label className="block text-gray-400 mb-2">Current Password</label>
+              <input
+                type="password"
+                name="password"
+                value={userData.password}
+                onChange={handleChange}
+                className="w-full bg-white text-black px-4 py-3 rounded"
+              />
+            </div>
 
-          <div>
-            <label className="block text-gray-400 mb-2">New Password</label>
-            <input
-              type="password"
-              name="repeatPassword"
-              value={userData.repeatPassword}
-              onChange={handleChange}
-              className="w-full bg-white text-black px-4 py-3 rounded"
-            />
-          </div>
+            <div>
+              <label className="block text-gray-400 mb-2">New Password</label>
+              <input
+                type="password"
+                name="repeatPassword"
+                value={userData.repeatPassword}
+                onChange={handleChange}
+                className="w-full bg-white text-black px-4 py-3 rounded"
+              />
+            </div>
 
-          <div className="flex justify-between pt-4">
-            <button className="bg-red-700 px-6 py-2 rounded hover:bg-red-800 transition">
-              Delete account
-            </button>
-            <button className="bg-red-700 px-8 py-2 rounded hover:bg-red-800 transition">
-              Save
-            </button>
+            <div className="flex justify-between pt-4">
+              <button className="bg-red-700 px-6 py-2 rounded hover:bg-red-800 transition">
+                Delete account
+              </button>
+              <button 
+                className="bg-red-700 px-8 py-2 rounded hover:bg-red-800 transition" 
+                type="submit"
+                disabled={isLoading}
+              >
+                {isLoading ? 'Saving...' : 'Save'}
+              </button>
+            </div>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

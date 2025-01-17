@@ -18,3 +18,5 @@ class UserSerializer(serializers.ModelSerializer):
             nickname=validated_data['username']
         )
         return user
+    
+    

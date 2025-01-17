@@ -7,7 +7,46 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .serializers import UserSerializer
-# from .backends import EmailBackend
+from django.contrib.auth.hashers import check_password
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_user(request):
+    user = request.user
+    data = request.data
+    
+    try:
+        # Handle nickname update
+        if 'nickname' in data:
+            user.nickname = data['nickname']
+        
+        # Handle password update
+        if 'currentPassword' in data and 'newPassword' in data:
+            # Verify current password
+            if not check_password(data['currentPassword'], user.password):
+                return Response(
+                    {'message': 'Current password is incorrect'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            # Set new password
+            user.set_password(data['newPassword'])
+        
+        # Save the changes
+        user.save()
+        
+        # Return updated user data
+        serializer = UserSerializer(user)
+        return Response({
+            'message': 'Profile updated successfully',
+            'user': serializer.data
+        })
+        
+    except Exception as e:
+        return Response(
+            {'message': str(e)}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+        )
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
