@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
-from .serializers import UserSerializer
+from .serializers import UserSerializer,UserProfileImageSerializer
 from django.contrib.auth.hashers import check_password
 
 @api_view(['PUT'])
@@ -119,3 +119,21 @@ def get_user(request):
 @permission_classes([IsAuthenticated])
 def verify_token(request):
     return Response({'valid': True})
+
+
+@api_view(['PUT'])
+@permission_classes([IsAuthenticated])
+def update_profile_image(request):
+    serializer = UserProfileImageSerializer(
+        request.user, 
+        data=request.data, 
+        partial=True
+    )
+    
+    if serializer.is_valid():
+        serializer.save()
+        return Response({
+            'message': 'Profile image updated successfully',
+            'image_url': request.user.profile_image.url
+        })
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
