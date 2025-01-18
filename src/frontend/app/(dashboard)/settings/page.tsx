@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef} from 'react';
 import api from '@/app/api';
 import { Camera } from 'lucide-react';
 
@@ -9,16 +9,66 @@ const ProfileSettings = () => {
     username: '',
     nickname: '',
     password: '',
-    repeatPassword: ''
+    repeatPassword: '',
+	profile_image:'',
   });
+  const fileInputRef = useRef(null);
   
+  const [isUploading, setIsUploading] = useState(false); 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
+  const handleFileChange = async (e) => {
+	const file = e.target.files?.[0];
+    if (!file) return;  
+	setIsUploading(true);
+	
+	const formData = new FormData();
+	formData.append('profile_image', file);
+	try {
+        const response = await api.put('/profile/image/',formData);
+		//  {
+        //     method: 'PUT',
+        //     headers: {
+        //         'Authorization': `Bearer ${localStorage.getItem('token')}`,
+        //     },
+        //     credentials: 'include',
+        //     body: formData,
+        // });
+		console.log(response);
+
+        if (response.status === 200) {
+			if (response.data.error)
+			  throw new Error(response.data.error);
+	
+			// Clear password fields after successful update
+			setUserData(prev => ({
+			  ...prev,
+			  password: '',
+			  repeatPassword: '',
+			}));
+			
+			setSuccess('Profile image updated successfully!');
+		  } else {
+			throw new Error('Failed to update profile');
+		  }
+        // const data = await response.json();
+    } catch (error) {
+        console.error('Error:', error);
+    }finally
+	{
+		setIsUploading(false);
+	}
+	
+
+}
   const handleChange = (e: { target: { name: any; value: any; }; }) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
   };
+
+  
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -105,7 +155,7 @@ const ProfileSettings = () => {
           <div className="flex items-center space-x-4">
             <div className="w-20 h-20 rounded-full bg-gray-300 -mt-16 overflow-hidden border-4 border-black">
               <img
-                src='/prfl.png'
+                src={userData.profile_image ?  'zb'  : '/prfl.png'}
                 alt="Profile avatar"
                 className="w-full h-full"
               />
@@ -115,10 +165,21 @@ const ProfileSettings = () => {
               <p className="text-gray-400">{userData.email}</p>
             </div>
           </div>
+		  <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            accept="image/*"
+            className="hidden"
+        />
           <div className="flex items-center space-x-3">
-            <button className="bg-red-700 px-4 py-2 rounded hover:bg-red-800 transition flex items-center space-x-2">
+            <button 
+			className="bg-red-700 px-4 py-2 rounded hover:bg-red-800 transition flex items-center space-x-2"
+			onClick={() => fileInputRef.current?.click()}
+			disabled={isUploading}
+			>
 			<Camera size={20} />
-			<span>Change</span>
+			<span>{isUploading ? 'Uploading...' : 'Change'}</span>
             </button>
           </div>
         </div>
