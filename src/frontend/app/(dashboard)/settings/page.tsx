@@ -1,6 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
 import api from '@/app/api';
+import { Camera } from 'lucide-react';
 
 const ProfileSettings = () => {
   const [userData, setUserData] = useState({
@@ -115,8 +116,9 @@ const ProfileSettings = () => {
             </div>
           </div>
           <div className="flex items-center space-x-3">
-            <button className="bg-red-700 px-4 py-2 rounded hover:bg-red-800 transition">
-              Edit
+            <button className="bg-red-700 px-4 py-2 rounded hover:bg-red-800 transition flex items-center space-x-2">
+			<Camera size={20} />
+			<span>Change</span>
             </button>
           </div>
         </div>

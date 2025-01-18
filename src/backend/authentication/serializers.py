@@ -19,4 +19,11 @@ class UserSerializer(serializers.ModelSerializer):
         )
         return user
     
+class UserProfileImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['profile_image']
+
+
+    
     
