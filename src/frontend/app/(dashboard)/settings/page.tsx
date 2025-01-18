@@ -158,9 +158,7 @@ const ProfileSettings = () => {
             </div>
 
             <div className="flex justify-between pt-4">
-              <button className="bg-red-700 px-6 py-2 rounded hover:bg-red-800 transition">
-                Delete account
-              </button>
+              
               <button 
                 className="bg-red-700 px-8 py-2 rounded hover:bg-red-800 transition" 
                 type="submit"
