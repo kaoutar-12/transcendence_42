@@ -14,6 +14,7 @@ const ProfileSettings = () => {
   // Add loading and error states
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const handleChange = (e: { target: { name: any; value: any; }; }) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
@@ -24,6 +25,7 @@ const ProfileSettings = () => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
+    setSuccess('');
 
     try {
       const updateData: any = {
@@ -39,6 +41,9 @@ const ProfileSettings = () => {
       const response = await api.put('/update_user/', updateData);
 
       if (response.status === 200) {
+        if (response.data.error)
+          throw new Error(response.data.error);
+
         // Clear password fields after successful update
         setUserData(prev => ({
           ...prev,
@@ -46,14 +51,12 @@ const ProfileSettings = () => {
           repeatPassword: ''
         }));
         
-        // You might want to show a success message here
-        alert('Profile updated successfully!');
+        setSuccess('Profile updated successfully!');
       } else {
         throw new Error('Failed to update profile');
       }
     } catch (error: any) {
       setError(error.message || 'Failed to update profile');
-      console.error('Error updating profile:', error);
     } finally {
       setIsLoading(false);
     }
@@ -74,7 +77,7 @@ const ProfileSettings = () => {
           repeatPassword: ''
         }));
       } catch (error) {
-        console.error('Error fetching user data:', error);
+        setError('Failed to fetch user data:');
       }
     };
 
@@ -118,6 +121,7 @@ const ProfileSettings = () => {
         {/* Form */}
         <form onSubmit={handleSubmit}>
           {error && <p className="text-red-500 mb-4">{error}</p>}
+          {success && <p className="text-green-500 mb-4">{success}</p>}
           
           <div className="space-y-8 py-8">
             <div>
