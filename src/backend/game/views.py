@@ -16,7 +16,7 @@ class QueueManager:
 	def join_queue(user):
 		try:
 			# check is user alredy in queue
-			if QueuePosition.objects.filer(user=user).exists():
+			if QueuePosition.objects.filter(user_id=user.id).exists():
 				return JsonResponse({'error': 'User already in queue'}, status=400)
 			#find if queue state in db otherwise well have to create one
 			queue_state, created = QueueState.objects.get_or_create(id=1)
@@ -24,7 +24,7 @@ class QueueManager:
 			position = queue_state.total_players + 1
 			# create that position for the player
 			queue_position = QueuePosition.objects.create(position=position,\
-								user=user)
+								user_id=user.id)
 			# update the queue state
 			queue_state.total_players = position
 			queue_state.save()
@@ -40,7 +40,7 @@ class QueueManager:
 	def leave_queue(user):
 		try:
 			# find and then will delete the user from the queue
-			queue_position = QueuePosition.objects.get(user=user)
+			queue_position = QueuePosition.objects.get(user_id=user.id)
 			curr_position = queue_position.position
 			queue_position.delete()
 			# update postions of the older players
