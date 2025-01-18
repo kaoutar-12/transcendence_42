@@ -1,11 +1,13 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from django.db import transaction
+from django.db import transaction, models
 from .models import QueueState, QueuePosition, GameSession, Player
 from authentication.models import User
 from django.core.exceptions import ObjectDoesNotExist
+from django.views.decorators.http import require_http_methods
 import random
 # Create your views here.
+
 
 class QueueManager:
 	# join queue
@@ -86,3 +88,13 @@ class QueueManager:
 			return JsonResponse({'success': 'Match created'})
 		except Exception as e:
 			return JsonResponse({'error': str(e)})
+
+@require_http_methods(['POST'])
+def join_queue(request):
+	user = request.user
+	return QueueManager.join_queue(user)
+
+@require_http_methods(['POST'])
+def leave_queue(request):
+	user = request.user
+	return QueueManager.leave_queue(user)
