@@ -31,9 +31,14 @@ const ProfileSettings = () => {
       };
 
       // Only include password update if both fields are filled
+
       if (userData.password && userData.repeatPassword) {
         updateData.currentPassword = userData.password;
         updateData.newPassword = userData.repeatPassword;
+      }
+      else if ((userData.password && !userData.repeatPassword )||(! userData.password && userData.repeatPassword ) )
+      {
+        throw new Error('Please fill the both PASSWORD && NEW PASSWORD if u want to update ur password');
       }
 
       const response = await api.put('/update_user/', updateData);
