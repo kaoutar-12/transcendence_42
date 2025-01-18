@@ -12,12 +12,15 @@ export default function LoginForm() {
   });
   const [error, setError] = useState('');
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+
 
   // Initialize particles
   
 
   const handleSubmit = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
+    setIsLoading(true);
     try {
       const res = await fetch('http://localhost:8000/api/login/', {
         method: 'POST',
@@ -36,6 +39,10 @@ export default function LoginForm() {
       }
     } catch (error) {
       setError('Network error. Please try again.');
+    }
+    finally
+    {
+      setIsLoading(false);
     }
   };
 
@@ -98,7 +105,11 @@ export default function LoginForm() {
             <button
               type="submit"
               className="w-2/4 mx-auto block py-3 px-4 bg-gray-200/80 hover:bg-gray-300/80 text-red-600 font-semibold text-xl rounded-xl border-2 border-red-600 transition-all duration-200"
+              disabled={isLoading}
+            
             >
+                {isLoading ? 'loading...' : 'Log in'}
+
               Log in
             </button>
 
