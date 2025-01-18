@@ -11,7 +11,6 @@ const ProfileSettings = () => {
     repeatPassword: ''
   });
   
-  // Add loading and error states
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
@@ -20,7 +19,6 @@ const ProfileSettings = () => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
   };
 
-  // Add form submission handler
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
