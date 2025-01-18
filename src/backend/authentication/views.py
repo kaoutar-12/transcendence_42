@@ -25,8 +25,7 @@ def update_user(request):
             # Verify current password
             if not check_password(data['currentPassword'], user.password):
                 return Response(
-                    {'message': 'Current password is incorrect'}, 
-                    status=status.HTTP_400_BAD_REQUEST
+                    {'error': 'password is incorrect'}
                 )
             
             # Set new password
@@ -44,8 +43,7 @@ def update_user(request):
         
     except Exception as e:
         return Response(
-            {'message': str(e)}, 
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            {'error': str(e)}
         )
 
 @api_view(['POST'])
