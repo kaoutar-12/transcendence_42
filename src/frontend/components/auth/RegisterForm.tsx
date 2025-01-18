@@ -32,20 +32,20 @@ export default function Register() {
       const data = await res.json();
       
       if (res.ok) {
-        localStorage.setItem('access_token', data.tokens.access);
-        localStorage.setItem('refresh_token', data.tokens.refresh);
-        router.push('/home');
-      } else {
         if (typeof data === 'object') {
           const errorMessage = data.username?.[0] || 
                              data.email?.[0] || 
                              data.password?.[0] || 
                              'Registration failed';
           setError(errorMessage);
-        } else {
+          return;}
+        localStorage.setItem('access_token', data.tokens.access);
+        localStorage.setItem('refresh_token', data.tokens.refresh);
+        router.push('/home');
+      } else {
           setError('Registration failed');
         }
-      }
+      
     } catch (error) {
       setError('Network error occurred');
     }
