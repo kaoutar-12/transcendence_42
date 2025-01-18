@@ -70,16 +70,15 @@ def login(request):
     
     if not email or not password:
         return Response({
-            'error': 'Both username and password are required'
-        }, status=status.HTTP_400_BAD_REQUEST)
+            'error': 'Both username and password are required',
+        })
     
     user = authenticate(email=email, password=password)
     
     if not user:
         return Response({
-            'email': request.data.get('email'),
              'error': 'Invalid credentials'
-        }, status=status.HTTP_401_UNAUTHORIZED)
+        })
         
     refresh = RefreshToken.for_user(user)
     return Response({
