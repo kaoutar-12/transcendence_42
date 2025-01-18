@@ -136,4 +136,4 @@ def update_profile_image(request):
             'message': 'Profile image updated successfully',
             'image_url': request.user.profile_image.url
         })
-    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    return Response(serializer.errors)

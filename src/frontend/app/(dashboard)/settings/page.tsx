@@ -28,14 +28,7 @@ const ProfileSettings = () => {
 	formData.append('profile_image', file);
 	try {
         const response = await api.put('/profile/image/',formData);
-		//  {
-        //     method: 'PUT',
-        //     headers: {
-        //         'Authorization': `Bearer ${localStorage.getItem('token')}`,
-        //     },
-        //     credentials: 'include',
-        //     body: formData,
-        // });
+		
 		console.log(response);
 
         if (response.status === 200) {
@@ -49,7 +42,7 @@ const ProfileSettings = () => {
 			  repeatPassword: '',
 			}));
 			
-			setSuccess('Profile image updated successfully!');
+			setSuccess(response.data.message);
 		  } else {
 			throw new Error('Failed to update profile');
 		  }
@@ -155,7 +148,7 @@ const ProfileSettings = () => {
           <div className="flex items-center space-x-4">
             <div className="w-20 h-20 rounded-full bg-gray-300 -mt-16 overflow-hidden border-4 border-black">
               <img
-                src={userData.profile_image ?  'zb'  : '/prfl.png'}
+                src={userData.profile_image ?  'http://localhost:8000'+userData.profile_image  : '/prfl.png'}
                 alt="Profile avatar"
                 className="w-full h-full"
               />
