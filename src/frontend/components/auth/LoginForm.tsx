@@ -29,8 +29,15 @@ export default function LoginForm() {
       });
 
       const data = await res.json();
-      
+
       if (res.ok) {
+        // console.log(data);
+        if (data.error)
+        {
+            setError(data.error);
+            return;
+        }
+
         localStorage.setItem('access_token', data.tokens.access);
         localStorage.setItem('refresh_token', data.tokens.refresh);
         router.push('/home');
@@ -110,7 +117,6 @@ export default function LoginForm() {
             >
                 {isLoading ? 'loading...' : 'Log in'}
 
-              Log in
             </button>
 
             <p className="text-center text-gray-600 text-sm">
