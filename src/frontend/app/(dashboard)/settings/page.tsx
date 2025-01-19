@@ -19,7 +19,7 @@ const ProfileSettings = () => {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const handleFileChange = async (e) => {
+  const handleFileChange = async (e: { target: { files: any[]; }; }) => {
 	const file = e.target.files?.[0];
     if (!file) return;  
 	setIsUploading(true);

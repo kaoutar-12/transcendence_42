@@ -1,10 +1,9 @@
 #!/bin/sh
 
 # Set environment variables for the superuser
-export DJANGO_SUPERUSER_USERNAME=admin
-export DJANGO_SUPERUSER_EMAIL=admin@1337.ma
-export DJANGO_SUPERUSER_PASSWORD=pass
-
+export DJANGO_SUPERUSER_USERNAME="admin"
+export DJANGO_SUPERUSER_EMAIL="admin@1337.ma"
+export DJANGO_SUPERUSER_PASSWORD="Mr.R0bot@2024"
 # Wait for the database to be ready (optional but recommended for Docker containers)
 # You can use `wait-for-it`, `dockerize`, or a similar tool for this.
 
