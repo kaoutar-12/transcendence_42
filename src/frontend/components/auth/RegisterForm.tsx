@@ -30,9 +30,9 @@ export default function Register() {
       });
       
       const data = await res.json();
-      
-      if (res.ok) {
-        if (typeof data === 'object') {
+      // console.log(res.status);
+      if ((res.status === 200) || (res.status === 201)) {
+        if (! data.tokens) {
           const errorMessage = data.username?.[0] || 
                              data.email?.[0] || 
                              data.password?.[0] || 
@@ -43,7 +43,7 @@ export default function Register() {
         localStorage.setItem('refresh_token', data.tokens.refresh);
         router.push('/home');
       } else {
-          setError('Registration failed');
+        setError('Registration failed');
         }
       
     } catch (error) {
