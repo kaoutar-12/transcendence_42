@@ -14,10 +14,13 @@ export default function Register() {
   });
   const [error, setError] = useState('');
   const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
     setError('');
+
     
     try {
       const res = await fetch('http://localhost:8000/api/register/', {
@@ -29,22 +32,26 @@ export default function Register() {
       const data = await res.json();
       
       if (res.ok) {
-        localStorage.setItem('access_token', data.tokens.access);
-        localStorage.setItem('refresh_token', data.tokens.refresh);
-        router.push('/dashboard/home');
-      } else {
         if (typeof data === 'object') {
           const errorMessage = data.username?.[0] || 
                              data.email?.[0] || 
                              data.password?.[0] || 
                              'Registration failed';
           setError(errorMessage);
-        } else {
+          return;}
+        localStorage.setItem('access_token', data.tokens.access);
+        localStorage.setItem('refresh_token', data.tokens.refresh);
+        router.push('/home');
+      } else {
           setError('Registration failed');
         }
-      }
+      
     } catch (error) {
       setError('Network error occurred');
+    }
+    finally
+    {    
+      setIsLoading(false);
     }
   };
 
@@ -118,15 +125,17 @@ export default function Register() {
           <button 
             type="submit" 
             className="w-2/4 mx-auto block py-3 px-4 bg-gray-200/80 hover:bg-gray-300/80 text-red-600 font-semibold text-xl rounded-xl border-2 border-red-600 transition-all duration-200"
+            disabled={isLoading}
           >
-            Sign Up
+                {isLoading ? 'Loading...' : 'Sign Up'}
           </button>
 
         <p className="text-center text-gray-600 text-sm">
           Already have an account?{' '}
           <a 
-            onClick={ ()=>{ router.push('/auth/login')}}
+            onClick={ ()=>{ router.push('/login')}}
             className="text-red-500 hover:text-red-600 cursor-pointer"
+            
             >
             Sign in
           </a>

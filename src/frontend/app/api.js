@@ -74,7 +74,7 @@ api.interceptors.response.use(
                 
                 // Clear tokens and redirect
                 localStorage.clear();
-                window.location.href = '/auth/login';
+                window.location.href = '/login';
                 return Promise.reject(err);
             }
         }
