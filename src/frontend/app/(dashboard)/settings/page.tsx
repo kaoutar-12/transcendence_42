@@ -38,9 +38,7 @@ const ProfileSettings = () => {
 			// Clear password fields after successful update
 			setUserData(prev => ({
 			  ...prev,
-			  password: '',
-			  repeatPassword: '',
-	  profile_image: response.data.image_url,
+	      profile_image: response.data.image_url,
 }));
 			
 			setSuccess(response.data.message);
