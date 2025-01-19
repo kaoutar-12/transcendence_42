@@ -40,7 +40,8 @@ const ProfileSettings = () => {
 			  ...prev,
 			  password: '',
 			  repeatPassword: '',
-			}));
+	  profile_image: response.data.image_url,
+}));
 			
 			setSuccess(response.data.message);
 		  } else {
@@ -53,8 +54,6 @@ const ProfileSettings = () => {
 	{
 		setIsUploading(false);
 	}
-	
-
 }
   const handleChange = (e: { target: { name: any; value: any; }; }) => {
     setUserData({ ...userData, [e.target.name]: e.target.value });
