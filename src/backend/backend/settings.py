@@ -209,15 +209,14 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'authentication',
-	  'game',
-	  'channels',
+	'game',
+	'channels',
     'rest_framework_simplejwt.token_blacklist',
 ]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -302,6 +301,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
+    "http://localhost:8000",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -325,7 +325,8 @@ SIMPLE_JWT = {
 
 
 AUTH_USER_MODEL = 'authentication.User'
-AUTHENTICATION_BACKENDS = ['authentication.backends.EmailBackend']
+AUTHENTICATION_BACKENDS = ['authentication.backends.EmailBackend',
+                           'django.contrib.auth.backends.ModelBackend',]
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
