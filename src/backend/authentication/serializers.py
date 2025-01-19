@@ -1,16 +1,3 @@
-# from rest_framework import serializers
-# from .models import User
-
-# class UserSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = User
-#         fields = ( 'username', 'email', 'password')
-#         extra_kwargs = {'password': {'write_only': True}}
-
-#     def create(self, validated_data):
-#         user = User.objects.create_user(**validated_data)
-#         return user
-
 from rest_framework import serializers
 from .models import User
 
@@ -19,13 +6,25 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'password')
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = ('id', 'username', 'email', 'password','nickname','profile_image')
+        extra_kwargs = {'password': {'write_only': True},
+                        'nickname': {'required': False},
+                        'profile_image': {'required': False} }
 
     def create(self, validated_data):
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
-            password=validated_data['password']
+            password=validated_data['password'],
+            nickname=validated_data['username']
         )
         return user
+    
+class UserProfileImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['profile_image']
+
+
+    
+    

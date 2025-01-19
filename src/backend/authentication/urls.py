@@ -10,4 +10,6 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('verify-token/', views.verify_token, name='token_verify'),
+    path('update_user/', views.update_user, name='update_user'),
+    path('profile/image/', views.update_profile_image, name='profile_image_update'),
 ]

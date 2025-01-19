@@ -1,23 +1,23 @@
 FROM python:3.12
-#copy the code to the container
+
+# Copy the code to the container
 COPY . /app
 
+# Set the working directory
 WORKDIR /app
 
-#install the requirements
+# Install the requirements
 RUN pip3 install -r requirements.txt
 
-RUN python3 manage.py makemigrations 
+# Copy the entrypoint script and set executable permissions
+COPY ./docker-conf/entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
-RUN python3 manage.py migrate
-
-# COPY ./docker-conf/entrypoint.sh /entrypoint.sh
-
-RUN chmod +x docker-conf/entrypoint.sh
-
+# Expose port 8000
 EXPOSE 8000
 
-# ENTRYPOINT ["./docker-conf/entrypoint.sh"]
+# Set the entrypoint for the container
+ENTRYPOINT ["/entrypoint.sh"]
 
-#run the backend server on port 8000
+# Run the backend server on port 8000
 CMD ["python3", "manage.py", "runserver", "0.0.0.0:8000"]

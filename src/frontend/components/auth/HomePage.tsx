@@ -17,7 +17,7 @@ const HomePage = () => {
   return (
     <div className="w-screen min-h-screen bg-black text-white ">
       {/* Navigation */}
-      <nav className="flex justify-between items-center p-6 max-w-screen-2xl mx-auto">
+      <nav className="flex justify-between items-center p-8 max-w-screen-2xl mx-auto">
         <div className="flex items-center">
           <div className="h-12 w-24 relative">
             <img
@@ -28,10 +28,10 @@ const HomePage = () => {
           </div>
         </div>
         <div className="flex gap-4">
-          <button className="bg-red-700 px-6 py-2 rounded-md hover:bg-red-500 transition" onClick={ ()=>{ router.push('/auth/login')}}>
+          <button className="bg-red-700 px-6 py-2 rounded-md hover:bg-red-500 transition" onClick={ ()=>{ router.push('/login')}}>
             Sign in
           </button>
-          <button className="bg-red-700 px-6 py-2 rounded-md hover:bg-red-500 transition" onClick={ ()=>{ router.push('/auth/register')}}>
+          <button className="bg-red-700 px-6 py-2 rounded-md hover:bg-red-500 transition" onClick={ ()=>{ router.push('/register')}}>
             Register
           </button>
         </div>
@@ -52,7 +52,7 @@ const HomePage = () => {
             typesetting industry. Lorem Ipsum has been the industry's 
             standard.
           </p>
-          <button className="text-black w-48 bg-gradient-to-r from-red-500 via-red-550 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-full text-sm px-5 py-2.5 text-center " onClick={ ()=>{ router.push('/auth/login')}}>
+          <button className="text-black w-48 bg-gradient-to-r from-red-500 via-red-550 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-full text-sm px-5 py-2.5 text-center " onClick={ ()=>{ router.push('/login')}}>
             PLAY NOW
           </button>
         </div>
