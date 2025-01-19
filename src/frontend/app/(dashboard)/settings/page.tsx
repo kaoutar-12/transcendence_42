@@ -10,7 +10,7 @@ const ProfileSettings = () => {
     nickname: '',
     password: '',
     repeatPassword: '',
-	profile_image:'',
+	  profile_image:'',
   });
   const fileInputRef = useRef(null);
   
