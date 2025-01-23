@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Test</title>
+    <style>
+        /* Previous styles remain the same */
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        .container {
+            border: 1px solid #ccc;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .game-area {
+            border: 1px solid #333;
+            height: 300px;
+            margin: 20px 0;
+            padding: 10px;
+            overflow-y: auto;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 200px;
+        }
+        #gameLog {
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .auth-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 20px;
+        }
+        .auth-section {
+            flex: 1;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Previous HTML remains the same -->
+    <div class="auth-container">
+        <div class="auth-section">
+            <h2>Register</h2>
+            <input type="text" id="regUsername" placeholder="Username">
+            <input type="email" id="regEmail" placeholder="Email">
+            <input type="password" id="regPassword" placeholder="Password">
+            <input type="password" id="regConfirmPassword" placeholder="Confirm Password">
+            <button onclick="register()">Register</button>
+        </div>
+
+        <div class="auth-section">
+            <h2>Login</h2>
+            <input type="email" id="loginEmail" placeholder="Email">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <button onclick="login()">Login</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>Game Controls</h2>
+        <button onclick="joinQueue()">Join Queue</button>
+        <button onclick="leaveQueue()">Leave Queue</button>
+		<button onclick="CreateRoom()">Create Room</button>
+		<button onclick="connectToGame()">Connect to Game</button>
+        <button onclick="sendReady()">Send Ready</button>
+        <button onclick="sendMovement()">Send Test Movement</button>
+        <button onclick="disconnect()">Disconnect</button>
+        <button onclick="clearLog()">Clear Log</button>
+    </div>
+
+    <div class="game-area">
+        <pre id="gameLog"></pre>
+    </div>
+
+    <script>
+        let socket = null;
+        let gameConnection = null;
+		let access_token = null;
+	
+        function log(message) {
+            const gameLog = document.getElementById('gameLog');
+            const timestamp = new Date().toLocaleTimeString();
+            gameLog.innerHTML += `[${timestamp}] ${message}\n`;
+            gameLog.scrollTop = gameLog.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('gameLog').innerHTML = '';
+        }
+
+        async function refreshAccessToken() {
+            try {
+                const response = await fetch('http://localhost:8000/api/token/refresh/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        refresh: localStorage.getItem('refresh_token')
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    localStorage.setItem('access_token', data.access);
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                log('Token refresh failed: ' + error.message);
+                return false;
+            }
+        }
+
+        async function makeAuthenticatedRequest(url, options = {}) {
+            const defaultOptions = {
+                headers: {
+                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+
+            const finalOptions = { ...defaultOptions, ...options };
+            finalOptions.headers = { ...defaultOptions.headers, ...options.headers };
+
+            try {
+                let response = await fetch(url, finalOptions);
+
+                if (response.status === 401) {
+                    const refreshed = await refreshAccessToken();
+                    if (refreshed) {
+                        finalOptions.headers['Authorization'] = `Bearer ${localStorage.getItem('access_token')}`;
+                        response = await fetch(url, finalOptions);
+                    }
+                }
+
+                return response;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        async function register() {
+            const username = document.getElementById('regUsername').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+            if (password !== confirmPassword) {
+                log('Passwords do not match');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:8000/api/register/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        username,
+                        email,
+                        password
+                    })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    log('Registration successful');
+                    document.getElementById('loginEmail').value = email;
+                    document.getElementById('loginPassword').value = password;
+                } else {
+                    log('Registration failed: ' + JSON.stringify(data));
+                }
+            } catch (error) {
+                log('Registration error: ' + error.message);
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch('http://localhost:8000/api/login/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    localStorage.setItem('access_token', data.tokens.access);
+                    localStorage.setItem('refresh_token', data.tokens.refresh);
+                    log('Successfully logged in');
+                } else {
+                    log('Login failed: ' + JSON.stringify(data));
+                }
+            } catch (error) {
+                log('Login error: ' + error.message);
+            }
+        }
+
+        
+        let currentRoomId = null;
+
+        async function joinQueue() {
+            try {
+                const response = await makeAuthenticatedRequest('http://localhost:8000/game/join/', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+                log('Join queue response: ' + JSON.stringify(data));
+                
+                if (data.success) {
+                    // Assuming the backend returns a room ID in the response
+                    // If it doesn't, you'll need to modify this part based on your backend response
+                    if (data.room_id) {
+                        currentRoomId = data.room_id;
+                        connectToGame(currentRoomId);
+                    }
+                }
+            } catch (error) {
+                log('Join queue error: ' + error.message);
+            }
+        }
+
+        async function leaveQueue() {
+            try {
+                const response = await makeAuthenticatedRequest('http://localhost:8000/game/leave/', {
+                    method: 'POST'
+                });
+
+                const data = await response.json();
+                log('Leave queue response: ' + JSON.stringify(data));
+                
+                // Disconnect WebSocket when leaving queue
+                disconnect();
+                currentRoomId = null;
+            } catch (error) {
+                log('Leave queue error: ' + error.message);
+            }
+        }
+
+		async function CreateRoom() {
+			try {
+				const response = await makeAuthenticatedRequest('http://localhost:8000/game/create/', {
+					method: 'POST'
+				});
+				const data = await response.json();
+				if (data.success) {
+					console.log('Create room response: ' + JSON.stringify(data));
+					console.log('CreateRoomfun room id: ' + data.game_id);
+					currentRoomId = data.game_id;
+					connectToGame(data.game_id);
+				}
+			} catch (error) {
+				log('Create room error: ' + error.message);
+			}
+		}
+
+        async function connectToGame(roomId) {
+            try {
+                const token = localStorage.getItem('access_token');
+                const wsURL = `ws://localhost:8000/ws/game/${roomId}/?token=${token}`;
+                console.log('wsURL:', wsURL);
+
+                if (socket && socket.readyState !== WebSocket.CLOSED) {
+                    socket.close();
+                }
+
+                socket = new WebSocket(wsURL);
+
+                socket.onopen = () => {
+                    log('Connected to game session');
+                };
+                
+                socket.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    log('Received message: ' + JSON.stringify(data));
+                };
+                
+                socket.onerror = (error) => {
+                    console.error('WebSocket error:', error);
+                    log('WebSocket error occurred');
+                };
+                
+                socket.onclose = (event) => {
+                    log('WebSocket connection closed');
+                };
+
+            } catch (error) {
+                log('Connection error: ' + error.message);
+            }
+        }
+
+        function sendReady() {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                log('WebSocket is not connected');
+                return;
+            }
+
+            socket.send(JSON.stringify({
+                type: 'player_ready',
+                room: currentRoomId
+            }));
+            log('Sent ready status');
+        }
+
+        function sendMovement() {
+            if (!socket || socket.readyState !== WebSocket.OPEN) {
+                log('WebSocket is not connected');
+                return;
+            }
+
+            const movement = {
+                x: Math.floor(Math.random() * 100),
+                y: Math.floor(Math.random() * 100)
+            };
+
+            socket.send(JSON.stringify({
+                type: 'player_move',
+                room: currentRoomId,
+                movement: movement
+            }));
+            log('Sent movement: ' + JSON.stringify(movement));
+        }
+
+        function disconnect() {
+            if (socket) {
+                socket.close(1000, "User disconnected");
+                socket = null;
+                log('Disconnected from game');
+            }
+        }
+
+        // Add event listener for page unload to clean up WebSocket connection
+        window.addEventListener('beforeunload', () => {
+            if (socket) {
+                socket.close(1000, "Page closed");
+            }
+        });
+
+        // Add periodic ping to keep connection alive
+        setInterval(() => {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({
+                    type: 'ping',
+                    room: currentRoomId
+                }));
+            }
+        }, 30000); // Send ping every 30 seconds
+    </script>
+</body>
+</html>
