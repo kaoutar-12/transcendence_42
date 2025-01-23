@@ -26,7 +26,7 @@ ngnix:
 stop:
 	docker stop $(shell docker ps -a -q)
 # stop & clean
-clean:
+clean:	stop
 	docker rm -f $(shell docker ps -a -q)
 
 # stop, clean & all
