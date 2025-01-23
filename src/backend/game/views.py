@@ -110,3 +110,14 @@ def join_queue(request):
 def leave_queue(request):
 	user = request.user
 	return QueueManager.leave_queue(user)
+
+@api_view(['POST'])
+@csrf_exempt
+@permission_classes([IsAuthenticated])
+def create_match(request):
+	try:
+		game_session = GameSession.objects.create()
+		Player.objects.create(user=request.user, game_session=game_session, side='left')
+		return JsonResponse({'success': 'Match created', 'game_id': game_session.id})
+	except Exception as e:
+		return JsonResponse({'error': str(e)})
