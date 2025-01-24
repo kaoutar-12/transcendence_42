@@ -8,6 +8,11 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .serializers import UserSerializer,UserProfileImageSerializer
 from django.contrib.auth.hashers import check_password
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.conf import settings
+
+
+
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -81,7 +86,7 @@ def login(request):
         })
         
     refresh = RefreshToken.for_user(user)
-    return Response({
+    response = Response({
         'user': {
             'username': user.username,
             'email': user.email,
@@ -91,6 +96,24 @@ def login(request):
             'access': str(refresh.access_token),
         }
     })
+    response.set_cookie(
+        'access_token',
+        refresh.access_token,
+        httponly=True,
+        # secure=True,
+        samesite='Strict',
+        max_age=settings.SIMPLE_JWT.get('ACCESS_TOKEN_LIFETIME').total_seconds()
+        )
+    response.set_cookie(
+        'refresh_token',
+        refresh,
+        httponly=True,
+        # secure=True,
+        samesite='Strict',
+        max_age=settings.SIMPLE_JWT.get('REFRESH_TOKEN_LIFETIME').total_seconds()
+        )
+
+    return response
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
