@@ -9,5 +9,4 @@ python3 manage.py makemigrations
 python3 manage.py migrate
 python3 manage.py createsuperuser --noinput || true
 
-cd /app
-python3 -m daphne -b 0.0.0.0 -p 8000 backend.asgi:application
+exec "$@"
