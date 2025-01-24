@@ -1,5 +1,10 @@
 version: "3.8"
 services:
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
   backend:
     build:
       context: ./backend
@@ -7,8 +12,11 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
+    depends_on:
+      - redis
     environment:
       - DEBUG=True
+
   frontend:
     build:
       context: ./frontend
@@ -16,3 +24,5 @@ services:
       - "3000:3000"
     volumes:
       - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
