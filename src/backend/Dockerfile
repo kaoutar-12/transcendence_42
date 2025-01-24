@@ -5,7 +5,9 @@ COPY . /app/
 
 ENV DJANGO_SETTINGS_MODULE=backend.settings
 ENV PYTHONPATH=/app
-
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV debug=1
 RUN pip3 install -r requirements.txt \
     && pip3 install daphne channels channels-redis
 
@@ -15,4 +17,5 @@ COPY ./docker-conf/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["daphne", "-b", "0.0.0.0", "-p", "8000", "backend.asgi:application"]
+
+CMD ["uvicorn", "backend.asgi:application", "--host", "0.0.0.0", "--port", "8000", "--reload"]

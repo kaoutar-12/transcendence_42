@@ -336,6 +336,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 #just for dev mode should be replaced
 CHANNEL_LAYERS = {
     'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer'
-    }
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('redis', 6379)],
+        },
+    },
 }
