@@ -4,6 +4,7 @@ __pycache__/
 *.pyc
 *.pyo
 db.sqlite3
+*.sqlite3
 tests/
 .DS_Store
 *.log
