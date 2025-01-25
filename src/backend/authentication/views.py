@@ -58,13 +58,24 @@ def register(request):
     if serializer.is_valid():
         user = serializer.save()
         refresh = RefreshToken.for_user(user)
-        return Response({
-            'user': serializer.data,
-            'tokens': {
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-            }
-        }, status=status.HTTP_201_CREATED)
+        response=Response({'user': serializer.data}, status=status.HTTP_201_CREATED)
+        response.set_cookie(
+            'access_token',
+            refresh.access_token,
+            httponly=True,
+            # secure=True,
+            samesite='Strict',
+            max_age=settings.SIMPLE_JWT.get('ACCESS_TOKEN_LIFETIME').total_seconds()
+            )
+        response.set_cookie(
+            'refresh_token',
+            refresh,
+            httponly=True,
+            # secure=True,
+            samesite='Strict',
+            max_age=settings.SIMPLE_JWT.get('REFRESH_TOKEN_LIFETIME').total_seconds()
+            )
+        return response
     return Response(serializer.errors)
 
 @api_view(['POST'])
@@ -91,10 +102,6 @@ def login(request):
             'username': user.username,
             'email': user.email,
         },
-        'tokens': {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }
     })
     response.set_cookie(
         'access_token',
