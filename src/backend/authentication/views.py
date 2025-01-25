@@ -58,7 +58,7 @@ def register(request):
     if serializer.is_valid():
         user = serializer.save()
         refresh = RefreshToken.for_user(user)
-        response=Response({'user': serializer.data}, status=status.HTTP_201_CREATED)
+        response=Response({'user': serializer.data,'message':"User register Successfully;"}, status=status.HTTP_201_CREATED)
         response.set_cookie(
             'access_token',
             refresh.access_token,
