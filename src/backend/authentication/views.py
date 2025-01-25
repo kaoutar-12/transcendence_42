@@ -119,7 +119,7 @@ def login(request):
 @permission_classes([IsAuthenticated])
 def logout(request):
     try:
-        refresh_token = request.data.get('refresh_token')
+        refresh_token = request.COOKIES.get('refresh_token')
         if not refresh_token:
             return Response({'error': 'Refresh token is required'}, 
                           status=status.HTTP_400_BAD_REQUEST)
@@ -127,7 +127,13 @@ def logout(request):
         token = RefreshToken(refresh_token)
         token.blacklist()
         
-        return Response({'message': 'Successfully logged out'})
+        response = Response({'message': 'Successfully logged out'})
+        response.set_cookie('access_token', '', expires=0)
+        response.set_cookie('refresh_token', '', expires=0)
+
+        
+        return response
+
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 

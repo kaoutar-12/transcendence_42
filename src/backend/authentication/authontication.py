@@ -5,12 +5,8 @@ class CustomJWTAuthentication(JWTAuthentication):
     def get_header(self, request):
         header = super().get_header(request)
         if header:
-            print(header)
             return header
-
         cookie_token = request.COOKIES.get('access_token')
         if cookie_token:
-            print(f'Bearer {cookie_token}')
             return f'Bearer {cookie_token}'.encode()
-
         return None
