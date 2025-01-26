@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { IoLogOut } from "react-icons/io5";
 import { useRouter } from 'next/navigation';
-import api from '@/app/api';
+import api from '@/app/utils/api';
 
 
 

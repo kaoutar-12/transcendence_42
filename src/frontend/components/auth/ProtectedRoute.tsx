@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import LandingAnimation from '../LandingAnimation/LandingAnimation';
-import api from '@/app/api';
+import api from '@/app/utils/api';
 
 let isVerifying = false;
 

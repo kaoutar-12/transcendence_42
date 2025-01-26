@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Router from 'next/router';
 
 const api = axios.create({
     baseURL: 'http://localhost:8000/api',
@@ -8,9 +9,10 @@ const api = axios.create({
 // Single flag to track refresh state
 let isRefreshing = false;
 // Store pending requests
-let failedQueue = [];
+let failedQueue: { resolve: (value: unknown) => void; reject: (reason?: any) => void; }[] = [];
 
-const processQueue = (error, token = null) => {
+
+const processQueue = (error: any, token = null) => {
     failedQueue.forEach(prom => {
         if (error) {
             prom.reject(error);
@@ -56,7 +58,7 @@ api.interceptors.response.use(
                 // Clear queue with error
                 processQueue(err, null);
                 isRefreshing = false;
-                Route.push('/login');
+                Router.push('/login');
                 return Promise.reject(err);
             }
         }

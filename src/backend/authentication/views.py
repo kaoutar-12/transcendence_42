@@ -180,7 +180,7 @@ class CookieTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
         refresh_token = request.COOKIES.get('refresh_token')
         if not refresh_token:
-            return Response({"detail": "Refresh token is missing."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"detail": "Refresh token is missing."}, status=status.HTTP_401_UNAUTHORIZED)
 
         # Temporarily set the refresh token into the request data.
         request.data['refresh'] = refresh_token
