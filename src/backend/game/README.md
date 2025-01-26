@@ -59,6 +59,32 @@ RECEIVE:
 - score_update
 ```
 
+## Queue Flow
+```mermaid
+flowchart TD
+    A[Player Requests Join Queue] --> B{Already in Queue?}
+    B -->|Yes| C[Return Error]
+    B -->|No| D[Get/Create Queue State]
+    D --> E[Create Queue Position]
+    E --> F[Increment Total Players]
+    F --> G{Total Players Even?}
+    G -->|No| H[Wait for More Players]
+    G -->|Yes| I[Create Game Session]
+    I --> J[Assign Players to Game]
+    J --> K[Remove Players from Queue]
+    K --> L[Update Queue Positions]
+    
+    M[Player Requests Leave Queue] --> N{In Queue?}
+    N -->|No| O[Return Error]
+    N -->|Yes| P[Remove Position]
+    P --> Q[Shift Higher Positions Down]
+    Q --> R[Decrement Total Players]
+    style I fill:#b3e0ff
+    style J fill:#b3e0ff
+    style K fill:#b3e0ff
+    style L fill:#b3e0ff
+```
+
 ## Database Structure
 ```mermaid
 erDiagram
