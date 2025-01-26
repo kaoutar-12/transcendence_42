@@ -1,64 +1,65 @@
-This Django backend implements a game service with matchmaking and real-time gameplay using WebSocket connections. Here's how it works:
+# Multiplayer Game Service
 
-Key Components:
+A Django backend implementing real-time multiplayer gaming with matchmaking and WebSocket communication.
 
-1. Queue Management:
-- `QueueManager` class handles matchmaking
-- Players join/leave queue through REST endpoints
-- When 2 players are in queue, automatically creates match
-- Uses database transactions to maintain queue integrity
+## Architecture Overview
 
-2. Game Sessions:
-- `GameSession` model tracks match status (Pending/Active/Finished)
-- `Player` model associates users with game sessions
-- Players must mark themselves ready before game starts
-- Tracks scores and winner
+### Queue Management
+- REST endpoints for queue operations (`/game/join/`, `/game/leave/`)
+- Transaction-based matchmaking via `QueueManager`
+- Automatic match creation when queue reaches 2 players
 
-3. WebSocket Implementation:
-- Uses Django Channels for WebSocket handling
-- `GameConsumer` manages real-time game communication
-- JWT authentication middleware validates connections
-- Room groups isolate communication per game session
+### Game Sessions
+- Tracks game state (Pending → Active → Finished)
+- Player management and scoring
+- Side assignment (left/right)
+- Ready-state handling before game start
 
-Flow:
+### WebSocket Communication
+- JWT-authenticated connections
+- Real-time game state updates
+- Isolated room-based communication
+- Player movement and scoring events
 
-1. Matchmaking:
+## System Flow
+
+### 1. Matchmaking Process
 ```python
-# Player joins queue
-POST /game/join/ 
-# QueueManager assigns position
-# When 2 players ready -> creates GameSession
+# Player joins matchmaking queue
+POST /game/join/
+
+# System:
+- Validates player
+- Assigns queue position
+- Creates match when 2 players available
 ```
 
-2. Game Connection:
+### 2. Game Connection
 ```python
-# WebSocket connect with JWT token
+# Player connects to game
 ws://host/ws/game/{game_id}/?token=jwt
-# JWTAuthMiddleware validates token
-# GameConsumer creates room group
+
+# System:
+- Validates JWT token
+- Creates player connection
+- Joins game room
 ```
 
-3. Game Communication:
+### 3. Game Communication
 ```python
-# GameConsumer handles:
-- Player ready status
-- Game state updates
-- Player movements
-- Score updates
+# WebSocket events:
+SEND:
+- player_ready
+- player_move
+- game_action
+
+RECEIVE:
+- game_state
+- game_update
+- score_update
 ```
 
-Key Features:
-- Transaction-based queue management
-- Real-time bidirectional communication
-- JWT authentication for WebSocket
-- Room-based game isolation
-- Player state synchronization
-
-The architecture enables scalable multiplayer gaming with proper authentication and state management.
-
-Need any specific component explained in more detail?
-
-### visualizer
+## Database Structure
 ```mermaid
 erDiagram
     QueueState ||--o{ QueuePosition : contains
@@ -93,4 +94,18 @@ erDiagram
         string side
         boolean ready
     }
-	```
+```
+
+## Key Features
+- Scalable multiplayer architecture
+- Real-time bidirectional communication
+- Secure WebSocket authentication
+- Atomic queue operations
+- Isolated game rooms
+- State synchronization
+
+## Requirements
+- Django
+- Django Channels
+- Redis (for WebSocket backend)
+- JWT Authentication
