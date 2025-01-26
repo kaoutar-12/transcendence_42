@@ -9,7 +9,7 @@ ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV debug=1
 RUN pip3 install -r requirements.txt \
-    && pip3 install daphne channels channels-redis
+    && pip3 install channels channels-redis
 
 EXPOSE 8000
 
