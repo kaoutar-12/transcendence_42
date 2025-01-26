@@ -59,6 +59,7 @@ RECEIVE:
 - score_update
 ```
 
+<<<<<<< HEAD
 ## Queue Flow
 ```mermaid
 flowchart TD
@@ -85,6 +86,8 @@ flowchart TD
     style L fill:#b3e0ff
 ```
 
+=======
+>>>>>>> 4efd88b (update .gitignore to exclude db.sqlite3 and add backend-specific ignore; enhance game README.md with architecture overview and key features)
 ## Database Structure
 ```mermaid
 erDiagram
