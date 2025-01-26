@@ -59,6 +59,7 @@ RECEIVE:
 - score_update
 ```
 
+
 ## Queue Flow
 ```mermaid
 flowchart TD
@@ -84,6 +85,7 @@ flowchart TD
     style K fill:#b3e0ff
     style L fill:#b3e0ff
 ```
+
 
 ## Database Structure
 ```mermaid
