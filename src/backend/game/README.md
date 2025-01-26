@@ -38,7 +38,6 @@ POST /game/join/
 ```python
 # Player connects to game
 ws://host/ws/game/{game_id}/?token=jwt
-
 # System:
 - Validates JWT token
 - Creates player connection
