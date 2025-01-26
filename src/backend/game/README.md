@@ -38,7 +38,6 @@ POST /game/join/
 ```python
 # Player connects to game
 ws://host/ws/game/{game_id}/?token=jwt
-
 # System:
 - Validates JWT token
 - Creates player connection
@@ -58,7 +57,6 @@ RECEIVE:
 - game_update
 - score_update
 ```
-
 
 ## Queue Flow
 ```mermaid
@@ -85,7 +83,6 @@ flowchart TD
     style K fill:#b3e0ff
     style L fill:#b3e0ff
 ```
-
 
 ## Database Structure
 ```mermaid
