@@ -5,3 +5,4 @@ __pycache__
 *.pyc
 *.pyo
 *.pyd
+src/backend/db.sqlite3
