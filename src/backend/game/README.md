@@ -57,3 +57,40 @@ Key Features:
 The architecture enables scalable multiplayer gaming with proper authentication and state management.
 
 Need any specific component explained in more detail?
+
+### visualizer
+```mermaid
+erDiagram
+    QueueState ||--o{ QueuePosition : contains
+    QueuePosition ||--|| User : belongs_to
+    GameSession ||--|{ Player : has
+    Player ||--|| User : is
+    
+    QueueState {
+        int id PK
+        int total_players
+    }
+    
+    QueuePosition {
+        int position PK
+        int user_id FK
+        datetime joined_at
+    }
+    
+    GameSession {
+        int id PK
+        string status
+        datetime create_date
+        datetime update_date
+        int winner_id FK
+    }
+    
+    Player {
+        int id PK
+        int user_id FK
+        int game_session_id FK
+        int score
+        string side
+        boolean ready
+    }
+	```
