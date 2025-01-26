@@ -24,6 +24,7 @@ export default function LoginForm() {
     try {
       const res = await fetch('http://localhost:8000/api/login/', {
         method: 'POST',
+        credentials: 'include' ,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
@@ -38,8 +39,8 @@ export default function LoginForm() {
             return;
         }
 
-        localStorage.setItem('access_token', data.tokens.access);
-        localStorage.setItem('refresh_token', data.tokens.refresh);
+        // localStorage.setItem('access_token', '1');
+        // localStorage.setItem('refresh_token', '1');
         router.push('/home');
       } else {
         setError(data.error || 'Login failed');
