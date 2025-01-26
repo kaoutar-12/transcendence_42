@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef} from 'react';
-import api from '@/app/api';
+import api from '@/app/utils/api';
 import { Camera } from 'lucide-react';
 
 const ProfileSettings = () => {
