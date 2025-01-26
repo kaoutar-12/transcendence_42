@@ -25,6 +25,7 @@ export default function Register() {
     try {
       const res = await fetch('http://localhost:8000/api/register/', {
         method: 'POST',
+        credentials: 'include' ,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
@@ -32,15 +33,13 @@ export default function Register() {
       const data = await res.json();
       // console.log(res.status);
       if ((res.status === 200) || (res.status === 201)) {
-        if (! data.tokens) {
+        if (! data.message) {
           const errorMessage = data.username?.[0] || 
                              data.email?.[0] || 
                              data.password?.[0] || 
                              'Registration failed';
           setError(errorMessage);
           return;}
-        localStorage.setItem('access_token', data.tokens.access);
-        localStorage.setItem('refresh_token', data.tokens.refresh);
         router.push('/home');
       } else {
         setError('Registration failed');

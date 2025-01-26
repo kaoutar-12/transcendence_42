@@ -32,9 +32,9 @@ const ProfileSettings = () => {
 		console.log(response);
 
         if (response.status === 200) {
-			if (response.data.error)
-			  throw new Error(response.data.error);
-	
+			    if (response.data.error)
+			      throw new Error(response.data.error);
+        
 			// Clear password fields after successful update
 			setUserData(prev => ({
 			  ...prev,

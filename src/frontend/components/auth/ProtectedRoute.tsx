@@ -24,12 +24,13 @@ export default function ProtectedRoute({
     const verifyAccess = async () => {
       if (isVerifying) return;
       
-      const accessToken = localStorage.getItem('access_token');
-      const refreshToken = localStorage.getItem('refresh_token');
+      // const accessToken = localStorage.getItem('access_token');
+      // const refreshToken = localStorage.getItem('refresh_token');
+      
       
       // Handle auth pages (login/register)
       if (isAuthPage) {
-        if (accessToken && refreshToken) {
+        // if (accessToken && refreshToken) {
           try {
             const response = await api.get('/verify-token/');
             if (response.status === 200) {
@@ -37,26 +38,26 @@ export default function ProtectedRoute({
               router.push('/home');
             } else {
               // If tokens are invalid, clear them but stay on auth page
-              localStorage.clear();
+              // localStorage.clear();
               setIsLoading(false);
             }
           } catch (error) {
-            localStorage.clear();
+            // localStorage.clear();
             setIsLoading(false);
           }
-        } else {
-          // No tokens, stay on auth page
-          setIsLoading(false);
-        }
+        // } else {
+        //   // No tokens, stay on auth page
+        //   setIsLoading(false);
+        // }
         return;
       }
 
       // Handle protected routes
-      if (!accessToken || !refreshToken) {
-        setIsLoading(false);
-        router.push('/login');
-        return;
-      }
+      // if (!accessToken || !refreshToken) {
+      //   setIsLoading(false);
+      //   // router.push('/login');
+      //   return;
+      // }
 
       try {
         isVerifying = true;
@@ -65,11 +66,11 @@ export default function ProtectedRoute({
         if (response.status === 200) {
           setIsVerified(true);
         } else {
-          localStorage.clear();
+          // localStorage.clear();
           router.push('/login');
         }
       } catch (error) {
-        localStorage.clear();
+        // localStorage.clear();
         router.push('/login');
       } finally {
         isVerifying = false;

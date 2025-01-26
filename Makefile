@@ -17,7 +17,9 @@ backend:
 # build & run the frontend:
 frontend:
 	docker build -t frontend:latest ./src/frontend
-	docker run -it -p 3000:3000 -v $(PWD)/src/frontend:/app -v /app/node_modules -v /app/.next frontend:latest
+	-docker stop frontend-container || true
+	-docker rm frontend-container || true
+	docker run -it -p 3000:3000 --name frontend-container -v $(PWD)/src/frontend:/app -v /app/node_modules -v /app/.next frontend:latest
 
 # build & run the ngnix:
 ngnix:
