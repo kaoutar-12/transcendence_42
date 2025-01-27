@@ -51,7 +51,7 @@ const PingPongGame = () => {
         // Simulate loading time
         const timer = setTimeout(() => {
             setIsLoading(false)
-        }, 5000) // 3 seconds loading time
+        }, 3000) // 3 seconds loading time
 
         return () => clearTimeout(timer)
     }, [])
