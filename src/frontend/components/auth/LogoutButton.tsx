@@ -15,8 +15,9 @@ export default function LogoutButton() {
  const handleLogout = async () => {
    setIsLoading(true);
    try {
-	const res = api.post('/logout/');
+    const res = await api.post('/logout/');
     router.push('/');
+    
    } catch (error) {
     router.push('/');
    } finally {
