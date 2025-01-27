@@ -4,10 +4,16 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.tokens import RefreshToken 
 from django.contrib.auth import authenticate
 from .serializers import UserSerializer,UserProfileImageSerializer
 from django.contrib.auth.hashers import check_password
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from django.conf import settings
+from rest_framework_simplejwt.views import TokenRefreshView
+
+
+
 
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
@@ -53,13 +59,24 @@ def register(request):
     if serializer.is_valid():
         user = serializer.save()
         refresh = RefreshToken.for_user(user)
-        return Response({
-            'user': serializer.data,
-            'tokens': {
-                'refresh': str(refresh),
-                'access': str(refresh.access_token),
-            }
-        }, status=status.HTTP_201_CREATED)
+        response=Response({'user': serializer.data,'message':"User register Successfully;"}, status=status.HTTP_201_CREATED)
+        response.set_cookie(
+            'access_token',
+            refresh.access_token,
+            httponly=True,
+            # secure=True,
+            samesite='Strict',
+            max_age=settings.SIMPLE_JWT.get('ACCESS_TOKEN_LIFETIME').total_seconds()
+            )
+        response.set_cookie(
+            'refresh_token',
+            refresh,
+            httponly=True,
+            # secure=True,
+            samesite='Strict',
+            max_age=settings.SIMPLE_JWT.get('REFRESH_TOKEN_LIFETIME').total_seconds()
+            )
+        return response
     return Response(serializer.errors)
 
 @api_view(['POST'])
@@ -81,22 +98,36 @@ def login(request):
         })
         
     refresh = RefreshToken.for_user(user)
-    return Response({
+    response = Response({
         'user': {
             'username': user.username,
             'email': user.email,
         },
-        'tokens': {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-        }
     })
+    response.set_cookie(
+        'access_token',
+        refresh.access_token,
+        httponly=True,
+        # secure=True,
+        samesite='Strict',
+        max_age=settings.SIMPLE_JWT.get('ACCESS_TOKEN_LIFETIME').total_seconds()
+        )
+    response.set_cookie(
+        'refresh_token',
+        refresh,
+        httponly=True,
+        # secure=True,
+        samesite='Strict',
+        max_age=settings.SIMPLE_JWT.get('REFRESH_TOKEN_LIFETIME').total_seconds()
+        )
+
+    return response
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout(request):
     try:
-        refresh_token = request.data.get('refresh_token')
+        refresh_token = request.COOKIES.get('refresh_token')
         if not refresh_token:
             return Response({'error': 'Refresh token is required'}, 
                           status=status.HTTP_400_BAD_REQUEST)
@@ -104,7 +135,13 @@ def logout(request):
         token = RefreshToken(refresh_token)
         token.blacklist()
         
-        return Response({'message': 'Successfully logged out'})
+        response = Response({'message': 'Successfully logged out'})
+        response.set_cookie('access_token', '', expires=0)
+        response.set_cookie('refresh_token', '', expires=0)
+
+        
+        return response
+
     except Exception as e:
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -137,3 +174,28 @@ def update_profile_image(request):
             'image_url': request.user.profile_image.url
         })
     return Response(serializer.errors)
+
+
+class CookieTokenRefreshView(TokenRefreshView):
+    def post(self, request, *args, **kwargs):
+        refresh_token = request.COOKIES.get('refresh_token')
+        if not refresh_token:
+            return Response({"detail": "Refresh token is missing."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # Temporarily set the refresh token into the request data.
+        request.data['refresh'] = refresh_token
+
+        response = super().post(request, *args, **kwargs)
+
+        if response.status_code == 200:
+            
+            response.set_cookie(
+                'access_token', response.data['access'],
+                httponly=True, secure=request.is_secure(),
+                max_age=settings.SIMPLE_JWT.get('ACCESS_TOKEN_LIFETIME').total_seconds()
+            )
+            response.data['access']='true'
+            
+
+
+        return response
