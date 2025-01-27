@@ -7,36 +7,39 @@
 }
 
 .paddle {
-    width: 10px;
-    height: 60px;
-    background-color: white;
-    animation: paddleMove 1.5s infinite ease-in-out;
+    width: 15px;
+    height: 100px;
+    background-color: rgb(0, 0, 0);
+    animation: paddleMove 3s infinite ease-in-out;
+    border-radius: 10px;
 }
 
 .ball {
     width: 20px;
     height: 20px;
-    background-color: white;
+    background-color: black;
     border-radius: 50%;
-    animation: ballMove 1.5s infinite ease-in-out;
+    animation: ballMove 5s infinite ease-in-out;
 }
 
 @keyframes paddleMove {
-    0%,
-    100% {
+    0%, 100% {
+        background-color: white;
         transform: translateY(-20px);
     }
     50% {
+        background-color: black;
         transform: translateY(20px);
     }
 }
 
 @keyframes ballMove {
-    0%,
-    100% {
-        transform: translateX(-60px);
+    0%, 100% {
+        background-color: black;
+        transform: translateX(60px);
     }
     50% {
-        transform: translateX(60px);
+        background-color: white;
+        transform: translateX(-60px);
     }
 }
