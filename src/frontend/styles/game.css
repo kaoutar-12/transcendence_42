@@ -5,16 +5,17 @@
     padding-top: 100px;
     display: flex;
     flex-direction: column;
-    background-color: rgba(71, 68, 68, 0.211);
     text-shadow: -7px -7px 9px rgba(0,0,0,0.15);
 }
 
 .games-header {
     margin-bottom: 50px;
+    text-align: center;
 }
 
 .games-list {
     display: flex;
     flex-direction: row;
     align-items: left;
+    justify-content: center;
 }
