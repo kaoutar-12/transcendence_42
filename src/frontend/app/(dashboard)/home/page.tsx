@@ -1,7 +1,12 @@
 import React from 'react';
+import "@/styles/dashboard.css";
 
 export default function Home() {
   return (
-    <div>Home</div>
+    <div className="home">
+    <div className="profile-info">
+      <div className="info"></div>
+    </div>
+    </div>
   );
 }

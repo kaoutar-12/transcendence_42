@@ -23,9 +23,9 @@ type Props = {};
 const Sidebar = (props: Props) => {
   const pathname = usePathname();
   const router = useRouter();
-  const excludedPaths = ["/login", "/register", "/"];
+  const excludedPaths = ["/home","/chat", "/games", "/settings", "/leaderboard"];
 
-  if (excludedPaths.includes(pathname)) {
+  if (!excludedPaths.includes(pathname)) {
     return null;
   }
 

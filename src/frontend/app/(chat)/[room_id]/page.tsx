@@ -355,9 +355,6 @@ const Page = () => {
               }
             />
           </div>
-          <button className="send" type="submit">
-            <GrSend className="GrSend" />
-          </button>
         </form>
       </div>
 

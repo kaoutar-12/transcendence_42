@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
 import EmptyConversation from "./EmptyConversation";
-import { User } from "@/app/chat/[room_id]/page";
+import { User } from "@/app/(chat)/[room_id]/page";
 import { IoSearch } from "react-icons/io5";
 
 type ConversationProps = {

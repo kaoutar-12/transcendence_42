@@ -48,7 +48,7 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen w-full bg-black relative overflow-hidden">
+    <div className="h-screen w-full bg-black  overflow-hidden">
       <ParticlesBackground />
       <div className="relative z-10 min-h-screen w-full flex flex-col items-center justify-center p-4">
         {/* Logo */}

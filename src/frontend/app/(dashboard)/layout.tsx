@@ -7,7 +7,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-        <ProtectedRoute>
+        // <ProtectedRoute>
             <div className="w-full flex  h-screen">
               <div className="flex-none">
               {/* <Sidebar /> */}
@@ -16,6 +16,6 @@ export default function DashboardLayout({
                 {children}
               </main>
             </div>
-        </ProtectedRoute>
+        // </ProtectedRoute>
   );
 }

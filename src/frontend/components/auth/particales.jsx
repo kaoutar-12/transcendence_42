@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 
@@ -31,7 +31,8 @@ const ParticlesBackground = () => {
           enable: false,
         },
         onHover: {
-          enable: false,
+          enable: true,
+          mode: 'repulse',
         },
         resize: {
           enable: false,
@@ -44,17 +45,15 @@ const ParticlesBackground = () => {
       },
       links: {
         color: "#ffffff",
-        distance: 150,
+        distance: 300,
         enable: true,
-        opacity: 0.3,
+        opacity: 0.5,
         width: 1
       },
       move: {
         direction: "none",
         enable: true,
-        outModes: {
-          default: "bounce",
-        },
+        
         random: false,
         speed: 2,
         straight: false
@@ -64,7 +63,7 @@ const ParticlesBackground = () => {
           enable: true,
           area: 800
         },
-        value: 80
+        value: 140
       },
       opacity: {
         value: 0.5
@@ -84,18 +83,10 @@ const ParticlesBackground = () => {
       <Particles
         id="tsparticles"
         options={particlesOptions}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          pointerEvents: 'none',
-          userSelect: 'none'
-        }}
+        className='w-full h-full'
       />
     </div>
   ) : null;
 };
 
-export default ParticlesBackground;
+export default memo(ParticlesBackground);
