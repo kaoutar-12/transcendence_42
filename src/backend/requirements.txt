@@ -31,3 +31,4 @@ daphne==4.0.0
 django-developer-panel
 uvicorn==0.15.0
 websockets==11.0.3
+whitenoise==6.0.0
