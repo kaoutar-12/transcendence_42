@@ -1,39 +1,29 @@
-# to do
+COMPOSE_FILE := docker-compose.yml
 
-# build & run the application 
-all:
-
-# build & run the database
-db:
-
-# build & run the backend:
 backend:
-	docker build -t backend:latest ./src/backend
-	-docker stop backend-container || true
-	-docker rm backend-container || true
-	docker run -it --name backend-container -p 8000:8000 -v $(PWD)/src/backend:/app backend:latest
+	cd src && docker-compose up --build backend
 
+db:
+	cd src && docker-compose up db
 
-# build & run the frontend:
 frontend:
+<<<<<<< HEAD
 	docker build -t frontend:latest ./src/frontend
 	-docker stop frontend-container || true
 	-docker rm frontend-container || true
 	docker run -it -p 3000:3000 --name frontend-container -v $(PWD)/src/frontend:/app -v /app/node_modules -v /app/.next frontend:latest
+=======
+	cd src && docker-compose up --build frontend
+>>>>>>> master
 
-# build & run the ngnix:
-ngnix:
-
-# stop application
 stop:
-	docker stop $(shell docker ps -a -q)
-# stop & clean
-clean:
-	docker rm -f $(shell docker ps -a -q)
+	cd src && docker-compose down
 
-# stop, clean & all
+clean: stop
+	cd src && docker-compose down -v
+	docker system prune -af
+	docker volume rm $$(docker volume ls -q) 2>/dev/null || true
+
 re: clean all
 
-# 	docker run -it -p 3000:3000 -v C:\xampp\htdocs\transcendence_42\src\frontend:\app -v /app/node_modules frontend:latest
-
-#
+all: db backend frontend

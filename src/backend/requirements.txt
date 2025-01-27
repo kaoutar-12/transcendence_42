@@ -27,3 +27,7 @@ Pillow==10.4.0
 # python-dotenv
 # django-environ
 # Pillow
+daphne==4.0.0
+django-developer-panel
+uvicorn==0.15.0
+websockets==11.0.3

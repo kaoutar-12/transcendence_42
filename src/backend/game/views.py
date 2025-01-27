@@ -6,6 +6,12 @@ from authentication.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.http import require_http_methods
 import random
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 # Create your views here.
 
 
@@ -14,6 +20,8 @@ class QueueManager:
 	@staticmethod
 	@transaction.atomic
 	def join_queue(user):
+		if not user.is_authenticated:
+			return JsonResponse({"error": "User not authenticated"}, status=401)
 		try:
 			# check is user alredy in queue
 			if QueuePosition.objects.filter(user_id=user.id).exists():
@@ -89,12 +97,27 @@ class QueueManager:
 		except Exception as e:
 			return JsonResponse({'error': str(e)})
 
-@require_http_methods(['POST'])
+@api_view(['POST'])
+@csrf_exempt
+@permission_classes([IsAuthenticated])
 def join_queue(request):
 	user = request.user
 	return QueueManager.join_queue(user)
 
-@require_http_methods(['POST'])
+@api_view(['POST'])
+@csrf_exempt
+@permission_classes([IsAuthenticated])
 def leave_queue(request):
 	user = request.user
 	return QueueManager.leave_queue(user)
+
+@api_view(['POST'])
+@csrf_exempt
+@permission_classes([IsAuthenticated])
+def create_match(request):
+	try:
+		game_session = GameSession.objects.create()
+		Player.objects.create(user=request.user, game_session=game_session, side='left')
+		return JsonResponse({'success': 'Match created', 'game_id': game_session.id})
+	except Exception as e:
+		return JsonResponse({'error': str(e)})
