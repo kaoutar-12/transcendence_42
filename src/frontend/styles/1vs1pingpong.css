@@ -1,0 +1,98 @@
+
+.loading-screen {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #121212;
+    color: #ffffff;
+}
+
+.game-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 100vh;
+    background-color: #121212;
+    color: #ffffff;
+}
+
+.canvas {
+    border: 1px solid #333333;
+    margin-bottom: 1rem;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    max-width: 800px;
+    margin-bottom: 1rem;
+    font-size: 1.5rem;
+    color: #ffffff;
+}
+
+.player-score {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.player-score span:first-child {
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.buttonContainer {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    background-color: #333333;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+}
+
+.button:hover {
+    background-color: #444444;
+}
+
+.button:active {
+    transform: scale(0.98);
+}
+
+.button:disabled {
+    background-color: #222222;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.winner-message {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.winner-message h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.instructions {
+    margin-top: 1rem;
+    text-align: center;
+}
+
+.instructions p {
+    margin: 0.5rem 0;
+}
