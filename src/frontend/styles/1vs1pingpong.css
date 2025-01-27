@@ -1,4 +1,3 @@
-
 .loading-screen {
     display: flex;
     flex-direction: column;
@@ -15,11 +14,12 @@
     justify-content: center;
     width: 100%;
     min-height: 100vh;
-    background-color: #121212;
-    color: #ffffff;
+    /* background-color: #121212; */
+    /* color: #ffffff; */
 }
 
 .canvas {
+    border-radius: 10px;
     border: 1px solid #333333;
     margin-bottom: 1rem;
 }
