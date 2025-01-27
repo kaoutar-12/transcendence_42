@@ -109,7 +109,7 @@ const ProfileSettings = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await api.get('/user');
+        const response = await api.get('/user/');
 
         if (!(response.status === 200)) {
           throw new Error('Failed to fetch user data');
