@@ -1,8 +1,7 @@
-# FROM ubuntu
+FROM postgres:15
 
-# install postgress 
+COPY ./init.sql /docker-entrypoint-initdb.d/
 
-# configuration postgress
-
-# run postgress
-
+ENV POSTGRES_DB=djangodb
+ENV POSTGRES_USER=djangouser
+ENV POSTGRES_PASSWORD=djangopass

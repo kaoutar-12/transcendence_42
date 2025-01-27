@@ -12,7 +12,24 @@ psycopg2-binary==2.9.9
 python-dotenv==1.0.0
 django-environ==0.11.2
 Pillow==10.4.0
+# django-crontab==0.7.1
+# asarPy
+# asgiref
+# Django
+# django-cors-headers
+# djangorestframework
+# djangorestframework-simplejwt
+# PyJWT
+# sqlparse
+# channels
+# channels-redis
+# # psycopg2-binary
+# python-dotenv
+# django-environ
+# Pillow
 daphne==4.0.0
 django-developer-panel
 uvicorn==0.15.0
 websockets==11.0.3
+whitenoise==6.0.0
+psycopg2==2.9.9

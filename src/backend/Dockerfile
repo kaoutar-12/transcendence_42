@@ -15,6 +15,7 @@ EXPOSE 8000
 
 COPY ./docker-conf/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+RUN mkdir -p /app/static /app/media
 
 ENTRYPOINT ["/entrypoint.sh"]
 
