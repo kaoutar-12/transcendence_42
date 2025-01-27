@@ -4,10 +4,10 @@ import React, { useEffect, useRef, useState } from "react"
 import LoadingAnimation from "@/components/LandingAnimation/LoadingAnimation"
 import "@/styles/1vs1pingpong.css"
 
-const CANVAS_WIDTH = 800
-const CANVAS_HEIGHT = 400
+const CANVAS_WIDTH = 1300
+const CANVAS_HEIGHT = 600
 const PADDLE_WIDTH = 10
-const PADDLE_HEIGHT = 100
+const PADDLE_HEIGHT = 120
 const BALL_SIZE = 10
 const PADDLE_SPEED = 8
 const INITIAL_BALL_SPEED = 2
