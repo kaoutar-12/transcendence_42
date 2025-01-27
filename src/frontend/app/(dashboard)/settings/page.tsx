@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useEffect, useRef} from 'react';
-import api from '@/app/api';
+import api from '@/app/utils/api';
 import { Camera } from 'lucide-react';
 
 const ProfileSettings = () => {
@@ -32,9 +32,9 @@ const ProfileSettings = () => {
 		console.log(response);
 
         if (response.status === 200) {
-			if (response.data.error)
-			  throw new Error(response.data.error);
-	
+			    if (response.data.error)
+			      throw new Error(response.data.error);
+        
 			// Clear password fields after successful update
 			setUserData(prev => ({
 			  ...prev,
@@ -109,7 +109,7 @@ const ProfileSettings = () => {
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        const response = await api.get('/user');
+        const response = await api.get('/user/');
 
         if (!(response.status === 200)) {
           throw new Error('Failed to fetch user data');
