@@ -1,3 +1,8 @@
 db.sqlite3
 env
 media/
+# Static files
+/staticfiles/
+/static/admin/
+/static/rest_framework/
+*.css
