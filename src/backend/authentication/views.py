@@ -90,7 +90,7 @@ def login(request):
     
     if not email or not password:
         return Response({
-            'error': 'Both username and password are required',
+            'error': 'Both email and password are required',
         })
     user = authenticate(email=email, password=password)
     
@@ -187,7 +187,13 @@ class CookieTokenRefreshView(TokenRefreshView):
             return Response({"detail": "Refresh token is missing."}, status=status.HTTP_401_UNAUTHORIZED)
 
         # Temporarily set the refresh token into the request data.
-        request.data['refresh'] = refresh_token
+        if request.data :
+            request.data._mutable = True
+            request.data['refresh'] = refresh_token
+            request.data._mutable = False
+        else : 
+            request.data['refresh'] = refresh_token
+
 
         response = super().post(request, *args, **kwargs)
 
@@ -202,7 +208,6 @@ class CookieTokenRefreshView(TokenRefreshView):
         else :
             response.set_cookie('access_token', '', expires=0)
             response.set_cookie('refresh_token', '', expires=0)
-
-
-
+            
         return response
+
