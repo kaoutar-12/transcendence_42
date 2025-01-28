@@ -8,9 +8,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .serializers import UserSerializer,UserProfileImageSerializer
 from django.contrib.auth.hashers import check_password
-from rest_framework_simplejwt.authentication import JWTAuthentication
+# from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.conf import settings
 from rest_framework_simplejwt.views import TokenRefreshView
+import pyotp
+import qrcode
+
 
 
 
@@ -174,6 +177,8 @@ def update_profile_image(request):
             'image_url': request.user.profile_image.url
         })
     return Response(serializer.errors)
+
+
 
 
 class CookieTokenRefreshView(TokenRefreshView):
