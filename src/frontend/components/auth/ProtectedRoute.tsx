@@ -33,7 +33,7 @@ export default function ProtectedRoute({
         // if (accessToken && refreshToken) {
           try {
             const response = await api.get('/verify-token/');
-            if (response.status === 200) {
+            if (response.status === 200 && !response.data.detail) {
               // If tokens are valid, redirect to home
               router.push('/home');
             } else {
@@ -63,7 +63,7 @@ export default function ProtectedRoute({
         isVerifying = true;
         const response = await api.get('/verify-token/');
         
-        if (response.status === 200) {
+        if (response.status === 200 && !response.data.detail) {
           setIsVerified(true);
         } else {
           // localStorage.clear();
