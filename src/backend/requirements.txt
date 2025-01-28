@@ -35,3 +35,5 @@ django-otp
 pyotp 
 qrcode 
 cryptography
+whitenoise==6.0.0
+psycopg2==2.9.9

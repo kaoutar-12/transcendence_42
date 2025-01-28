@@ -62,7 +62,7 @@ def register(request):
     if serializer.is_valid():
         user = serializer.save()
         refresh = RefreshToken.for_user(user)
-        response=Response({'user': serializer.data,'message':"User register Successfully;"}, status=status.HTTP_201_CREATED)
+        response = Response({'user': serializer.data,'message':"User register Successfully;"}, status=status.HTTP_201_CREATED)
         response.set_cookie(
             'access_token',
             refresh.access_token,
@@ -92,7 +92,6 @@ def login(request):
         return Response({
             'error': 'Both username and password are required',
         })
-    
     user = authenticate(email=email, password=password)
     
     if not user:
@@ -200,7 +199,10 @@ class CookieTokenRefreshView(TokenRefreshView):
                 max_age=settings.SIMPLE_JWT.get('ACCESS_TOKEN_LIFETIME').total_seconds()
             )
             response.data['access']='true'
-            
+        else :
+            response.set_cookie('access_token', '', expires=0)
+            response.set_cookie('refresh_token', '', expires=0)
+
 
 
         return response

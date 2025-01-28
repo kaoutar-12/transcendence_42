@@ -5,6 +5,19 @@ services:
     ports:
       - "6379:6379"
 
+  db:
+    build: 
+      context: ./db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U djangouser -d djangodb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   backend:
     build:
       context: ./backend
@@ -13,9 +26,17 @@ services:
     volumes:
       - ./backend:/app
     depends_on:
-      - redis
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
     environment:
       - DEBUG=True
+      - DB_NAME=djangodb
+      - DB_USER=djangouser
+      - DB_PASSWORD=djangopass
+      - DB_HOST=db
+      - DB_PORT=5432
 
   frontend:
     build:
@@ -26,3 +47,6 @@ services:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
+
+volumes:
+  postgres_data:
