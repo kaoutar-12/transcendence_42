@@ -1,0 +1,45 @@
+.loadingContainer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 200px;
+    height: 100px;
+}
+
+.paddle {
+    width: 15px;
+    height: 100px;
+    background-color: rgb(0, 0, 0);
+    animation: paddleMove 3s infinite ease-in-out;
+    border-radius: 10px;
+}
+
+.ball {
+    width: 20px;
+    height: 20px;
+    background-color: black;
+    border-radius: 50%;
+    animation: ballMove 5s infinite ease-in-out;
+}
+
+@keyframes paddleMove {
+    0%, 100% {
+        background-color: white;
+        transform: translateY(-20px);
+    }
+    50% {
+        background-color: black;
+        transform: translateY(20px);
+    }
+}
+
+@keyframes ballMove {
+    0%, 100% {
+        background-color: black;
+        transform: translateX(60px);
+    }
+    50% {
+        background-color: white;
+        transform: translateX(-60px);
+    }
+}
