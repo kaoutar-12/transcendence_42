@@ -1,5 +1,8 @@
 COMPOSE_FILE := docker-compose.yml
 
+nginx:
+	cd src && docker-compose up --build nginx
+
 backend:
 	cd src && docker-compose up --build backend
 
@@ -23,4 +26,4 @@ clean: stop
 
 re: clean all
 
-all: db backend frontend
+all: db backend frontend nginx
