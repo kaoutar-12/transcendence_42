@@ -15,5 +15,9 @@ Pillow==10.4.0
 django-developer-panel
 uvicorn==0.15.0
 websockets==11.0.3
+django-otp 
+pyotp 
+qrcode 
+cryptography
 whitenoise==6.0.0
 psycopg2==2.9.9
