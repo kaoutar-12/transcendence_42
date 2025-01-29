@@ -12,6 +12,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from .serializers import GameSessionSerializer, PlayerSerializer
 # Create your views here.
 
 
@@ -121,3 +122,21 @@ def create_match(request):
 		return JsonResponse({'success': 'Match created', 'game_id': game_session.id})
 	except Exception as e:
 		return JsonResponse({'error': str(e)})
+	
+@api_view(['GET'])
+@csrf_exempt
+@permission_classes([IsAuthenticated])
+def get_active_game(request):
+	games = GameSession.objects.filter(status='A')
+	return Response({'games': GameSessionSerializer(games, many=True).data})
+
+@api_view(['GET'])
+@csrf_exempt
+@permission_classes([IsAuthenticated])
+def get_game_info(request, game_id):
+	try:
+		game = GameSession.objects.get(id=game_id)
+		players = Player.objects.filter(game_session=game)
+		return Response({'game': GameSessionSerializer(game).data, 'players': PlayerSerializer(players, many=True).data})
+	except ObjectDoesNotExist:
+		return Response({'error': 'Game not found'}, status=status.HTTP_404_NOT_FOUND)
