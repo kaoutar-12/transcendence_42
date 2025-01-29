@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import JsonResponse
 from django.db import transaction, models
-from .models import QueueState, QueuePosition, GameSession, Player
+from .models import QueueState, QueuePosition, GameSession, Player, GameHistory
 from authentication.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.http import require_http_methods
@@ -12,7 +12,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from .serializers import GameSessionSerializer, PlayerSerializer
+from .serializers import GameSessionSerializer, PlayerSerializer, GameHistorySerializer
 # Create your views here.
 
 
@@ -140,3 +140,21 @@ def get_game_info(request, game_id):
 		return Response({'game': GameSessionSerializer(game).data, 'players': PlayerSerializer(players, many=True).data})
 	except ObjectDoesNotExist:
 		return Response({'error': 'Game not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@csrf_exempt
+@permission_classes([IsAuthenticated])
+def get_game_state(request, game_id):
+	try:
+		game = GameSession.objects.get(id=game_id)
+		players = Player.objects.filter(game_session=game)
+		return Response({'game': GameSessionSerializer(game).data, 'players': PlayerSerializer(players, many=True).data})
+	except ObjectDoesNotExist:
+		return Response({'error': 'Game not found'}, status=status.HTTP_404_NOT_FOUND)
+
+@api_view(['GET'])
+@csrf_exempt
+@permission_classes([IsAuthenticated])
+def get_game_history(request):
+	history = GameHistory.objects.all()
+	return Response({'history': GameHistorySerializer(history, many=True).data})

@@ -47,6 +47,18 @@ services:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
+  nginx:
+    build:
+      context: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+      - frontend
 
 volumes:
   postgres_data:
+
+networks:
+  default:
+    name: mynetwork
