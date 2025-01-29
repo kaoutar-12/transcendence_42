@@ -8,9 +8,12 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from .serializers import UserSerializer,UserProfileImageSerializer
 from django.contrib.auth.hashers import check_password
-from rest_framework_simplejwt.authentication import JWTAuthentication
+# from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.conf import settings
 from rest_framework_simplejwt.views import TokenRefreshView
+import pyotp
+import qrcode
+
 
 
 
@@ -59,7 +62,7 @@ def register(request):
     if serializer.is_valid():
         user = serializer.save()
         refresh = RefreshToken.for_user(user)
-        response=Response({'user': serializer.data,'message':"User register Successfully;"}, status=status.HTTP_201_CREATED)
+        response = Response({'user': serializer.data,'message':"User register Successfully;"}, status=status.HTTP_201_CREATED)
         response.set_cookie(
             'access_token',
             refresh.access_token,
@@ -87,9 +90,8 @@ def login(request):
     
     if not email or not password:
         return Response({
-            'error': 'Both username and password are required',
+            'error': 'Both email and password are required',
         })
-    
     user = authenticate(email=email, password=password)
     
     if not user:
@@ -176,6 +178,8 @@ def update_profile_image(request):
     return Response(serializer.errors)
 
 
+
+
 class CookieTokenRefreshView(TokenRefreshView):
     def post(self, request, *args, **kwargs):
         refresh_token = request.COOKIES.get('refresh_token')
@@ -183,7 +187,13 @@ class CookieTokenRefreshView(TokenRefreshView):
             return Response({"detail": "Refresh token is missing."}, status=status.HTTP_401_UNAUTHORIZED)
 
         # Temporarily set the refresh token into the request data.
-        request.data['refresh'] = refresh_token
+        if request.data :
+            request.data._mutable = True
+            request.data['refresh'] = refresh_token
+            request.data._mutable = False
+        else : 
+            request.data['refresh'] = refresh_token
+
 
         response = super().post(request, *args, **kwargs)
 
@@ -195,7 +205,9 @@ class CookieTokenRefreshView(TokenRefreshView):
                 max_age=settings.SIMPLE_JWT.get('ACCESS_TOKEN_LIFETIME').total_seconds()
             )
             response.data['access']='true'
+        else :
+            response.set_cookie('access_token', '', expires=0)
+            response.set_cookie('refresh_token', '', expires=0)
             
-
-
         return response
+
