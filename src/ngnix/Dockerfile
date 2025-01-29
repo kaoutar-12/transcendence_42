@@ -1,7 +1,3 @@
-# FROM UBUNTU or NGNIX
+FROM nginx:alpine
 
-# config NGNIX for tls (required https)
-
-# make it as proxy to the next-js application
-
-# run ngnix
+COPY nginx.conf /etc/nginx/nginx.conf
