@@ -10,9 +10,9 @@ from .serializers import UserSerializer,UserProfileImageSerializer
 from django.contrib.auth.hashers import check_password
 # from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.conf import settings
+from .models import TwoFactorAuth
 from rest_framework_simplejwt.views import TokenRefreshView
-import pyotp
-import qrcode
+from .two_factor_auth import verify_totp_code, generate_qr_code, generate_totp_uri, generate_totp_secret
 
 
 
@@ -211,3 +211,93 @@ class CookieTokenRefreshView(TokenRefreshView):
             
         return response
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def enable_2fa(request):
+    try:
+        # Check if 2FA already exists
+        two_factor, created = TwoFactorAuth.objects.get_or_create(
+            user=request.user,
+            defaults={'secret_key': generate_totp_secret()}
+        )
+        
+        if not created and two_factor.is_enabled:
+            return Response({
+                'error': '2FA is already enabled'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Generate QR code
+        uri = generate_totp_uri(
+            two_factor.secret_key,
+            request.user.email,
+            "YourApp"
+        )
+        qr_code = generate_qr_code(uri)
+        
+        return Response({
+            'qr_code': qr_code
+        })
+        
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def verify_2fa(request):
+    try:
+        code = request.data.get('code')
+        if not code:
+            return Response({
+                'error': 'Verification code is required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        two_factor = TwoFactorAuth.objects.get(user=request.user)
+        
+        if verify_totp_code(two_factor.secret_key, code):
+            two_factor.is_enabled = True
+            two_factor.save()
+            return Response({
+                'message': '2FA enabled successfully'
+            })
+        else:
+            return Response({
+                'error': 'Invalid verification code'
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+    except TwoFactorAuth.DoesNotExist:
+        return Response({
+            'error': '2FA setup not initiated'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def disable_2fa(request):
+    try:
+        two_factor = TwoFactorAuth.objects.get(user=request.user)
+        
+        if not two_factor.is_enabled:
+            return Response({
+                'error': '2FA is not enabled'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        two_factor.is_enabled = False
+        two_factor.save()
+        
+        return Response({
+            'message': '2FA disabled successfully'
+        })
+        
+    except TwoFactorAuth.DoesNotExist:
+        return Response({
+            'error': '2FA is not enabled'
+        }, status=status.HTTP_400_BAD_REQUEST)
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

@@ -13,4 +13,7 @@ urlpatterns = [
     path('verify-token/', views.verify_token, name='token_verify'),
     path('update_user/', views.update_user, name='update_user'),
     path('profile/image/', views.update_profile_image, name='profile_image_update'),
+    path('2fa/enable/', views.enable_2fa, name='enable_2fa'),
+    path('2fa/verify/', views.verify_2fa, name='verify_2fa'),
+    path('2fa/disable/', views.disable_2fa, name='disable_2fa'),
 ]
