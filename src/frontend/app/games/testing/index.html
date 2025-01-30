@@ -3,407 +3,380 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Test Interface</title>
+    <title>Game API & WebSocket Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.6.7/axios.min.js"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
         body {
             font-family: Arial, sans-serif;
-            max-width: 1000px;
+            max-width: 800px;
             margin: 0 auto;
             padding: 20px;
-            background-color: #f5f5f5;
         }
-
-        .container {
-            background: white;
-            border-radius: 8px;
-            padding: 20px;
-            margin: 20px 0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .auth-container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+        .section {
             margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
         }
-
-        .auth-section {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        h2 {
-            color: #333;
-            margin-bottom: 15px;
-        }
-
-        .input-group {
-            margin-bottom: 15px;
-        }
-
-        input {
-            width: 100%;
+        .log {
+            background: #f5f5f5;
             padding: 10px;
-            margin: 5px 0;
-            border: 1px solid #ddd;
+            margin-top: 10px;
             border-radius: 4px;
-            font-size: 14px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
         }
-
         button {
+            margin: 5px;
+            padding: 8px 15px;
             background-color: #4CAF50;
             color: white;
-            padding: 10px 20px;
             border: none;
             border-radius: 4px;
             cursor: pointer;
-            margin: 5px;
-            transition: background-color 0.3s;
         }
-
         button:hover {
             background-color: #45a049;
         }
-
-        button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-        }
-
-        .game-area {
-            background: white;
-            border-radius: 8px;
-            height: 400px;
-            padding: 15px;
-            overflow-y: auto;
-            font-family: monospace;
-            margin-top: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        #gameLog {
-            white-space: pre-wrap;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        .status-bar {
-            background: #333;
-            color: white;
-            padding: 10px;
+        input {
+            padding: 8px;
+            margin: 5px;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            margin-bottom: 10px;
-            font-size: 14px;
         }
-
-        .controls {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin: 15px 0;
-        }
+        .error { color: red; }
+        .success { color: green; }
+        .info { color: blue; }
     </style>
 </head>
 <body>
-    <div class="auth-container">
-        <div class="auth-section">
-            <h2>Register</h2>
-            <div class="input-group">
-                <input type="text" id="regUsername" placeholder="Username">
-                <input type="email" id="regEmail" placeholder="Email">
-                <input type="password" id="regPassword" placeholder="Password">
-                <input type="password" id="regConfirmPassword" placeholder="Confirm Password">
-                <button onclick="register()">Register</button>
-            </div>
-        </div>
+    <h1>Game API & WebSocket Test Interface</h1>
 
-        <div class="auth-section">
-            <h2>Login</h2>
-            <div class="input-group">
-                <input type="email" id="loginEmail" placeholder="Email">
-                <input type="password" id="loginPassword" placeholder="Password">
-                <button onclick="login()">Login</button>
-            </div>
-        </div>
+    <!-- Authentication Section -->
+    <div class="section">
+        <h2>Authentication</h2>
+        <input type="email" id="email" placeholder="Email" value="test@test.com">
+        <input type="password" id="password" placeholder="Password" value="test123">
+        <button onclick="login()">Login</button>
+        <button onclick="logout()">Logout</button>
+        <button onclick="checkAuth()">Check Auth Status</button>
+        <div id="auth-log" class="log"></div>
     </div>
 
-    <div class="container">
-        <div class="status-bar" id="connectionStatus">Not connected</div>
-        <h2>Game Controls</h2>
-        <div class="controls">
-            <button onclick="joinQueue()">Join Queue</button>
-            <button onclick="leaveQueue()">Leave Queue</button>
-            <button onclick="createRoom()">Create Room</button>
-            <button onclick="sendReady()">Ready</button>
-            <button onclick="sendMovement()">Test Movement</button>
-            <button onclick="disconnect()">Disconnect</button>
-            <button onclick="clearLog()">Clear Log</button>
-        </div>
-        <div class="game-area">
-            <pre id="gameLog"></pre>
-        </div>
+    <!-- Queue Management -->
+    <div class="section">
+        <h2>Queue Management</h2>
+        <button onclick="joinQueue()">Join Queue</button>
+        <button onclick="leaveQueue()">Leave Queue</button>
+        <div id="queue-log" class="log"></div>
+    </div>
+
+    <!-- Game Management -->
+    <div class="section">
+        <h2>Game Management</h2>
+        <button onclick="createGame()">Create New Game</button>
+        <button onclick="getActiveGames()">Get Active Games</button>
+        <button onclick="getGameHistory()">Get Game History</button>
+        <input type="number" id="gameId" placeholder="Game ID">
+        <button onclick="getGameInfo()">Get Game Info</button>
+        <div id="game-log" class="log"></div>
+    </div>
+
+    <!-- WebSocket Connection -->
+    <div class="section">
+        <h2>WebSocket Connection</h2>
+        <input type="number" id="wsGameId" placeholder="Game ID for WebSocket">
+        <button onclick="connectWebSocket()">Connect WebSocket</button>
+        <button onclick="disconnectWebSocket()">Disconnect</button>
+        <button onclick="sendReady()">Send Ready</button>
+        <button onclick="sendMove()">Send Move</button>
+        <div id="ws-log" class="log"></div>
     </div>
 
     <script>
-        let socket = null;
-        let currentRoomId = null;
+        let ws = null;
+        const API_BASE_URL = 'http://localhost:8000';
 
-        function updateConnectionStatus() {
-            const status = document.getElementById('connectionStatus');
-            status.textContent = socket && socket.readyState === WebSocket.OPEN 
-                ? 'Connected to game session'
-                : 'Not connected';
+        // Create axios instance with base config
+        const api = axios.create({
+            baseURL: API_BASE_URL,
+            withCredentials: true,
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            xsrfCookieName: 'csrftoken',
+            xsrfHeaderName: 'X-CSRFToken'
+        });
+
+        // Utility function to dump cookies
+        function dumpCookies() {
+            const cookies = document.cookie.split(';').reduce((acc, cookie) => {
+                const [key, value] = cookie.trim().split('=');
+                acc[key] = value;
+                return acc;
+            }, {});
+            return JSON.stringify(cookies, null, 2);
         }
 
-        function log(message) {
-            const gameLog = document.getElementById('gameLog');
-            const timestamp = new Date().toLocaleTimeString();
-            gameLog.innerHTML += `[${timestamp}] ${message}\n`;
-            gameLog.scrollTop = gameLog.scrollHeight;
-        }
-
-        function clearLog() {
-            document.getElementById('gameLog').innerHTML = '';
-        }
-
-        async function register() {
-            const username = document.getElementById('regUsername').value;
-            const email = document.getElementById('regEmail').value;
-            const password = document.getElementById('regPassword').value;
-            const confirmPassword = document.getElementById('regConfirmPassword').value;
-
-            if (password !== confirmPassword) {
-                log('Error: Passwords do not match');
-                return;
-            }
-
-            try {
-                const response = await fetch('http://localhost:8000/api/register/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, email, password })
-                });
-
-                const data = await response.json();
-                log(response.ok ? 'Registration successful' : 'Registration failed: ' + JSON.stringify(data));
-                
-                if (response.ok) {
-                    document.getElementById('loginEmail').value = email;
-                    document.getElementById('loginPassword').value = password;
-                }
-            } catch (error) {
-                log('Registration error: ' + error.message);
-            }
-        }
-
+        // Authentication functions
         async function login() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-
             try {
-                const response = await fetch('http://localhost:8000/api/login/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                logAuth('Attempting login with email: ' + email, 'info');
+                
+                const response = await api.post('/api/login/', 
+                    { email, password },
+                    {
+                        withCredentials: true,
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'Origin': window.location.origin
+                        }
+                    }
+                );
 
-                const data = await response.json();
-                if (response.ok) {
-                    localStorage.setItem('access_token', data.tokens.access);
-                    localStorage.setItem('refresh_token', data.tokens.refresh);
-                    log('Login successful');
+                // Log all response headers in detail
+                const allHeaders = response.headers;
+                logAuth('All response headers:', 'info');
+                for (const [key, value] of Object.entries(allHeaders)) {
+                    logAuth(`${key}: ${value}`, 'info');
+                }
+
+                // Log the raw Set-Cookie header if present
+                const setCookieHeader = response.headers['set-cookie'];
+                if (setCookieHeader) {
+                    logAuth('Set-Cookie header: ' + JSON.stringify(setCookieHeader), 'info');
                 } else {
-                    log('Login failed: ' + JSON.stringify(data));
+                    logAuth('No Set-Cookie header found', 'warning');
                 }
+
+                logAuth('Login response: ' + JSON.stringify(response.data, null, 2), 'success');
+                logAuth('Current cookies: ' + document.cookie, 'info');
+                
+                // Check CORS settings
+                logAuth('CORS settings check:', 'info');
+                logAuth('Origin: ' + window.location.origin, 'info');
+                
+                setTimeout(async () => {
+                    logAuth('Cookies after delay: ' + document.cookie, 'info');
+                    await checkAuth();
+                }, 100);
+
             } catch (error) {
-                log('Login error: ' + error.message);
+                logAuth('Login error: ' + (error.response?.data?.error || error.message), 'error');
+                if (error.response) {
+                    logAuth('Error status: ' + error.response.status, 'error');
+                    logAuth('Error headers: ' + JSON.stringify(error.response.headers, null, 2), 'error');
+                    logAuth('Error data: ' + JSON.stringify(error.response.data, null, 2), 'error');
+                }
             }
         }
 
-        async function makeAuthenticatedRequest(url, options = {}) {
-            const defaultOptions = {
-                headers: {
-                    'Authorization': `Bearer ${localStorage.getItem('access_token')}`,
-                    'Content-Type': 'application/json'
-                }
-            };
-
-            const finalOptions = { ...defaultOptions, ...options };
-            let response = await fetch(url, finalOptions);
-
-            if (response.status === 401) {
-                const refreshed = await refreshToken();
-                if (refreshed) {
-                    finalOptions.headers['Authorization'] = `Bearer ${localStorage.getItem('access_token')}`;
-                    response = await fetch(url, finalOptions);
-                }
-            }
-
-            return response;
-        }
-
-        async function refreshToken() {
+        async function checkAuth() {
             try {
-                const response = await fetch('http://localhost:8000/api/token/refresh/', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        refresh: localStorage.getItem('refresh_token')
-                    })
+                logAuth('Checking auth status...', 'info');
+                const cookies = dumpCookies();
+                logAuth('Current cookies: ' + cookies, 'info');
+                
+                const response = await api.get('/api/user/', {
+                    withCredentials: true,
+                    headers: {
+                        'Accept': 'application/json'
+                    }
                 });
-
-                if (response.ok) {
-                    const data = await response.json();
-                    localStorage.setItem('access_token', data.access);
-                    return true;
-                }
-                return false;
+                logAuth('Auth check successful. User data: ' + JSON.stringify(response.data, null, 2), 'success');
             } catch (error) {
-                log('Token refresh failed: ' + error.message);
-                return false;
+                logAuth('Auth check failed: ' + (error.response?.data?.error || error.message), 'error');
+                if (error.response?.status === 401) {
+                    logAuth('Not authenticated. Please log in.', 'error');
+                }
             }
         }
 
+        async function logout() {
+            try {
+                const response = await api.post('/api/logout/');
+                logAuth('Logout successful: ' + JSON.stringify(response.data, null, 2), 'success');
+                logAuth('Cookies after logout: ' + dumpCookies(), 'info');
+            } catch (error) {
+                logAuth('Logout failed: ' + (error.response?.data?.error || error.message), 'error');
+            }
+        }
+
+        // Queue functions
         async function joinQueue() {
             try {
-                const response = await makeAuthenticatedRequest('http://localhost:8000/game/join/', {
-                    method: 'POST'
-                });
-
-                const data = await response.json();
-                log('Join queue response: ' + JSON.stringify(data));
+                logQueue('Current cookies before join: ' + dumpCookies(), 'info');
+                const response = await api.post('/game/join/');
+                logQueue('Joined queue: ' + JSON.stringify(response.data, null, 2), 'success');
             } catch (error) {
-                log('Join queue error: ' + error.message);
+                logQueue('Failed to join queue: ' + (error.response?.data?.error || error.message), 'error');
+                if (error.response?.status === 401) {
+                    logQueue('Authentication required. Please log in again.', 'error');
+                }
             }
         }
 
         async function leaveQueue() {
             try {
-                const response = await makeAuthenticatedRequest('http://localhost:8000/game/leave/', {
-                    method: 'POST'
-                });
-
-                const data = await response.json();
-                log('Leave queue response: ' + JSON.stringify(data));
-                disconnect();
+                const response = await api.post('/game/leave/');
+                logQueue('Left queue: ' + JSON.stringify(response.data, null, 2), 'success');
             } catch (error) {
-                log('Leave queue error: ' + error.message);
+                logQueue('Failed to leave queue: ' + (error.response?.data?.error || error.message), 'error');
             }
         }
 
-        async function createRoom() {
+        // Game functions
+        async function createGame() {
             try {
-                const response = await makeAuthenticatedRequest('http://localhost:8000/game/create/', {
-                    method: 'POST'
-                });
+                const response = await api.post('/game/create/');
+                logGame('Game created successfully:', 'success');
+                logGame(JSON.stringify(response.data, null, 2));
                 
-                const data = await response.json();
-                if (data.success) {
-                    log('Room created: ' + JSON.stringify(data));
-                    currentRoomId = data.game_id;
-                    connectToGame(data.game_id);
+                // If game creation was successful, automatically fill the WebSocket game ID
+                if (response.data.game_id) {
+                    document.getElementById('wsGameId').value = response.data.game_id;
+                    logGame('WebSocket game ID field has been automatically filled', 'info');
                 }
             } catch (error) {
-                log('Create room error: ' + error.message);
+                if (error.response?.status === 401) {
+                    logGame('Authentication required. Please log in first.', 'error');
+                } else {
+                    logGame('Failed to create game: ' + (error.response?.data?.error || error.message), 'error');
+                }
+            }
+        }
+        async function getActiveGames() {
+            try {
+                const response = await api.get('/game/active_games/');
+                logGame('Active games:', 'success');
+                logGame(JSON.stringify(response.data, null, 2));
+            } catch (error) {
+                logGame('Failed to get active games: ' + (error.response?.data?.error || error.message), 'error');
             }
         }
 
-        function connectToGame(roomId) {
-            const token = localStorage.getItem('access_token');
-            const wsURL = `ws://localhost:8000/ws/game/${roomId}/?token=${token}`;
+        async function getGameHistory() {
+            try {
+                const response = await api.get('/game/game_history/');
+                logGame('Game history:', 'success');
+                logGame(JSON.stringify(response.data, null, 2));
+            } catch (error) {
+                logGame('Failed to get game history: ' + (error.response?.data?.error || error.message), 'error');
+            }
+        }
 
-            if (socket && socket.readyState !== WebSocket.CLOSED) {
-                socket.close();
+        async function getGameInfo() {
+            const gameId = document.getElementById('gameId').value;
+            if (!gameId) {
+                logGame('Please enter a game ID', 'error');
+                return;
+            }
+            try {
+                const response = await api.get(`/game/game_info/${gameId}/`);
+                logGame('Game info:', 'success');
+                logGame(JSON.stringify(response.data, null, 2));
+            } catch (error) {
+                logGame('Failed to get game info: ' + (error.response?.data?.error || error.message), 'error');
+            }
+        }
+
+        // WebSocket functions
+        function connectWebSocket() {
+            const gameId = document.getElementById('wsGameId').value;
+            if (!gameId) {
+                logWS('Game ID is required', 'error');
+                return;
             }
 
-            socket = new WebSocket(wsURL);
-            
-            socket.onopen = () => {
-                log('Connected to game session');
-                updateConnectionStatus();
+            logWS('Current cookies for WS: ' + dumpCookies(), 'info');
+            const accessToken = document.cookie
+                .split('; ')
+                .find(row => row.startsWith('access_token='))
+                ?.split('=')[1];
+
+            if (!accessToken) {
+                logWS('No access token found. Please log in first.', 'error');
+                return;
+            }
+
+            ws = new WebSocket(`ws://localhost:8000/ws/game/${gameId}/?token=${accessToken}`);
+
+            ws.onopen = () => {
+                logWS('WebSocket connected', 'success');
             };
-            
-            socket.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                log('Received: ' + JSON.stringify(data));
+
+            ws.onmessage = (event) => {
+                logWS('Received: ' + event.data);
             };
-            
-            socket.onerror = () => {
-                log('WebSocket error occurred');
-                updateConnectionStatus();
+
+            ws.onerror = (error) => {
+                logWS('WebSocket error: ' + error.message, 'error');
             };
-            
-            socket.onclose = () => {
-                log('WebSocket connection closed');
-                updateConnectionStatus();
+
+            ws.onclose = () => {
+                logWS('WebSocket disconnected');
+                ws = null;
             };
+        }
+
+        function disconnectWebSocket() {
+            if (ws) {
+                ws.close();
+                ws = null;
+                logWS('WebSocket disconnected', 'success');
+            }
         }
 
         function sendReady() {
-            if (!socket || socket.readyState !== WebSocket.OPEN) {
-                log('Error: WebSocket not connected');
+            if (!ws) {
+                logWS('WebSocket not connected', 'error');
                 return;
             }
-
-            socket.send(JSON.stringify({
-                type: 'player_ready',
-                room: currentRoomId
-            }));
-            log('Sent ready status');
+            ws.send(JSON.stringify({ type: 'player_ready' }));
+            logWS('Sent ready signal');
         }
 
-        function sendMovement() {
-            if (!socket || socket.readyState !== WebSocket.OPEN) {
-                log('Error: WebSocket not connected');
+        function sendMove() {
+            if (!ws) {
+                logWS('WebSocket not connected', 'error');
                 return;
             }
-
-            const movement = {
-                x: Math.floor(Math.random() * 100),
-                y: Math.floor(Math.random() * 100)
-            };
-
-            socket.send(JSON.stringify({
+            ws.send(JSON.stringify({
                 type: 'player_move',
-                room: currentRoomId,
-                movement: movement
+                movement: {
+                    x: Math.random() * 100,
+                    y: Math.random() * 100
+                }
             }));
-            log('Sent movement: ' + JSON.stringify(movement));
+            logWS('Sent move signal');
         }
 
-        function disconnect() {
-            if (socket) {
-                socket.close(1000, "User disconnected");
-                socket = null;
-                currentRoomId = null;
-                log('Disconnected from game');
-                updateConnectionStatus();
-            }
+        // Logging functions
+        function logAuth(message, type = '') {
+            const log = document.getElementById('auth-log');
+            log.innerHTML = `${new Date().toLocaleTimeString()} - ${message}\n${log.innerHTML}`;
         }
 
-        window.addEventListener('beforeunload', () => {
-            if (socket) {
-                socket.close(1000, "Page closed");
-            }
-        });
+        function logQueue(message, type = '') {
+            const log = document.getElementById('queue-log');
+            log.innerHTML = `${new Date().toLocaleTimeString()} - ${message}\n${log.innerHTML}`;
+        }
 
-        setInterval(() => {
-            if (socket && socket.readyState === WebSocket.OPEN) {
-                socket.send(JSON.stringify({
-                    type: 'ping',
-                    room: currentRoomId
-                }));
-            }
-        }, 30000);
+        function logGame(message, type = '') {
+            const log = document.getElementById('game-log');
+            log.innerHTML = `${new Date().toLocaleTimeString()} - ${message}\n${log.innerHTML}`;
+        }
+
+        function logWS(message, type = '') {
+            const log = document.getElementById('ws-log');
+            log.innerHTML = `${new Date().toLocaleTimeString()} - ${message}\n${log.innerHTML}`;
+        }
     </script>
 </body>
 </html>
