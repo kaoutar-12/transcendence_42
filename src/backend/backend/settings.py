@@ -162,13 +162,17 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://localhost:3001",
     "http://localhost:8000",
+	"http://localhost:5500",
     "http://localhost:8001",
     "http://localhost:80",
     "http://localhost",
+	"null",
 ]
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
+CORS_EXPPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 
 ALLOWED_HOSTS = ["*"]
         # 'rest_framework_simplejwt.authentication.JWTAuthentication',
