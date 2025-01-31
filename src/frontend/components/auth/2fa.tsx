@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState , useEffect} from 'react';
 import { Check, X, KeyRound } from 'lucide-react';
 // import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Alert, AlertDescription } from './alert';
@@ -11,15 +11,20 @@ interface TwoFactorAuthProps {
 }
 
 const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({ enabled, onStatusChange }) => {
-  const [showQRCode, setShowQRCode] = useState<boolean>(false);
+	const [showQRCode, setShowQRCode] = useState<boolean>(false);
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
   const [verificationCode, setVerificationCode] = useState<string>('');
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
   const [isEnabled, setIsEnabled] = useState<boolean>(enabled);
+  
+  useEffect(() => {
+	setIsEnabled(enabled);
+  }, [enabled]);
 
   const handle2FAToggle = async (): Promise<void> => {
     try {
+		// console.log(isEnabled);
       if (!isEnabled) {
         // Enable 2FA
         const response = await api.post('/2fa/enable/');

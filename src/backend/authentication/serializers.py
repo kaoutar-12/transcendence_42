@@ -6,7 +6,6 @@ class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     twoFactorEnabled = serializers.SerializerMethodField()
 
-
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'password','nickname','profile_image','twoFactorEnabled')
