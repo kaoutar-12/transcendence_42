@@ -238,7 +238,7 @@
 'use client';
 import React, { useState, useEffect, useRef } from 'react';
 import api from '@/app/utils/api';
-import { Camera } from 'lucide-react';
+import { Camera, User } from 'lucide-react';
 // import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Alert, AlertDescription } from '@/components/auth/alert';
 import TwoFactorAuth from '@/components/auth/2fa';
@@ -358,7 +358,7 @@ const ProfileSettings: React.FC = () => {
       setIsLoading(false);
     }
   };
-
+  
   useEffect(() => {
     const fetchUserData = async (): Promise<void> => {
       try {
@@ -464,7 +464,7 @@ const ProfileSettings: React.FC = () => {
               />
             </div>
 
-            {/* 2FA Section */}
+
             <TwoFactorAuth 
               enabled={userData.twoFactorEnabled}
               onStatusChange={handle2FAStatusChange}
