@@ -290,8 +290,8 @@ const PingPongGame = () => {
           <button onClick={pauseGame} disabled={!isRunning} className="button">
             Pause
           </button>
-          <button onClick={restartGame} className="button">
-            restart game
+          <button onClick={() => { if (confirm("Sure Restart The Game!") == true) restartGame() }} className="button">
+            Restart
           </button>
         </div>
       ) : (
