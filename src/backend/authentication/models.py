@@ -9,6 +9,7 @@ class User(AbstractUser):
                     upload_to='user_profiles/',
                     blank=True,
                     null=True)
+    
 class TwoFactorAuth(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     secret_key = models.CharField(max_length=32)
@@ -18,6 +19,3 @@ class TwoFactorAuth(models.Model):
 
     class Meta:
         db_table = 'two_factor_auth'
-
-
-# Create your models here.
