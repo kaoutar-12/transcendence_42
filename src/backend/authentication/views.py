@@ -98,6 +98,12 @@ def login(request):
         return Response({
              'error': 'Invalid credentials'
         })
+    serialzer = UserSerializer(user)
+    twoFactorEnabled=serialzer.data
+    if twoFactorEnabled["twoFactorEnabled"] and not request.data.get('code'):
+        return Response({
+             'action': 'triger on'
+        })
         
     refresh = RefreshToken.for_user(user)
     response = Response({

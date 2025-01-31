@@ -1,7 +1,6 @@
 'use client';
 import React, { useState , useEffect} from 'react';
 import { Check, X, KeyRound } from 'lucide-react';
-// import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Alert, AlertDescription } from './alert';
 import api from '@/app/utils/api';
 
