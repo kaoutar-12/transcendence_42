@@ -229,8 +229,7 @@ def enable_2fa(request):
         # Generate QR code
         uri = generate_totp_uri(
             two_factor.secret_key,
-            request.user.email,
-            "YourApp"
+            request.user.email
         )
         qr_code = generate_qr_code(uri)
         
