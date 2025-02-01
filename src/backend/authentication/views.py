@@ -143,21 +143,18 @@ def logout(request):
     try:
         refresh_token = request.COOKIES.get('refresh_token')
         if not refresh_token:
-            return Response({'error': 'Refresh token is required'}, 
-                          status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Refresh token is required'})
             
         token = RefreshToken(refresh_token)
         token.blacklist()
         
         response = Response({'message': 'Successfully logged out'})
         response.set_cookie('access_token', '', expires=0)
-        response.set_cookie('refresh_token', '', expires=0)
-
-        
+        response.set_cookie('refresh_token', '', expires=0) 
         return response
 
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': str(e)})
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
