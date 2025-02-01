@@ -51,7 +51,7 @@ const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({ enabled, onStatusChange }
   const handleVerifyCode = async (): Promise<void> => {
     try {
       const response = await api.post('/2fa/verify/', {
-        code: verificationCode
+        OTP: verificationCode
       });
 
       if (response.status === 200) {

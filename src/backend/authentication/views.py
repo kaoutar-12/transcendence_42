@@ -100,7 +100,7 @@ def login(request):
         })
     serialzer = UserSerializer(user)
     twoFactorEnabled=serialzer.data
-    if twoFactorEnabled["twoFactorEnabled"] and not request.data.get('code'):
+    if twoFactorEnabled["twoFactorEnabled"] and not request.data.get('OTP'):
         return Response({
              'action': 'triger on'
         })
@@ -252,7 +252,7 @@ def enable_2fa(request):
 @permission_classes([IsAuthenticated])
 def verify_2fa(request):
     try:
-        code = request.data.get('code')
+        code = request.data.get('OTP')
         if not code:
             return Response({
                 'error': 'Verification code is required'

@@ -9,10 +9,13 @@ export default function LoginForm() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
+    OTP: '',
   });
   const [error, setError] = useState('');
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [show2FA, setShow2FA] = useState(false);
+
 
 
   // Initialize particles
@@ -32,15 +35,15 @@ export default function LoginForm() {
       const data = await res.json();
 
       if (res.ok) {
-        // console.log(data);
+        if (data.action === 'triger on') {
+          setShow2FA(true);
+		  return;
+        }
         if (data.error)
         {
             setError(data.error);
             return;
         }
-
-        // localStorage.setItem('access_token', '1');
-        // localStorage.setItem('refresh_token', '1');
         router.push('/home');
       } else {
         setError(data.error || 'Login failed');
@@ -80,7 +83,9 @@ export default function LoginForm() {
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
+		  {!show2FA ?(
+			<>
+		  	<div>
               <label className="block text-gray-700 mb-2">
                 Email
               </label>
@@ -102,7 +107,24 @@ export default function LoginForm() {
                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                 className="w-full px-4 py-3 bg-transparent border-b border-gray-300 focus:border-gray-500 focus:outline-none"
               />
-            </div>
+            </div> 
+			</>
+		) : ( 
+			<div className="mb-6">
+                <label className="block text-gray-700 mb-2">Enter 2FA Code</label>
+                <input
+                  type="text"
+                  onChange={(e) => setFormData({...formData, OTP: e.target.value})}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-red-500"
+                  placeholder="Enter OTP code"
+                  required
+                />
+                <p className="text-sm text-gray-500 mt-2">
+                  Please enter the verification code sent to your device
+                </p>
+              </div>
+            )
+			}
 
             {error && (
               <div className="text-red-500 text-sm text-center">
@@ -120,13 +142,14 @@ export default function LoginForm() {
 
             </button>
 
-            <p className="text-center text-gray-600 text-sm">
+            {!show2FA ? <p className="text-center text-gray-600 text-sm">
               Don&apos;t have an account?{' '}
        
               <a  onClick={ ()=>{ router.push('/register')}} className="text-red-500 hover:text-red-600 cursor-pointer">
                 Register here
               </a>
-            </p>
+            </p> :<div></div>
+			}
           </form>
         </div>
       </div>
