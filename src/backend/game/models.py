@@ -1,6 +1,6 @@
 from django.db import models
 from authentication.models import User
-
+import random
 #queue management sql
 class QueueState(models.Model):
 	id = models.AutoField(primary_key=True, default=1)
@@ -31,6 +31,26 @@ class GameSession(models.Model):
 	winner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
 	class Meta:
 		ordering = ['-create_date']
+	state = models.JSONField(default=dict)
+	def init_state(self):
+		self.state = {
+			'ball':{
+				'x': 666,
+				'y': 666,
+				'vx': random.choice([-1, 1]),
+				'vy': random.choice([-1, 1]),
+			},
+			'leftpaddle':{
+				'y': 666,
+			},
+			'rightpaddle':{
+				'y': 666,
+			},
+			'score':{
+				'left': 0,
+				'right': 0,
+			},
+		}
 
 #player management sql
 class Player(models.Model):
