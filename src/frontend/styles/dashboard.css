@@ -12,6 +12,9 @@
   height: 380px;
   background-color: #f5f5f5;
   border-radius: 34px;
+  display: flex;
+  /* flex-direction: column; */
+  position: relative;
 }
 
 .info{
@@ -19,6 +22,34 @@
     height: 40%;
     background:black;
     display: flex;
-    justify-content: self-end;
-    
+    align-self: end;
+    border-radius: 34px;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 70px;
+    color:white;
+    font-size: 20px;
 }
+
+.avatar{
+    width: 150px;
+    height: 150px;
+    border-radius: 33px;
+    background-color: lightblue;
+    border: 2px solid #bb151f;
+    position: absolute;
+    top: 30%;
+    right: 726px;
+    /* transform: translateX(-55%); */
+}
+/* .username{
+    color:white;
+}
+
+.friends-list{
+    color:white;
+}
+
+.online{
+    color:white;
+} */
