@@ -236,7 +236,7 @@ def enable_2fa(request):
         if not created and two_factor.is_enabled:
             return Response({
                 'error': '2FA is already enabled'
-            }, status=status.HTTP_400_BAD_REQUEST)
+            })
         
         # Generate QR code
         uri = generate_totp_uri(
@@ -262,7 +262,7 @@ def verify_2fa(request):
         if not code:
             return Response({
                 'error': 'Verification code is required'
-            }, status=status.HTTP_400_BAD_REQUEST)
+            })
         
         two_factor = TwoFactorAuth.objects.get(user=request.user)
         
@@ -274,13 +274,13 @@ def verify_2fa(request):
             })
         else:
             return Response({
-                'error': 'Invalid verification code'
-            }, status=status.HTTP_400_BAD_REQUEST)
+                'error': 'Can u Try the Real Code please !!!'
+            })
             
     except TwoFactorAuth.DoesNotExist:
         return Response({
             'error': '2FA setup not initiated'
-        }, status=status.HTTP_400_BAD_REQUEST)
+        })
     except Exception as e:
         return Response({
             'error': str(e)
@@ -294,8 +294,8 @@ def disable_2fa(request):
         
         if not two_factor.is_enabled:
             return Response({
-                'error': '2FA is not enabled'
-            }, status=status.HTTP_400_BAD_REQUEST)
+                'error': 'enable 2Fa first Please'
+            })
         
         two_factor.is_enabled = False
         two_factor.save()
@@ -306,8 +306,8 @@ def disable_2fa(request):
         
     except TwoFactorAuth.DoesNotExist:
         return Response({
-            'error': '2FA is not enabled'
-        }, status=status.HTTP_400_BAD_REQUEST)
+            'error': 'enable 2Fa first Please'
+        })
     except Exception as e:
         return Response({
             'error': str(e)

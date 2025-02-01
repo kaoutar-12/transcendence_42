@@ -11,11 +11,11 @@ interface TwoFactorAuthProps {
 
 const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({ enabled, onStatusChange }) => {
 	const [showQRCode, setShowQRCode] = useState<boolean>(false);
-  const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
-  const [verificationCode, setVerificationCode] = useState<string>('');
-  const [error, setError] = useState<string>('');
-  const [success, setSuccess] = useState<string>('');
-  const [isEnabled, setIsEnabled] = useState<boolean>(enabled);
+	const [qrCodeUrl, setQrCodeUrl] = useState<string>('');
+	const [verificationCode, setVerificationCode] = useState<string>('');
+	const [error, setError] = useState<string>('');
+	const [success, setSuccess] = useState<string>('');
+	const [isEnabled, setIsEnabled] = useState<boolean>(enabled);
   
   useEffect(() => {
 	setIsEnabled(enabled);
@@ -28,6 +28,12 @@ const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({ enabled, onStatusChange }
         // Enable 2FA
         const response = await api.post('/2fa/enable/');
         if (response.status === 200) {
+			if (response.data.error)
+			{
+				setSuccess('');
+				setError(response.data.error);
+				return;
+			}
           setQrCodeUrl(response.data.qr_code);
           setShowQRCode(true);
           setError('');
@@ -36,6 +42,12 @@ const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({ enabled, onStatusChange }
         // Disable 2FA
         const response = await api.post('/2fa/disable/');
         if (response.status === 200) {
+			if (response.data.error)
+			{
+				setSuccess('');
+				setError(response.data.error);
+				return;
+			}
           setIsEnabled(false);
           setShowQRCode(false);
           setSuccess('Two-factor authentication disabled successfully');
@@ -55,6 +67,12 @@ const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({ enabled, onStatusChange }
       });
 
       if (response.status === 200) {
+		if (response.data.error)
+		{
+			setSuccess('');
+			setError(response.data.error);
+			return;
+		}
         setIsEnabled(true);
         setShowQRCode(false);
         setSuccess('Two-factor authentication enabled successfully');
