@@ -16,13 +16,40 @@ import { useState } from "react";
 import Image from "next/image";
 import "@/styles/sidebar.css";
 import { usePathname, useRouter } from "next/navigation";
-import LogoutButton from '@/components/auth/LogoutButton';
+import LogoutButton from "@/components/auth/LogoutButton";
+import { useWebSocket } from "./context/useWebsocket";
 
 type Props = {};
 
 const Sidebar = (props: Props) => {
   const pathname = usePathname();
+  const { unreadCounts } = useWebSocket();
   const router = useRouter();
+  const excludedPaths = [
+    "/home",
+    "/chat",
+    "/games",
+    "/settings",
+    "/leaderboard",
+  ];
+
+  const shouldHideSidebar = !excludedPaths.some(
+    (path) =>
+      pathname.startsWith(path) &&
+      (pathname.length === path.length || pathname[path.length] === "/")
+  );
+
+  const totalUnread = Object.entries(unreadCounts).reduce(
+    (total, [roomId, count]) => {
+      const isCurrentRoom = pathname.includes(roomId);
+      return isCurrentRoom ? total : total + count;
+    },
+    0
+  );
+
+  if (shouldHideSidebar) {
+    return null;
+  }
 
   const routes = [
     {
@@ -31,7 +58,14 @@ const Sidebar = (props: Props) => {
     },
     {
       href: "/chat",
-      icon: <IoChatbubbleEllipses className="icon" />,
+      icon: (
+        <div className="badge-container">
+          <IoChatbubbleEllipses className="icon" />
+          {totalUnread > 0 && (
+            <span className="notification-badge">{totalUnread}</span>
+          )}
+        </div>
+      ),
     },
     {
       href: "/games",
@@ -47,7 +81,6 @@ const Sidebar = (props: Props) => {
     },
   ];
 
-  
   return (
     <Fragment>
       <div className="sidebar">
@@ -58,7 +91,13 @@ const Sidebar = (props: Props) => {
               router.push("/home");
             }}
           >
-            <Image src="/logo.webp" alt="logo" width="100" height="100" priority />
+            <Image
+              src="/logo.webp"
+              alt="logo"
+              width="100"
+              height="100"
+              priority
+            />
           </div>
           {routes.map((route, index) => {
             const isActive = pathname.startsWith(route.href);
@@ -70,7 +109,6 @@ const Sidebar = (props: Props) => {
                 style={{
                   color: isActive ? "white" : " #bb151f",
                   transform: isActive ? "scale(1.2)" : "",
-                  
                 }}
               >
                 {route.icon}
@@ -80,7 +118,6 @@ const Sidebar = (props: Props) => {
         </div>
         <div className="logout">
           <LogoutButton />
-
         </div>
       </div>
     </Fragment>
