@@ -8,10 +8,10 @@ type Props = {
 const layout = (props: Props) => {
   return (
     <Fragment>
-      <div className="chat">
+      {/* <div className="chat"> */}
         <Conversations />
         {props.children}
-      </div>
+      {/* </div> */}
     </Fragment>
   );
 };
