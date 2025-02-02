@@ -5,7 +5,7 @@ import time as import_time
 
 #pong game logic class sql
 class PongGame:
-    def __init__(self, width=1200, height=800):
+    def __init__(self, width=500, height=500):
         self.width = width
         self.height = height
         self.paddle_height = 1
