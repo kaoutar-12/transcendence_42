@@ -47,9 +47,9 @@ INSTALLED_APPS = [
 	'game',
 	'channels',
     'rest_framework_simplejwt.token_blacklist',
-    'django_otp',
-    'django_otp.plugins.otp_totp',
 ]
+    # 'django_otp.plugins.otp_totp',
+    # 'django_otp',
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
