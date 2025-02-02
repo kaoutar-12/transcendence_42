@@ -10,12 +10,6 @@ const Conversations = (props: Props) => {
     <div className="left">
       <div className="top-conversations">
         <div className="chat-text">Chat</div>
-        <div className="chat-search">
-          <div className="search">
-            <input type="text" placeholder="Search" />
-          </div>
-          <IoSearch className="search-icon" />
-        </div>
       </div>
       <Conversation />
     </div>

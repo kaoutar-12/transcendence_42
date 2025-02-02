@@ -36,7 +36,6 @@ ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
 	'channels',
-    'daphne',
     'chat',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -89,12 +88,6 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 ASGI_APPLICATION = 'backend.asgi.application'
 
-# Replace the CHANNEL_LAYERS configuration in settings.py with:
-CHANNEL_LAYERS = {
-    'default': {
-        'BACKEND': 'channels.layers.InMemoryChannelLayer',
-    }
-}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -108,25 +101,14 @@ CHANNEL_LAYERS = {
 
 # Replace the DATABASES configuration in settings.py with:
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': os.environ.get('DB_NAME', 'djangodb'),
-#         'USER': os.environ.get('DB_USER', 'djangouser'),
-#         'PASSWORD': os.environ.get('DB_PASSWORD', 'djangopass'),
-#         'HOST': os.environ.get('DB_HOST', 'db'),
-#         'PORT': os.environ.get('DB_PORT', '5432'),
-#     }
-# }
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'mydatabase',
-        'USER': 'myuser',
-        'PASSWORD': 'mypassword',
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'NAME': os.environ.get('DB_NAME', 'djangodb'),
+        'USER': os.environ.get('DB_USER', 'djangouser'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', 'djangopass'),
+        'HOST': os.environ.get('DB_HOST', 'db'),
+        'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
 
@@ -220,11 +202,11 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 APPEND_SLASH = False
 
-# CHANNEL_LAYERS = {
-#     'default': {
-#         'BACKEND': 'channels_redis.core.RedisChannelLayer',
-#         'CONFIG': {
-#             "hosts": [('redis', 6379)],
-#         },
-#     },
-# }
+CHANNEL_LAYERS = {
+    'default': {
+        'BACKEND': 'channels_redis.core.RedisChannelLayer',
+        'CONFIG': {
+            "hosts": [('redis', 6379)],
+        },
+    },
+}
