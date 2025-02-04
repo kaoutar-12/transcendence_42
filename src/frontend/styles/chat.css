@@ -26,6 +26,14 @@
   }
 }
 
+.selected {
+  background: #bb151f;
+}
+
+.selected:hover {
+  background: #bb151f;
+}
+
 .chat-text {
   color: white;
   font-size: 40px;
@@ -37,12 +45,13 @@
 .right {
   display: flex;
   flex-direction: column;
-  background: burlywood;
+  background: black;
   width: 80%;
+  dissplay: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 
-  @media screen and (max-width: 768px) {
-    display: none;
-  }
 }
 
 .top-conversations {
@@ -67,7 +76,7 @@
   justify-content: center;
 }
 .search {
-  width: 80%;
+  width: 90%;
   height: 80%;
   display: flex;
   align-items: center;
@@ -89,7 +98,7 @@
 }
 
 .chat-search input::placeholder {
-  color: #bb151f;
+  color: gray;
 }
 
 .search-icon {
@@ -106,7 +115,109 @@
   color: white;
 }
 
-.messages-wrraper {
-  background: plum;
+.no-chat{
+  width: 300px;
+  height: 300px;
+}
 
+.no-chat-icon{
+  width: 100%;
+  height: 100%;
+  color: #bb151f;
+}
+
+.no-chat-text{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  font-family: family
+}
+
+.no-chat-text h1{
+  color: white;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.no-chat-text h2{
+  font-size: 16px;
+  font-weight: 400;
+  color:gray;
+  text-align: center;
+}
+
+.empty{
+  width: 100%;
+  height: 100%;
+  /* background:pink; */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+
+  gap: 20px;
+}
+
+.contacts{
+  width: 100%;
+  height:10%;
+  /* background: #141414; */
+  display: flex;
+  position: relative;
+}
+
+.contact{
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  background:pink;
+  border: 4px solid black;
+  position:absolute;
+  transform: translateY(offset, 0%);
+  z-index: 1;
+  top: 40%;
+  right: 30%;
+  cursor: pointer;
+}
+
+.add-contact{
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.empty-conversation-text{
+  color: white;
+  font-size: 16px;
+  font-family: family;
+  font-weight: 700;
+}
+
+
+.contact:nth-child(1){
+  left: 20%;
+  z-index: 2;
+}
+
+.contact:nth-child(2){
+  left: 30%;
+  z-index: 3;
+}
+
+.contact:nth-child(3){
+  left: 40%;
+  z-index: 4;
+}
+
+.contact:nth-child(4){
+  left: 50%;
+  z-index: 5;
+}
+
+.contact:nth-child(5){
+  left: 60%;
+  z-index: 6;
 }

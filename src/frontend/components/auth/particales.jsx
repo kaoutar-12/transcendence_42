@@ -1,5 +1,4 @@
-// components/ParticlesBackground.jsx
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from "react";
 import Particles, { initParticlesEngine } from "@tsparticles/react";
 import { loadSlim } from "@tsparticles/slim";
 
@@ -18,12 +17,12 @@ const ParticlesBackground = () => {
     autoPlay: true,
     background: {
       color: {
-        value: "#000"
+        value: "#000",
       },
     },
     fullScreen: {
       enable: false,
-      zIndex: 0
+      zIndex: 0,
     },
     fpsLimit: 120,
     interactivity: {
@@ -32,7 +31,8 @@ const ParticlesBackground = () => {
           enable: false,
         },
         onHover: {
-          enable: false,
+          enable: true,
+          mode: "repulse",
         },
         resize: {
           enable: false,
@@ -41,62 +41,55 @@ const ParticlesBackground = () => {
     },
     particles: {
       color: {
-        value: "#ff0000"
+        value: "#ff0000",
       },
       links: {
         color: "#ffffff",
-        distance: 150,
+        distance: 300,
         enable: true,
-        opacity: 0.3,
-        width: 1
+        opacity: 0.5,
+        width: 1,
       },
       move: {
         direction: "none",
         enable: true,
-        outModes: {
-          default: "bounce",
-        },
+
         random: false,
         speed: 2,
-        straight: false
+        straight: false,
       },
       number: {
         density: {
           enable: true,
-          area: 800
+          area: 800,
         },
-        value: 80
+        value: 140,
       },
       opacity: {
-        value: 0.5
+        value: 0.5,
       },
       shape: {
-        type: "circle"
+        type: "circle",
       },
       size: {
-        value: { min: 1, max: 3 }
-      }
+        value: { min: 1, max: 3 },
+      },
     },
-    detectRetina: true
+    detectRetina: true,
   };
 
   return init ? (
-    <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 0 }}>
+    <div
+      className="absolute inset-0 pointer-events-none w-full h-full"
+      style={{ zIndex: 0 }}
+    >
       <Particles
         id="tsparticles"
         options={particlesOptions}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          pointerEvents: 'none',
-          userSelect: 'none'
-        }}
+        className="w-full h-full"
       />
     </div>
   ) : null;
 };
 
-export default ParticlesBackground;
+export default memo(ParticlesBackground);

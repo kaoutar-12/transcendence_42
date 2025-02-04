@@ -1,70 +1,92 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
-from .models import GameSession, Player, GameHistory
-from authentication.models import User
 from channels.db import database_sync_to_async
-
-
-from channels.generic.websocket import AsyncWebsocketConsumer
-import json
-from channels.db import database_sync_to_async
-from .models import QueuePosition
+from .models import QueuePosition, GameSession, Player
 
 class QueueConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.user = self.scope['user']
-        
-        if self.user.is_anonymous:
-            await self.close()
-            return
-            
-        self.room_name = f'queue_{self.user.id}'
-        await self.channel_layer.group_add(
-            self.room_name,
-            self.channel_name
-        )
-        
         await self.accept()
         
-        # Send initial queue status
+        self.user = self.scope['user']
+        if self.user.is_anonymous:
+            await self.send(text_data=json.dumps({
+                'type': 'error',
+                'message': 'Authentication required'
+            }))
+            await self.close()
+            return
+        
+        self.room_name = f'queue_{self.user.id}'
+        await self.channel_layer.group_add(self.room_name, self.channel_name)
+        
         is_in_queue = await self.check_queue_status()
         await self.send(text_data=json.dumps({
             'type': 'queue_status',
             'in_queue': is_in_queue
         }))
-    
-    async def disconnect(self, close_code):
-        if hasattr(self, 'room_name'):
-            await self.channel_layer.group_discard(
-                self.room_name,
-                self.channel_name
-            )
-    
+
     @database_sync_to_async
     def check_queue_status(self):
-        return QueuePosition.objects.filter(user=self.user).exists()
+        try:
+            return QueuePosition.objects.filter(user=self.user).exists()
+        except Exception:
+            return False
+
+    async def disconnect(self, close_code):
+        if hasattr(self, 'room_name'):
+            await self.channel_layer.group_discard(self.room_name, self.channel_name)
     
+    async def receive(self, text_data):
+        if not self.user.is_authenticated:
+            return
+
+        try:
+            data = json.loads(text_data)
+            if data.get('type') == 'check_status':
+                is_in_queue = await self.check_queue_status()
+                await self.send(text_data=json.dumps({
+                    'type': 'queue_status',
+                    'in_queue': is_in_queue
+                }))
+        except json.JSONDecodeError:
+            pass
+
     async def notify_match_created(self, event):
-        """Notify the player when a match is created"""
         await self.send(text_data=json.dumps({
             'type': 'match_created',
             'game_id': event['game_id']
         }))
-    
+
     async def notify_queue_status(self, event):
-        """Notify the player about queue status changes"""
         await self.send(text_data=json.dumps({
             'type': 'queue_status',
             'status': event['status']
         }))
 
 class GameConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        await self.accept()
+        
+        self.user = self.scope['user']
+        if self.user.is_anonymous:
+            await self.close()
+            return
+
+        self.game_id = self.scope['url_route']['kwargs']['game_id']
+        self.room_group_name = f'game_{self.game_id}'
+        
+        is_player = await self.is_player()
+        if not is_player:
+            await self.close()
+            return
+
+        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
+        game_state = await self.get_game_state()
+        await self.send(text_data=json.dumps(game_state))
+
     @database_sync_to_async
     def is_player(self):
-        # just to check if the client is playnig the game
         try:
-            if self.user.is_anonymous:
-                return False
             return Player.objects.filter(
                 user=self.user,
                 game_session_id=self.game_id
@@ -72,38 +94,12 @@ class GameConsumer(AsyncWebsocketConsumer):
         except Exception:
             return False
 
-    async def connect(self):
-        self.game_id = self.scope['url_route']['kwargs']['game_id'] # get game 
-        self.room_group_name = f'game_{self.game_id}' # create unoque room name
-        self.user = self.scope['user'] # get user from scope
-
-        if self.user.is_anonymous: # not auth user
-            await self.close()
-            return
-
-        # Join room group
-        await self.channel_layer.group_add(
-            self.room_group_name,
-            self.channel_name
-        )
-        
-        is_player = await self.is_player()
-        if not is_player:
-            await self.close()
-            return
-            
-        await self.accept()
-        
-        # get game state
-        game_state = await self.get_game_state()
-        await self.send(text_data=json.dumps(game_state)) # send it to client
-    
     async def disconnect(self, close_code):
-        # Leave room group
-        await self.channel_layer.group_discard(
-            self.room_group_name,
-            self.channel_name
-        )
+        if hasattr(self, 'room_group_name'):
+            await self.channel_layer.group_discard(
+                self.room_group_name,
+                self.channel_name
+            )
     
     async def receive(self, text_data):
         try:
@@ -115,7 +111,7 @@ class GameConsumer(AsyncWebsocketConsumer):
                 await self.ready(data)
             elif message_type == 'game_action':
                 await self.handle_game_action(data)
-        except json.JSONDecodeError as e:
+        except json.JSONDecodeError:
             await self.send(text_data=json.dumps({
                 'error': 'Invalid JSON format'
             }))
@@ -124,10 +120,9 @@ class GameConsumer(AsyncWebsocketConsumer):
     def get_game_state(self):
         game_session = GameSession.objects.get(id=self.game_id)
         players = Player.objects.filter(game_session=game_session)
-
         return {
             'type': 'game_state',
-            'id' : game_session.id,
+            'id': game_session.id,
             'state': game_session.status,
             'players': [
                 {
@@ -156,7 +151,6 @@ class GameConsumer(AsyncWebsocketConsumer):
         return {'type': 'player_ready', 'user_id': self.user.id}
     
     async def handle_player_move(self, data):
-        # broadcast moves to other players
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -177,7 +171,6 @@ class GameConsumer(AsyncWebsocketConsumer):
         )
 
     async def handle_game_action(self, data):
-        #handle game actions like scoring and game events
         await self.channel_layer.group_send(
             self.room_group_name,
             {
@@ -198,3 +191,4 @@ class GameConsumer(AsyncWebsocketConsumer):
 
     async def game_start(self, event):
         await self.send(text_data=json.dumps(event))
+
