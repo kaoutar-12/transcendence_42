@@ -35,6 +35,8 @@ ALLOWED_HOSTS = ['*']
 # Application definition
 
 INSTALLED_APPS = [
+	'channels',
+    'chat',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -45,7 +47,6 @@ INSTALLED_APPS = [
     'corsheaders',
     'authentication',
 	'game',
-	'channels',
     'rest_framework_simplejwt.token_blacklist',
 ]
     # 'django_otp.plugins.otp_totp',
@@ -109,6 +110,17 @@ DATABASES = {
         'PORT': os.environ.get('DB_PORT', '5432'),
     }
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'mydatabase',
+#         'USER': 'myuser',
+#         'PASSWORD': 'mypassword',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
 
 
 # Password validation
@@ -174,6 +186,19 @@ CORS_ALLOW_CREDENTIALS = True
 
 CORS_EXPPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
 
+CORS_ALLOW_HEADERS = [
+    "accept",
+    "accept-encoding",
+    "authorization",
+    "content-type",
+    "dnt",
+    "origin",
+    "user-agent",
+    "x-csrftoken",
+    "x-requested-with",
+    "cookie",
+]
+
 ALLOWED_HOSTS = ["*"]
         # 'rest_framework_simplejwt.authentication.JWTAuthentication',
 REST_FRAMEWORK = {
@@ -199,8 +224,6 @@ AUTHENTICATION_BACKENDS = [
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 APPEND_SLASH = False
-
-
 
 CHANNEL_LAYERS = {
     'default': {
