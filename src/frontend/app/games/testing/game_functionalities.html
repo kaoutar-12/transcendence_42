@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Queue Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .status {
+            margin: 20px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .info {
+            background-color: #cce5ff;
+            border: 1px solid #b8daff;
+            color: #004085;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        #joinQueue {
+            background-color: #28a745;
+            color: white;
+        }
+        #leaveQueue {
+            background-color: #dc3545;
+            color: white;
+        }
+        #messages {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-height: 200px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Queue Test Interface</h1>
+    
+    <div>
+        <input type="text" id="token" placeholder="Enter your JWT token" style="width: 300px; padding: 5px;">
+    </div>
+
+    <div style="margin: 20px 0;">
+        <button id="joinQueue">Join Queue</button>
+        <button id="leaveQueue">Leave Queue</button>
+    </div>
+
+    <div id="status" class="status"></div>
+    
+    <div>
+        <h3>Messages:</h3>
+        <div id="messages"></div>
+    </div>
+
+    <script>
+        let ws = null;
+        const messagesDiv = document.getElementById('messages');
+        const statusDiv = document.getElementById('status');
+        const tokenInput = document.getElementById('token');
+        const joinButton = document.getElementById('joinQueue');
+        const leaveButton = document.getElementById('leaveQueue');
+
+        function addMessage(message, type = 'info') {
+            const messageElement = document.createElement('div');
+            messageElement.className = `status ${type}`;
+            messageElement.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            messagesDiv.appendChild(messageElement);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }
+
+        function updateStatus(message, type = 'info') {
+            statusDiv.className = `status ${type}`;
+            statusDiv.textContent = message;
+        }
+
+        function connectWebSocket() {
+            const token = tokenInput.value;
+            if (!token) {
+                updateStatus('Please enter a JWT token', 'error');
+                return;
+            }
+
+            // Connect to WebSocket with token
+            ws = new WebSocket(`ws://localhost:8000/ws/queue/?token=${token}`);
+
+            ws.onopen = () => {
+                addMessage('WebSocket connected', 'success');
+                joinButton.disabled = false;
+                leaveButton.disabled = false;
+            };
+
+            ws.onclose = () => {
+                addMessage('WebSocket disconnected', 'error');
+                joinButton.disabled = true;
+                leaveButton.disabled = true;
+            };
+
+            ws.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                console.log('Received message:', data);
+
+                switch (data.type) {
+                    case 'queue_status':
+                        addMessage(`Queue status: ${data.status || (data.in_queue ? 'in queue' : 'not in queue')}`);
+                        break;
+                    case 'match_created':
+                        addMessage(`Match created! Game ID: ${data.game_id}`, 'success');
+                        // Here you could automatically redirect to the game page
+                        break;
+                    default:
+                        addMessage(`Received message: ${JSON.stringify(data)}`);
+                }
+            };
+
+            ws.onerror = (error) => {
+                addMessage('WebSocket error: ' + error.message, 'error');
+            };
+        }
+
+        // Join Queue
+        joinButton.addEventListener('click', async () => {
+            const token = tokenInput.value;
+            try {
+                const response = await fetch('http://localhost:8000/api/game/queue/join/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addMessage('Successfully joined queue', 'success');
+                    joinButton.disabled = true;
+                    leaveButton.disabled = false;
+                } else {
+                    addMessage(`Failed to join queue: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addMessage(`Error joining queue: ${error.message}`, 'error');
+            }
+        });
+
+        // Leave Queue
+        leaveButton.addEventListener('click', async () => {
+            const token = tokenInput.value;
+            try {
+                const response = await fetch('http://localhost:8000/api/game/queue/leave/', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                const data = await response.json();
+                
+                if (response.ok) {
+                    addMessage('Successfully left queue', 'success');
+                    joinButton.disabled = false;
+                    leaveButton.disabled = true;
+                } else {
+                    addMessage(`Failed to leave queue: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                addMessage(`Error leaving queue: ${error.message}`, 'error');
+            }
+        });
+
+        // Connect WebSocket when token is entered
+        tokenInput.addEventListener('change', connectWebSocket);
+
+        // Initial button state
+        joinButton.disabled = true;
+        leaveButton.disabled = true;
+    </script>
+</body>
+</html>

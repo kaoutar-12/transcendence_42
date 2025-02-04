@@ -5,6 +5,59 @@ from authentication.models import User
 from channels.db import database_sync_to_async
 
 
+from channels.generic.websocket import AsyncWebsocketConsumer
+import json
+from channels.db import database_sync_to_async
+from .models import QueuePosition
+
+class QueueConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.user = self.scope['user']
+        
+        if self.user.is_anonymous:
+            await self.close()
+            return
+            
+        self.room_name = f'queue_{self.user.id}'
+        await self.channel_layer.group_add(
+            self.room_name,
+            self.channel_name
+        )
+        
+        await self.accept()
+        
+        # Send initial queue status
+        is_in_queue = await self.check_queue_status()
+        await self.send(text_data=json.dumps({
+            'type': 'queue_status',
+            'in_queue': is_in_queue
+        }))
+    
+    async def disconnect(self, close_code):
+        if hasattr(self, 'room_name'):
+            await self.channel_layer.group_discard(
+                self.room_name,
+                self.channel_name
+            )
+    
+    @database_sync_to_async
+    def check_queue_status(self):
+        return QueuePosition.objects.filter(user=self.user).exists()
+    
+    async def notify_match_created(self, event):
+        """Notify the player when a match is created"""
+        await self.send(text_data=json.dumps({
+            'type': 'match_created',
+            'game_id': event['game_id']
+        }))
+    
+    async def notify_queue_status(self, event):
+        """Notify the player about queue status changes"""
+        await self.send(text_data=json.dumps({
+            'type': 'queue_status',
+            'status': event['status']
+        }))
+
 class GameConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def is_player(self):
