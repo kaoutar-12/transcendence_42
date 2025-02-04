@@ -100,46 +100,75 @@
         }
 
         function connectWebSocket() {
-            const token = tokenInput.value;
+            const token = tokenInput.value.trim();
             if (!token) {
                 updateStatus('Please enter a JWT token', 'error');
                 return;
             }
-
-            // Connect to WebSocket with token
-            ws = new WebSocket(`ws://localhost:8000/ws/queue/?token=${token}`);
-
+        
+            const cleanToken = token.replace('Bearer ', '');
+            
+            // Set cookie correctly
+            document.cookie = `access_token=${cleanToken}; path=/; SameSite=Lax`;
+            
+            if (ws) {
+                ws.close();
+            }
+        
+            // Include token in query param as fallback
+            const wsUrl = `ws://localhost:8000/ws/queue/?token=${cleanToken}`;
+            ws = new WebSocket(wsUrl);
+            
             ws.onopen = () => {
+                console.log("WebSocket connected");
                 addMessage('WebSocket connected', 'success');
                 joinButton.disabled = false;
                 leaveButton.disabled = false;
             };
-
-            ws.onclose = () => {
-                addMessage('WebSocket disconnected', 'error');
+            ws.onmessage = (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    console.log('Received:', data);
+                    
+                    switch (data.type) {
+                        case 'queue_status':
+                            addMessage(`Queue status: ${data.status || (data.in_queue ? 'in queue' : 'not in queue')}`);
+                            break;
+                        case 'match_created':
+                            addMessage(`Match created! Game ID: ${data.game_id}`, 'success');
+                            break;
+                        default:
+                            addMessage(`Message: ${JSON.stringify(data)}`);
+                    }
+                } catch (error) {
+                    console.error('Error parsing message:', error);
+                }
+            };
+        
+            ws.onclose = (event) => {
+                addMessage(`Connection closed (${event.code})`, 'error');
                 joinButton.disabled = true;
                 leaveButton.disabled = true;
             };
-
-            ws.onmessage = (event) => {
-                const data = JSON.parse(event.data);
-                console.log('Received message:', data);
-
-                switch (data.type) {
-                    case 'queue_status':
-                        addMessage(`Queue status: ${data.status || (data.in_queue ? 'in queue' : 'not in queue')}`);
-                        break;
-                    case 'match_created':
-                        addMessage(`Match created! Game ID: ${data.game_id}`, 'success');
-                        // Here you could automatically redirect to the game page
-                        break;
-                    default:
-                        addMessage(`Received message: ${JSON.stringify(data)}`);
-                }
+        
+            ws.onerror = () => {
+                addMessage('Connection error', 'error');
             };
-
-            ws.onerror = (error) => {
-                addMessage('WebSocket error: ' + error.message, 'error');
+        }
+        
+        // Use input event instead of change
+        tokenInput.removeEventListener('change', connectWebSocket);
+        tokenInput.addEventListener('input', debounce(connectWebSocket, 500));
+        
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
             };
         }
 
