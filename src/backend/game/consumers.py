@@ -94,6 +94,14 @@ class PongGAMEConsumer:
         
         return None
 
+    def handle_paddle_collision(self, state, side_paddle):
+        ball = state['ball']
+        paddle_y = state['paddles'][side_paddle]['y']
+
+        # calculate the intersection
+        
+
+
 class QueueConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         await self.accept()
