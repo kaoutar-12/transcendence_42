@@ -9,90 +9,106 @@ import {
   useState,
   ReactNode,
 } from "react";
-import Cookies from "js-cookie";
 
-type WebSocketMessage = string | ArrayBuffer | Blob | ArrayBufferView;
+type MessageHandler = (data: any) => void;
 
 interface WebSocketContextProps {
   socket: WebSocket | null;
   status: "connecting" | "open" | "closed" | "error";
-  send: (message: WebSocketMessage) => void;
-  unreadCounts: Record<string, number>; // Room ID -> count
-  resetUnread: (roomId: string) => void; // Add reset function
-  messages: any[]; // Add messages array
+  send: (message: string) => void;
+  on: (type: string, handler: MessageHandler) => void;
+  off: (type: string) => void;
+  unreadCounts: Record<string, number>;
+  markAsRead: (roomId: string) => void;
 }
 
 const WebSocketContext = createContext<WebSocketContextProps | null>(null);
 
-interface WebSocketProviderProps {
-  children: ReactNode;
-}
-
-export const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
-  const [status, setStatus] = useState<
-    "connecting" | "open" | "closed" | "error"
-  >("connecting");
+export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
+  const [status, setStatus] =
+    useState<WebSocketContextProps["status"]>("connecting");
   const socketRef = useRef<WebSocket | null>(null);
-  const [messages, setMessages] = useState<any[]>([]);
+  const handlers = useRef<Record<string, MessageHandler>>({});
   const [unreadCounts, setUnreadCounts] = useState<Record<string, number>>({});
   const pathname = usePathname();
 
-  const resetUnread = (roomId: string) => {
-    setUnreadCounts((prev) => ({ ...prev, [roomId]: 0 }));
+  useEffect(() => {
+    const socket = new WebSocket("ws://localhost:8000/ws/global/");
+    socketRef.current = socket;
+
+    socket.onopen = () => {
+      console.log("Global socket connected");
+      setStatus("open");
+    };
+    socket.onclose = () => {
+      console.log("Global socket disconnected");
+      setStatus("closed");
+    };
+    socket.onerror = () => {
+      console.log("Global socket error");
+      setStatus("error");
+    };
+
+    socket.onmessage = (event) => {
+      try {
+        const message = JSON.parse(event.data);
+        const handler = handlers.current[message.type];
+
+        switch (message.type) {
+          case "message_update":
+            const isCurrentRoom = pathname.includes(message.data.room_id);
+            if (!isCurrentRoom) {
+              console.log("Not in the current room, Showing message update");
+              setUnreadCounts((prev) => ({
+                ...prev,
+                [message.data.room_id]: (prev[message.data.room_id] || 0) + 1,
+              }));
+            } else {
+              console.log("In the current room, Not showing message update");
+            }
+            break;
+          case "messages_unread":
+            handleReadCount(message.data);
+            break;
+          default:
+            console.log("Unknown message type:", message.type);
+            break;
+        }
+
+        if (handler) handler(message.data);
+      } catch (error) {
+        console.error("Message handling error:", error);
+      }
+    };
+
+    return () => socket.close();
+  }, []);
+
+  const send = (message: string) => {
+    socketRef.current?.send(message);
   };
 
-  useEffect(() => {
-    const socketUrl = `ws://localhost:8000/ws/global/`;
+  const on = (type: string, handler: MessageHandler) => {
+    handlers.current[type] = handler;
+  };
 
-    socketRef.current = new WebSocket(socketUrl);
+  const off = (type: string) => {
+    delete handlers.current[type];
+  };
 
-    socketRef.current.onopen = () => {
-      setStatus("open");
-      console.log("WebSocket connected");
-    };
+  const handleReadCount = (data: any) => {
+    console.log("handleReadCount", data);
+    setUnreadCounts((prev) => ({
+      ...prev,
+      ...data,
+    }));
+  };
 
-    socketRef.current.onclose = () => {
-      setStatus("closed");
-      console.log("WebSocket disconnected");
-    };
-
-    socketRef.current.onerror = (error) => {
-      setStatus("error");
-      console.error("WebSocket error:", error);
-    };
-
-    socketRef.current.onmessage = (event) => {
-      try {
-        const parsed = JSON.parse(event.data);
-        if (parsed.type === "chat") {
-          const isCurrentRoom = pathname.includes(parsed.data.room_id);
-          setMessages((prev) => [...prev, parsed]);
-
-          if (!isCurrentRoom) {
-            setUnreadCounts((prev) => ({
-              ...prev,
-              [parsed.data.room_id]: (prev[parsed.data.room_id] || 0) + 1,
-            }));
-          }
-        }
-      } catch (error) {
-        console.error("Error parsing message:", error);
-      }
-    };
-
-    return () => {
-      if (socketRef.current) {
-        socketRef.current.close();
-      }
-    };
-  }, [pathname]);
-
-  const send = (message: WebSocketMessage) => {
-    if (socketRef.current?.readyState === WebSocket.OPEN) {
-      socketRef.current.send(message);
-    } else {
-      console.warn("Cannot send message - WebSocket not open");
-    }
+  const markAsRead = (roomId: string) => {
+    setUnreadCounts((prev) => ({
+      ...prev,
+      [roomId]: 0,
+    }));
   };
 
   return (
@@ -101,9 +117,10 @@ export const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
         socket: socketRef.current,
         status,
         send,
+        on,
+        off,
         unreadCounts,
-        resetUnread,
-        messages,
+        markAsRead,
       }}
     >
       {children}
@@ -113,8 +130,7 @@ export const WebSocketProvider = ({ children }: WebSocketProviderProps) => {
 
 export const useWebSocket = () => {
   const context = useContext(WebSocketContext);
-  if (!context) {
-    throw new Error("useWebSocket must be used within a WebSocketProvider");
-  }
+  if (!context)
+    throw new Error("useWebSocket must be used within WebSocketProvider");
   return context;
 };
