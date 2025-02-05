@@ -7,8 +7,7 @@ from rest_framework.pagination import PageNumberPagination
 from .models import Room
 from asgiref.sync import async_to_sync
 from channels.layers import get_channel_layer
-
-
+from django.db.models import Max, Q, Count
 from .serializers import CreateMessageSerializer, CreateRoomSerializer
 from django.db import models
 from django.contrib.auth import get_user_model
@@ -19,7 +18,19 @@ class RoomsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        rooms = Room.objects.filter(users__in=[request.user])
+        rooms = (
+            Room.objects
+            .filter(users=request.user)
+            .prefetch_related('users', 'messages')
+            .annotate(
+                last_updated=Max('messages__time'),
+                unread_count=Count(
+                    'messages',
+                    filter=~Q(messages__sender=request.user) & ~Q(messages__read_by=request.user)
+                )
+            )
+            .order_by('-last_updated')
+        )
 
         roomData = []
         for room in rooms:
@@ -59,27 +70,53 @@ class RoomsView(APIView):
             # Prepare WebSocket notification
             channel_layer = get_channel_layer()
             response_data = {
-                'room_id': room.id,
-                'userIds': [logged_user.id, other_user.id],
-                'messages': list(room.messages.values()),
-                'MSG': 'Room created successfully' if created else 'Room already exists'
+                'room_id': str(room.id),
+                'user': {
+                    'id': other_user.id,
+                    'username': other_user.username,
+                    'email': other_user.email,
+                    # 'profile_image': other_user.profile_image
+                    'nickname': other_user.nickname,
+                },
+                'last_message': [],
+                'time': []
             }
 
             # Send real-time update to both users
             async_to_sync(channel_layer.group_send)(
-                f"gloabl_{logged_user.id}",  # User-specific group
-                {
-                    'type': 'room_update',
-                    'data': response_data
-                }
+                f"global_{logged_user.id}",  # Send to User1's group
+                    {
+                        'type': 'room_update',
+                        'data': {
+                            'room_id': str(room.id),
+                            'user': {
+                                'id': other_user.id,
+                                'username': other_user.username,
+                                # 'profile_image': other_user.profile_image
+                                'nickname': other_user.nickname,
+                            },
+                            'last_message': f"Say Hello to {other_user.username}",
+                            'time': []
+                        }
+                    }
             )
 
             async_to_sync(channel_layer.group_send)(
-                f"gloabl_{other_user.id}",  # Other user's group
-                {
-                    'type': 'room_update',
-                    'data': response_data
-                }
+                f"global_{other_user.id}",  # Send to User2's group
+                    {
+                        'type': 'room_update',
+                        'data': {
+                            'room_id': str(room.id),
+                            'user': {
+                                'id': logged_user.id,
+                                'username': logged_user.username,
+                                # 'profile_image': logged_user.profile_image,
+                                'nickname': logged_user.nickname,
+                            },
+                            'last_message': f"Say Hello to {logged_user.username}",
+                            'time': []
+                        }
+                    }
             )
 
 
