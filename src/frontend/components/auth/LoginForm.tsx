@@ -156,10 +156,9 @@ export default function LoginForm() {
     				        alt="42 Logo"
     				        width={50}
     				        height={50}
-    				        // priority
 							/>
 							</div>
-    				      <span>Login with 42</span>
+    				      <span>Login with Intra</span>
     				    </div>
     				  )}
     				</button>
