@@ -13,112 +13,147 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from .serializers import GameSessionSerializer, PlayerSerializer, GameHistorySerializer
+from .consumers import serverPongGame
 # Create your views here.
-
 
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
+from django.db import transaction
+from .models import QueuePosition, GameSession, Player, QueueState
+import random
 
 class QueueManager:
     @staticmethod
     @transaction.atomic
     def join_queue(user):
-        if not user.is_authenticated:
-            return JsonResponse({"error": "User not authenticated"}, status=401)
         try:
-            if QueuePosition.objects.filter(user_id=user.id).exists():
-                return JsonResponse({'error': 'User already in queue'}, status=400)
+            # Check if user is already in queue
+            if QueuePosition.objects.filter(user=user).exists():
+                return {'error': 'User already in queue'}, 400
                 
-            queue_state, created = QueueState.objects.get_or_create(id=1)
+            # Get or create queue state
+            queue_state, _ = QueueState.objects.get_or_create(id=1)
             position = queue_state.total_players + 1
-            queue_position = QueuePosition.objects.create(position=position, user_id=user.id)
+            
+            # Add user to queue
+            QueuePosition.objects.create(
+                position=position,
+                user=user
+            )
             
             queue_state.total_players = position
             queue_state.save()
             
-            # player notif is join
+            # Notify user they joined queue
             channel_layer = get_channel_layer()
             async_to_sync(channel_layer.group_send)(
                 f'queue_{user.id}',
                 {
                     'type': 'notify_queue_status',
-                    'status' : 'joined'
+                    'status': 'joined'
                 }
             )
             
-            if queue_state.total_players % 2 == 0:
+            # Check if we can start a game
+            if queue_state.total_players >= 2:
                 QueueManager.create_match()
                 
-            return JsonResponse({'success': 'User added to queue'}, status=200)
+            return {'success': 'User added to queue'}, 200
+            
         except Exception as e:
-            return JsonResponse({'error': str(e)}, status=500)
+            return {'error': str(e)}, 500
 
-	# leave queue
     @staticmethod
-    @transaction.atomic
-    def leave_queue(user):
-        try:
-            # find the user in the queue and remove it
-            queue_position = QueuePosition.objects.get(user_id=user.id)
-            curr_position = queue_position.position
-            queue_position.delete()
-            # update postions of the older players
-            QueuePosition.objects.filter(
-            	position__gt = curr_position
-            ).update(position=models.F('position') - 1)
-            # update total players in the queue
-            queue_state = QueueState.objects.get(id=1)
-            queue_state.total_players -= 1
-            queue_state.save()
-            return JsonResponse({'success': 'User removed from queue'},\
-            		    status=200)
-        except ObjectDoesNotExist:
-            return JsonResponse({'error': 'User not in queue'})
-        except Exception as e:
-            return JsonResponse({'error': str(e)})
-    @staticmethod
-    @transaction.atomic
+    @transaction.atomic 
     def create_match():
         try:
+            # Get first two players in queue
             players = QueuePosition.objects.order_by('position')[:2]
             if players.count() < 2:
-                return JsonResponse({'error': 'Not enough players in the queue'})
-                
-            game_session = GameSession.objects.create()
+                return {'error': 'Not enough players'}, 400
+
+            # Create game session
+            game_session = GameSession.objects.create(status='A')
+            
+            # Initialize Pong game state
+            game = serverPongGame()
+            initial_state = game.create_initial_state()
+            game_session.state = json.dumps(initial_state)
+            game_session.save()
+            
+            # Randomly assign sides
             sides = ['left', 'right']
             random.shuffle(sides)
             
-            # Create player and notif
             channel_layer = get_channel_layer()
             
-            for i, player in enumerate(players):
+            # Create players and notify them
+            for i, queued_player in enumerate(players):
                 Player.objects.create(
-                    user=player.user,
+                    user=queued_player.user,
                     game_session=game_session,
                     side=sides[i]
                 )
                 
-                # Notify player two of them
+                # Notify player about match creation
                 async_to_sync(channel_layer.group_send)(
-                    f'queue_{player.user.id}',
+                    f'queue_{queued_player.user.id}',
                     {
                         'type': 'notify_match_created',
                         'game_id': game_session.id
                     }
                 )
-                player.delete()
                 
+                # Remove player from queue
+                queued_player.delete()
+            
+            # Update queue state
             queue_state = QueueState.objects.get(id=1)
             queue_state.total_players -= 2
             queue_state.save()
             
+            # Update remaining players' positions
             QueuePosition.objects.filter(
                 position__gt=2
             ).update(position=models.F('position') - 2)
             
-            return JsonResponse({'success': 'Match created'})
+            return {'success': 'Match created', 'game_id': game_session.id}, 200
+            
         except Exception as e:
-            return JsonResponse({'error': str(e)})
+            return {'error': str(e)}, 500
+
+    @staticmethod
+    @transaction.atomic
+    def leave_queue(user):
+        try:
+            queue_position = QueuePosition.objects.get(user=user)
+            current_position = queue_position.position
+            queue_position.delete()
+            
+            QueuePosition.objects.filter(
+                position__gt=current_position
+            ).update(position=models.F('position') - 1)
+            
+            queue_state = QueueState.objects.get(id=1)
+            queue_state.total_players -= 1
+            queue_state.save()
+            
+            # Notify user they left queue
+            channel_layer = get_channel_layer()
+            async_to_sync(channel_layer.group_send)(
+                f'queue_{user.id}',
+                {
+                    'type': 'notify_queue_status',
+                    'status': 'left'
+                }
+            )
+            
+            return {'success': 'User removed from queue'}, 200
+            
+        except QueuePosition.DoesNotExist:
+            return {'error': 'User not in queue'}, 404
+        except Exception as e:
+            return {'error': str(e)}, 500
 
 
 @api_view(['POST'])
