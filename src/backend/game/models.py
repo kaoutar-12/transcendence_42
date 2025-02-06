@@ -94,6 +94,7 @@ class Player(models.Model):
     score = models.IntegerField(default=0)
     side = models.CharField(max_length=10)  # 'lefft' or 'right'
     ready = models.BooleanField(default=False)
+    movement = models.CharField(max_length=10, null=True, blank=True)
     class Meta:
         unique_together = ['game_session', 'side']
 
