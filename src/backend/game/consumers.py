@@ -347,7 +347,7 @@ class QueueConsumer(AsyncWebsocketConsumer):
             QueuePosition.objects.create(position=position, user=self.user)
             queue_state.total_players = position
             queue_state.save()
-            
+
             return {'type': 'success', 'message': 'Joined queue', 'should_create_match': queue_state.total_players >= 2}
         except Exception as e:
             return {'type': 'error', 'message': str(e)}
@@ -434,39 +434,3 @@ class QueueConsumer(AsyncWebsocketConsumer):
                         'game_id': game_session.id
                     }
                 )
-    
-    @database_sync_to_async
-    @transaction.atomic
-    def _create_match(self):
-        players = QueuePosition.objects.order_by('position')[:2]
-        if players.count() < 2:
-            return
-            
-        game_session = GameSession.objects.create(status='A')
-        sides = ['left', 'right']
-        random.shuffle(sides)
-        
-        for i, queued_player in enumerate(players):
-            Player.objects.create(
-                user=queued_player.user,
-                game_session=game_session,
-                side=sides[i]
-            )
-            
-            async_to_sync(self.channel_layer.group_send)(
-                f'queue_{queued_player.user.id}',
-                {
-                    'type': 'notify_match_created',
-                    'game_id': game_session.id
-                }
-            )
-            
-            queued_player.delete()
-        
-        queue_state = QueueState.objects.get(id=1)
-        queue_state.total_players -= 2
-        queue_state.save()
-        
-        QueuePosition.objects.filter(
-            position__gt=2
-        ).update(position=models.F('position') - 2)
