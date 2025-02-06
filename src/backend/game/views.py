@@ -16,8 +16,3 @@ from .serializers import GameSessionSerializer, PlayerSerializer, GameHistorySer
 from .consumers import serverPongGame
 # Create your views here.
 
-from channels.layers import get_channel_layer
-from asgiref.sync import async_to_sync
-from django.db import transaction
-from .models import QueuePosition, GameSession, Player, QueueState
-import random
