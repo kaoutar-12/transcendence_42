@@ -134,14 +134,18 @@ export default function LoginForm() {
             >
               {isLoading ? "loading..." : "Log in"}
             </button>
-			<div className="relative flex items-center py-5">
-      			<div className="flex-grow border-t border-gray-300"></div>
-    				<span className="flex-shrink mx-4 text-gray-500">OR</span>
-    			<div className="flex-grow border-t border-gray-300"></div>
-			</div>
 			{!show2FA ? (
+        <>
+          <div className="relative flex items-center py-5">
+                <div className="flex-grow border-t border-gray-300"></div>
+                <span className="flex-shrink mx-4 text-gray-500">OR</span>
+              <div className="flex-grow border-t border-gray-300"></div>
+          </div>
 			  <button
-			  type="submit"
+			  // type="submit"
+        onClick={() => {
+          router.push("/oauth");
+        }}
 			  className="w-3/4 mx-auto block py-3 px-4 bg-gray-200/80 hover:bg-gray-300/80 text-red-600 font-semibold text-xl rounded-xl border-2 border-red-600 transition-all duration-200"
 			  disabled={isLoading}
 			>
@@ -162,6 +166,8 @@ export default function LoginForm() {
     				    </div>
     				  )}
     				</button>
+
+            </>
 
 			) : (
 			  <div></div>
