@@ -1,13 +1,15 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
 from channels.db import database_sync_to_async
-from .models import QueuePosition, GameSession, Player
 from django.contrib.auth import get_user_model
 import random
 import asyncio
 import time
 from math import sqrt
-
+from django.db import transaction, models
+from .models import QueuePosition, QueueState, GameSession, Player
+import json
+from asgiref.sync import async_to_sync
 
 class serverPongGame:
     def __init__(self, width=1300,height=600):
@@ -310,21 +312,14 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         return None
 
 
-
-
 class QueueConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        await self.accept()
-        
         self.user = self.scope['user']
         if self.user.is_anonymous:
-            await self.send(text_data=json.dumps({
-                'type': 'error',
-                'message': 'Authentication required'
-            }))
             await self.close()
             return
-        
+            
+        await self.accept()
         self.room_name = f'queue_{self.user.id}'
         await self.channel_layer.group_add(self.room_name, self.channel_name)
         
@@ -334,45 +329,144 @@ class QueueConsumer(AsyncWebsocketConsumer):
             'in_queue': is_in_queue
         }))
 
-    @database_sync_to_async
-    def check_queue_status(self):
-        try:
-            return QueuePosition.objects.filter(user=self.user).exists()
-        except Exception:
-            return False
-
     async def disconnect(self, close_code):
         if hasattr(self, 'room_name'):
-            await self.channel_layer.group_discard(
-                self.room_name,
-                self.channel_name
-            )
+            await self.leave_queue()
+            await self.channel_layer.group_discard(self.room_name, self.channel_name)
 
-    
+    @database_sync_to_async
+    @transaction.atomic
+    def join_queue(self):
+        try:
+            if QueuePosition.objects.filter(user=self.user).exists():
+                return {'type': 'error', 'message': 'Already in queue'}
+                
+            queue_state, _ = QueueState.objects.get_or_create(id=1)
+            position = queue_state.total_players + 1
+            
+            QueuePosition.objects.create(position=position, user=self.user)
+            queue_state.total_players = position
+            queue_state.save()
+            
+            return {'type': 'success', 'message': 'Joined queue', 'should_create_match': queue_state.total_players >= 2}
+        except Exception as e:
+            return {'type': 'error', 'message': str(e)}
+
+    @database_sync_to_async
+    @transaction.atomic
+    def leave_queue(self):
+        try:
+            queue_position = QueuePosition.objects.get(user=self.user)
+            current_position = queue_position.position
+            queue_position.delete()
+            
+            QueuePosition.objects.filter(
+                position__gt=current_position
+            ).update(position=models.F('position') - 1)
+            
+            queue_state = QueueState.objects.get(id=1)
+            queue_state.total_players -= 1
+            queue_state.save()
+            
+            return {'type': 'success', 'message': 'Left queue'}
+        except QueuePosition.DoesNotExist:
+            return {'type': 'error', 'message': 'Not in queue'}
+
     async def receive(self, text_data):
         if not self.user.is_authenticated:
             return
-
         try:
             data = json.loads(text_data)
-            if data.get('type') == 'check_status':
-                is_in_queue = await self.check_queue_status()
-                await self.send(text_data=json.dumps({
-                    'type': 'queue_status',
-                    'in_queue': is_in_queue
-                }))
+            if data['type'] == 'join_queue':
+                response = await self.join_queue()
+                await self.send(text_data=json.dumps(response))
+                if response.get('should_create_match'):
+                    await self.create_match()
+            elif data['type'] == 'leave_queue':
+                response = await self.leave_queue()
+                await self.send(text_data=json.dumps(response))
         except json.JSONDecodeError:
             pass
-
+    
     async def notify_match_created(self, event):
         await self.send(text_data=json.dumps({
             'type': 'match_created',
             'game_id': event['game_id']
         }))
+    @database_sync_to_async
+    def check_queue_status(self):
+        return QueuePosition.objects.filter(user=self.user).exists()
 
-    async def notify_queue_status(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'queue_status',
-            'status': event['status']
-        }))
+    async def create_match(self):
+        @database_sync_to_async
+        def create_game_and_players():
+            players = list(QueuePosition.objects.order_by('position')[:2])
+            if len(players) < 2:
+                return None, None
+                
+            game_session = GameSession.objects.create(status='A')
+            sides = ['left', 'right']
+            random.shuffle(sides)
+            
+            for i, queued_player in enumerate(players):
+                Player.objects.create(
+                    user=queued_player.user,
+                    game_session=game_session,
+                    side=sides[i]
+                )
+                queued_player.delete()
+            
+            queue_state = QueueState.objects.get(id=1)
+            queue_state.total_players -= 2
+            queue_state.save()
+            
+            QueuePosition.objects.filter(position__gt=2).update(position=models.F('position') - 2)
+            
+            return game_session, players
 
+        game_session, players = await create_game_and_players()
+        if game_session and players:
+            for player in players:
+                await self.channel_layer.group_send(
+                    f'queue_{player.user.id}',
+                    {
+                        'type': 'notify_match_created',
+                        'game_id': game_session.id
+                    }
+                )
+    
+    @database_sync_to_async
+    @transaction.atomic
+    def _create_match(self):
+        players = QueuePosition.objects.order_by('position')[:2]
+        if players.count() < 2:
+            return
+            
+        game_session = GameSession.objects.create(status='A')
+        sides = ['left', 'right']
+        random.shuffle(sides)
+        
+        for i, queued_player in enumerate(players):
+            Player.objects.create(
+                user=queued_player.user,
+                game_session=game_session,
+                side=sides[i]
+            )
+            
+            async_to_sync(self.channel_layer.group_send)(
+                f'queue_{queued_player.user.id}',
+                {
+                    'type': 'notify_match_created',
+                    'game_id': game_session.id
+                }
+            )
+            
+            queued_player.delete()
+        
+        queue_state = QueueState.objects.get(id=1)
+        queue_state.total_players -= 2
+        queue_state.save()
+        
+        QueuePosition.objects.filter(
+            position__gt=2
+        ).update(position=models.F('position') - 2)
