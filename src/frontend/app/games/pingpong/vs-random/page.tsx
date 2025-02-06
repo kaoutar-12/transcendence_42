@@ -5,9 +5,9 @@ import { useState, useEffect } from 'react';
 
 
 const MatchmakingQueue = () => {
+
     const [status, setStatus] = useState('waiting');
     const [socket, setSocket] = useState<WebSocket | null>(null);
-
 
     useEffect(() => {
         // Connect to matchmaking WebSocket
