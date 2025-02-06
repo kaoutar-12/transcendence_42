@@ -197,9 +197,12 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                 if not player:
                     return
             # validate movement
+            print(data['movement'])
             if data['movement'] not in ['up', 'down', 'stop']:
                 return
 
+            # update movement
+            await self.update_paddle_movement(data['movement'])
             #broadcast the movement
             await self.channel_layer.group_send(
                 self.room_group_name,
@@ -297,6 +300,12 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         player.movement = movement
         player.save()
     
+    async def paddle_move(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'paddle_move',
+            'side': event['side'],
+            'movement': event['movement']
+        }))
     @database_sync_to_async
     def get_game_session(self):
         return GameSession.objects.get(id=self.game_id)
