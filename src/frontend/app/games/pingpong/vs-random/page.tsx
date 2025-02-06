@@ -14,11 +14,25 @@ const MatchmakingQueue = () => {
         const ws = new WebSocket('ws://localhost:8000/api/ws/queue/');
         
         ws.onopen = () => {
-            setStatus('searching');
+            setStatus('connected');
+            ws.send(JSON.stringify({'type':'join_queue'}));
         };
 
         ws.onmessage = (event) => {
-            console.log(event.data);
+            const data = JSON.parse(event.data);
+            console.log(data);
+            if (data.type === 'match_created') {
+                setStatus('match_created');
+                const gameSocket = new WebSocket(`ws://localhost:8000/api/ws/game/${data.game_id}/`);
+            gameSocket.onopen = () => {
+                console.log('Game socket connected');
+                window.location.href = `/games/pingpong/vs-random/${data.game_id}/`;
+            };
+            gameSocket.onmessage = (event) => {
+                const gamedata = JSON.parse(event.data);
+
+            }
+            
         };
 
         ws.onclose = () => {
@@ -30,6 +44,7 @@ const MatchmakingQueue = () => {
         // Cleanup on component unmount
         return () => {
             if (ws) {
+                socket.send(JSON.stringify({'type':'leave_queue'}));
                 ws.close();
             }
         };
