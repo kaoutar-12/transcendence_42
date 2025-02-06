@@ -83,6 +83,7 @@ class GameSession(models.Model):
     status = models.CharField(max_length=1, choices=status_choices, default='P')
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now=True)
+    state = models.JSONField(null=True, blank=True)
     winner = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
     class Meta:
         ordering = ['-create_date']
