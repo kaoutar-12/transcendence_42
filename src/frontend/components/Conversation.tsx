@@ -16,6 +16,7 @@ type ConversationProps = {
   room_id: string;
   time: string;
   user: User;
+  unread_count: number;
 };
 
 const Conversation = () => {
@@ -25,44 +26,50 @@ const Conversation = () => {
     null
   );
   const [isLoading, setIsLoading] = useState(false);
-  const { unreadCounts, resetUnread, messages: wsMessages } = useWebSocket();
+  const { on, off, unreadCounts, markAsRead, send } = useWebSocket();
 
   const pathname = usePathname();
 
   useEffect(() => {
     const roomId = pathname.split("/")[2];
     if (roomId) {
-      resetUnread(roomId);
+      markAsRead(roomId);
     }
   }, [pathname]);
 
   useEffect(() => {
-    const lastMessage = wsMessages[wsMessages.length - 1];
-    if (lastMessage?.type === "chat") {
+    const handleChatMessage = (data: any) => {
       setConversations((prev) => {
-        // Find the conversation index
-        const index = prev.findIndex(
-          (conv) => conv.room_id === lastMessage.data.room_id
-        );
+        const index = prev.findIndex((conv) => conv.room_id === data.room_id);
+        if (index === -1) return prev;
 
-        if (index === -1) return prev; // Not found, return previous state
-
-        // Create updated conversations array
         const updated = [...prev];
         const updatedConv = {
           ...updated[index],
-          last_message: lastMessage.data.content,
-          time: lastMessage.data.time.split(".")[0], // Remove milliseconds
+          last_message: data.content,
+          time: data.time.split(".")[0],
         };
 
-        // Update the conversation
-        updated[index] = updatedConv;
-
-        // Move to top
         return [updatedConv, ...updated.filter((_, i) => i !== index)];
       });
-    }
-  }, [wsMessages]);
+    };
+
+    const handleRoomCreate = (data: any) => {
+      setConversations((prev) => {
+        return [data, ...prev];
+      });
+    };
+
+    // Register handler
+    on("message_update", handleChatMessage);
+    on("room_update", handleRoomCreate);
+
+    // Cleanup
+    return () => {
+      off("message_update");
+      off("room_update");
+    };
+  }, [on, off]);
 
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -77,6 +84,7 @@ const Conversation = () => {
   }, [pathname]);
 
   const handleConversationClick = (id: string) => {
+    send(JSON.stringify({ type: "mark_read", room_id: id }));
     router.push(`/chat/${id}`);
   };
 
@@ -88,6 +96,7 @@ const Conversation = () => {
         withCredentials: true,
       }
     );
+    console.log("response", response.data);
     setConversations(response.data);
     setIsLoading(false);
   };
@@ -120,7 +129,7 @@ const Conversation = () => {
           {filteredConversations && (
             <div className="conv-wrraper">
               {filteredConversations.map((conversation, i) => {
-                const unreadCount = unreadCounts[conversation.room_id] || 0;
+                const unread_count = unreadCounts[conversation.room_id] || 0;
                 const isSelected = selectConversation === conversation.room_id;
 
                 return (
@@ -147,8 +156,8 @@ const Conversation = () => {
                     <div className="main">
                       <div className="name-row">
                         <div className="name">{conversation.user.username}</div>
-                        {!isSelected && unreadCount > 0 && (
-                          <span className="message-badge">{unreadCount}</span>
+                        {!isSelected && unread_count > 0 && (
+                          <span className="message-badge">{unread_count}</span>
                         )}
                       </div>
                       <div className="message">

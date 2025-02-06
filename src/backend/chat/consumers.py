@@ -74,7 +74,6 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     f'global_{user.id}',
                     {
                         'type': 'global_message',
-                        'message_type': 'chat',
                         'data': {
                             'content': saved_message.content,
                             'sender_id': saved_message.sender_id,
