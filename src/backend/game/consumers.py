@@ -162,12 +162,20 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             'state': current_state
         }))
     
+    async def game_over(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'game_over',
+            'reason': event['reason']
+        }))
+
     async def disconnect(self, close_code):
         if hasattr(self, 'game_id'):
             game = await self.get_game_session()
             if game.status != 'F':
                 game.status = 'F'
-                await self.save_game_state()
+                current_state = await self.get_game_state()
+                if current_state:
+                    await self.save_game_state(current_state)
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
@@ -404,7 +412,8 @@ class QueueConsumer(AsyncWebsocketConsumer):
             if len(players) < 2:
                 return None, None
                 
-            game_session = GameSession.objects.create(status='A')
+            game_session = GameSession.objects.create(status='A',
+                state=json.dumps(serverPongGame().create_initial_state()))
             sides = ['left', 'right']
             random.shuffle(sides)
             
