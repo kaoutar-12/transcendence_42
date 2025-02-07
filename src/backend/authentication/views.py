@@ -316,9 +316,19 @@ def disable_2fa(request):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_friends(request):
-    user = request.user
-    serializer = UserSerializer(user)
-    return {"friends":serializer.data['friends']}
+    try:
+        user = request.user
+        friends = user.friends.all()
+        blocked_users = user.blocked_users.all()
+        serializer = UserSerializer(user)
+        return Response({
+            'friends': serializer.data['friends'],
+            'blocked_users':serializer.data['blocked_users'],
+        }, status=status.HTTP_200_OK)
+    except Exception as e:
+        return Response({
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
