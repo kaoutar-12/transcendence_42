@@ -10,7 +10,7 @@ from .serializers import UserSerializer,UserProfileImageSerializer
 from django.contrib.auth.hashers import check_password
 # from rest_framework_simplejwt.authentication import JWTAuthentication
 from django.conf import settings
-from .models import TwoFactorAuth
+from .models import TwoFactorAuth,User
 from rest_framework_simplejwt.views import TokenRefreshView
 from .two_factor_auth import verify_totp_code, generate_qr_code, generate_totp_uri, generate_totp_secret
 
@@ -312,3 +312,99 @@ def disable_2fa(request):
         return Response({
             'error': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_friends(request):
+    user = request.user
+    serializer = UserSerializer(user)
+    return {"friends":serializer.data['friends']}
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def add_friend(request,user_id):
+    try:
+        friend = User.objects.get(id=user_id)
+        if friend == request.user:
+            return Response({
+                'error': 'You can not add yourself as a friend'
+            })
+        if friend in request.user.friends.all():
+            return Response({
+                'error': 'User is already your friend'
+            })
+        if friend in request.user.blocked_users.all():
+            return Response({
+                'error': 'User is blocked'
+            })
+        request.user.friends.add(friend)
+        friend.friends.add(request.user)
+        return Response({
+            'message': 'User added to friends'
+        })
+    except User.DoesNotExist:
+        return Response({
+            'error': 'User not found'
+        })
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def remove_friend(request,user_id):
+    try:
+        friend = User.objects.get(id=user_id)
+        if friend not in request.user.friends.all():
+            return Response({
+                'error': 'User is not your friend'
+            })
+        request.user.friends.remove(friend)
+        friend.friends.remove(request.user)
+        return Response({
+            'message': 'User removed from friends'
+        })
+    except User.DoesNotExist:
+        return Response({
+            'error': 'User not found'
+        })
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def block_user(request,user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        if user == request.user:
+            return Response({
+                'error': 'You can not block yourself'
+            })
+        if user in request.user.blocked_users.all():
+            return Response({
+                'error': 'User is already blocked'
+            })
+        if user in request.user.friends.all():
+            request.user.friends.remove(user)
+            user.friends.remove(request.user)
+        request.user.blocked_users.add(user)
+        return Response({
+            'message': 'User blocked'
+        })
+    except User.DoesNotExist:
+        return Response({
+            'error': 'User not found'
+        })
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def unblock_user(request,user_id):
+    try:
+        user = User.objects.get(id=user_id)
+        if user not in request.user.blocked_users.all():
+            return Response({
+                'error': 'User is not blocked'
+            })
+        request.user.blocked_users.remove(user)
+        return Response({
+            'message': 'User unblocked'
+        })
+    except User.DoesNotExist:
+        return Response({
+            'error': 'User not found'
+        })
