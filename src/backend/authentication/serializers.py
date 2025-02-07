@@ -1,6 +1,11 @@
-from rest_framework import serializers, UserBasicSerializer
+from rest_framework import serializers
 from .models import User ,TwoFactorAuth
 
+
+class UserBasicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'nickname', 'profile_image')
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
