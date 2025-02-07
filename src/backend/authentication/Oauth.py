@@ -32,7 +32,7 @@ def Oauth(request):
             headers["Authorization"] = f"Bearer {data['access_token']}"
             response1 = requests.get(url1, headers=headers) 
             if (response1.ok):
-                print(response1.json())
+                print(data['access_token'])
         
         return Response({'message': 'code recived successfully'})
     except requests.exceptions.RequestException as e:
