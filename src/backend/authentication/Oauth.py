@@ -13,7 +13,8 @@ def Oauth(request):
     
     if not code:
         return Response({'message': 'Code is required'})
-    url = "https://api.intra.42.fr/oauth/token/"
+    url= "https://api.intra.42.fr/oauth/token/"
+    url1 = "https://api.intra.42.fr/v2/me/"
     headers = {
         "Content-Type": "application/json",
     }
@@ -28,7 +29,11 @@ def Oauth(request):
         response = requests.post(url, json=body, headers=headers)        
         if (response.ok):
             data = response.json()
-            print(data['access_token'])
+            headers["Authorization"] = f"Bearer {data['access_token']}"
+            response1 = requests.get(url1, headers=headers) 
+            if (response1.ok):
+                print(response1.json())
+        
         return Response({'message': 'code recived successfully'})
     except requests.exceptions.RequestException as e:
         return Response({"error": str(e)})
