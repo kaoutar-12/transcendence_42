@@ -10,7 +10,7 @@ from django.db import transaction, models
 from .models import QueuePosition, QueueState, GameSession, Player
 import json
 from asgiref.sync import async_to_sync
-
+from .memory_storage import MemoryStorage
 class serverPongGame:
     def __init__(self, width=1300,height=600):
         self.width = width
@@ -22,6 +22,7 @@ class serverPongGame:
         self.ball_speed = 5
         self.max_bounce_angle = 75
         self.last_update = time.time()
+        self.score_limit = 1
     
     def create_initial_state(self):
         return {
@@ -49,6 +50,14 @@ class serverPongGame:
         if game_state['game_status'] != 'playing':
             return game_state, None
         
+        #check score limit
+        if game_state['paddles']['left']['score'] >= self.score_limit:
+            game_state['game_status'] = 'finished'
+            return game_state, 'left_win'
+        elif game_state['paddles']['right']['score'] >= self.score_limit:
+            game_state['game_status'] = 'finished'
+            return game_state, 'right_win'
+
         current_time = time.time()
         delta_time = current_time - game_state['timestamp']
         game_state['timestamp'] = current_time
@@ -121,15 +130,12 @@ class serverPongGame:
         ball['dx'] = direction * self.ball_speed
         ball['dy'] = random.choice([-1, 1]) * self.ball_speed
         game_state['timestamp'] = time.time()
-    
-
-
 
 class PongGameConsumer(AsyncWebsocketConsumer):
+    sides = {}
     async def connect(self):
         await self.accept()
         self.user = self.scope['user']
-
         if self.user.is_anonymous:
             await self.send(text_data=json.dumps({
                 'type': 'error',
@@ -137,93 +143,123 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             }))
             await self.close()
             return
-
+        self.game = serverPongGame()
         self.game_id = self.scope['url_route']['kwargs']['game_id']
         self.room_group_name = f'game_{self.game_id}'
-        if not await self.is_player():
-            await self.send(text_data=json.dumps({
-                'type': 'error',
-                'message': 'You are not a player in this game'
-            }))
-            await self.close()
-            return
-        self.game = serverPongGame()
-        is_first = await self.is_first_player()
-        if is_first:
-            self.game_state = self.game.create_initial_state()
-            await self.save_game_state()
+
+        # init player side
+        if self.game_id not in self.sides:
+            self.sides[self.game_id] = {}
+        if len(self.sides[self.game_id]) < 2:
+            if self.user.id not in self.sides[self.game_id].values():
+                available_sides = ['left', 'right']
+                user_sides = list(self.sides[self.game_id].keys())
+                for side in available_sides:
+                    if side not in user_sides:
+                        self.sides[self.game_id][side] = self.user.id
+                        break
+        # Get or create game state
+        game_state = MemoryStorage.get_game_state(self.game_id)
+        if not game_state:
+            game_state = self.game.create_initial_state()
+            MemoryStorage.save_game_state(self.game_id, game_state)
             asyncio.create_task(self.game_loop())
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-
-        current_state = await self.get_game_state()
         await self.send(text_data=json.dumps({
             'type': 'game_state',
-            'state': current_state
-        }))
-    
-    async def game_over(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'game_over',
-            'reason': event['reason']
+            'state': game_state,
+            'side': self.get_user_side()
         }))
 
+    async def event(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'event',
+            'event': event['event']
+        }))
+
+    def get_user_side(self):
+        if self.game_id in self.sides:
+            for side, user_id in list(self.sides[self.game_id].items()):
+                if user_id == self.user.id:
+                    return side
+        return None
     async def disconnect(self, close_code):
         if hasattr(self, 'game_id'):
-            game = await self.get_game_session()
-            if game.status != 'F':
-                game.status = 'F'
-                current_state = await self.get_game_state()
-                if current_state:
-                    await self.save_game_state(current_state)
+            if self.game_id in self.sides:
+                disconnect_side = None
+                winner_side = None
+                for side, user_id in self.sides[self.game_id].items():
+                    if user_id == self.user.id:
+                        disconnect_side = side
+                        winner_side = 'left' if side == 'right' else 'right'
+                        break
+
+            game_state = MemoryStorage.get_game_state(self.game_id)
+            if game_state and game_state.get('game_status') == 'playing':
+                game_state['game_status'] = 'finished'
+                game_state['timestamp'] = time.time()
+                game_state['paddles'][winner_side]['score'] = 1
+                game_state['winner'] = winner_side
+            
                 await self.channel_layer.group_send(
                     self.room_group_name,
                     {
                         'type': 'game_over',
-                        'reason': 'disconnected'
+                        'winner': self.get_winner(),
+                        'reason': 'player_disconnected',
+                        'side': disconnect_side
                     }
                 )
+            MemoryStorage.delete_game(self.game_id)
+
         if hasattr(self, 'room_group_name'):
             await self.channel_layer.group_discard(
                 self.room_group_name,
                 self.channel_name
             )
-    
+
     async def receive(self, text_data):
         try:
             data = json.loads(text_data)
             if data['type'] == 'paddle_move':
-                player = await self.get_player()
-                if not player:
+                if data['movement'] not in ['up', 'down', 'stop']:
                     return
-            # validate movement
-            if data['movement'] not in ['up', 'down', 'stop']:
-                return
 
-            #broadcast the movement
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'paddle_move',
-                    'side': player.side,
-                    'movement': data['movement']
-                }
-            )
+                MemoryStorage.save_player_movement(
+                    self.game_id,
+                    self.user.id,
+                    data['movement']
+                )
+
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'paddle_move',
+                        'user_id': self.user.id,
+                        'movement': data['movement']
+                    }
+                )
         except json.JSONDecodeError:
             pass
-    
+
     async def game_loop(self):
         while True:
-            game_state = await self.get_game_state()
-            paddle_movements = {}
-            players = await self.get_players()
-            for player in players:
-                paddle_movements[player.side] = player.movement
-            # update game state
-            new_game_state, event = self.game.update(game_state, paddle_movements)
-            await self.save_game_state(new_game_state)
+            game_state = MemoryStorage.get_game_state(self.game_id)
+            if not game_state or game_state.get('game_status') != 'playing':
+                break
 
-            # broadcast game state
+            movements = MemoryStorage.get_player_movements(self.game_id)
+            paddle_movements = {}
+            if self.game_id in self.sides:
+               for side, user_id in self.sides[self.game_id].items():
+                   if str(user_id) in movements:
+                       paddle_movements[side] = movements[str(user_id)]
+
+
+            new_game_state, event = self.game.update(game_state, paddle_movements)
+            MemoryStorage.save_game_state(self.game_id, new_game_state)
+
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -232,7 +268,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                 }
             )
 
-            # handle score
             if event:
                 await self.channel_layer.group_send(
                     self.room_group_name,
@@ -241,84 +276,28 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                         'event': event
                     }
                 )
-            # sleep
-            await asyncio.sleep(1/60) # 60 fps
-    
-    @database_sync_to_async
-    def get_players(self):
-        return list(Player.objects.filter(game_session_id=self.game_id))
 
-    @database_sync_to_async
-    def is_player(self):
-        return Player.objects.filter(
-            user=self.user,
-            game_session_id=self.game_id
-        ).exists()
+            await asyncio.sleep(1/60)  # 60 fps
 
-    @database_sync_to_async
-    def is_first_player(self):
-        return Player.objects.filter(
-          game_session_id=self.game_id).count() == 1
-    
-    @database_sync_to_async
-    def get_player(self):
-        try:
-            return Player.objects.get(
-                user=self.user,
-                game_session_id=self.game_id
-            )
-        except Player.DoesNotExist:
-            return None
-    
-    @database_sync_to_async
-    def get_game_state(self):
-        game = GameSession.objects.get(id=self.game_id)
-        return json.loads(game.state) if game.state else None
-    
-    @database_sync_to_async
-    def save_game_state(self, state):
-        game = GameSession.objects.get(id=self.game_id)
-        game.state = json.dumps(state)
-        game.save()
-    
-    @database_sync_to_async
-    def get_paddle_movements(self):
-        return Player.objects.get(
-            user=self.user,
-            game_session_id=self.game_id
-        ).movement
-    
-    @database_sync_to_async
-    def update_paddle_movement(self, movement):
-        player = Player.objects.get(
-            user=self.user,
-            game_session_id=self.game_id
-        )
-        player.movement = movement
-        player.save()
-    
-    @database_sync_to_async
-    def get_game_session(self):
-        return GameSession.objects.get(id=self.game_id)
+    async def game_state(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'game_state',
+            'state': event['state']
+        }))
 
-    @database_sync_to_async
-    def get_paddle_movements(self, status):
-        game = GameSession.objects.get(id=self.game_id)
-        game.status = status
-        game.save()
-        return True
-    
-    # @database_sync_to_async
-    # def save_game_history(self, winner):
-    
-    @database_sync_to_async
-    def check_win_condition(self, game_state):
-        if game_state['paddles']['left']['score'] >= 5:
-            return 'left'
-        elif game_state['paddles']['right']['score'] >= 5:
-            return 'right'
-        return None
-
+    async def paddle_move(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'paddle_move',
+            'user_id': event['user_id'],
+            'movement': event['movement']
+        }))
+    async def game_over(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'game_over',
+            'reason': event['reason'],
+            'winner': self.get_winner(),
+            'side': self.get_user_side()
+        }))
 
 class QueueConsumer(AsyncWebsocketConsumer):
     async def connect(self):
@@ -326,12 +305,12 @@ class QueueConsumer(AsyncWebsocketConsumer):
         if self.user.is_anonymous:
             await self.close()
             return
-            
+
         await self.accept()
         self.room_name = f'queue_{self.user.id}'
         await self.channel_layer.group_add(self.room_name, self.channel_name)
-        
-        is_in_queue = await self.check_queue_status()
+
+        is_in_queue = MemoryStorage.is_in_queue(self.user.id)
         await self.send(text_data=json.dumps({
             'type': 'queue_status',
             'in_queue': is_in_queue
@@ -339,107 +318,56 @@ class QueueConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         if hasattr(self, 'room_name'):
-            await self.leave_queue()
+            MemoryStorage.remove_from_queue(self.user.id)
             await self.channel_layer.group_discard(self.room_name, self.channel_name)
-
-    @database_sync_to_async
-    @transaction.atomic
-    def join_queue(self):
-        try:
-            if QueuePosition.objects.filter(user=self.user).exists():
-                return {'type': 'error', 'message': 'Already in queue'}
-                
-            queue_state, _ = QueueState.objects.get_or_create(id=1)
-            position = queue_state.total_players + 1
-            
-            QueuePosition.objects.create(position=position, user=self.user)
-            queue_state.total_players = position
-            queue_state.save()
-
-            return {'type': 'success', 'message': 'Joined queue', 'should_create_match': queue_state.total_players >= 2}
-        except Exception as e:
-            return {'type': 'error', 'message': str(e)}
-
-    @database_sync_to_async
-    @transaction.atomic
-    def leave_queue(self):
-        try:
-            queue_position = QueuePosition.objects.get(user=self.user)
-            current_position = queue_position.position
-            queue_position.delete()
-            
-            QueuePosition.objects.filter(
-                position__gt=current_position
-            ).update(position=models.F('position') - 1)
-            
-            queue_state = QueueState.objects.get(id=1)
-            queue_state.total_players -= 1
-            queue_state.save()
-            
-            return {'type': 'success', 'message': 'Left queue'}
-        except QueuePosition.DoesNotExist:
-            return {'type': 'error', 'message': 'Not in queue'}
 
     async def receive(self, text_data):
         if not self.user.is_authenticated:
             return
+
         try:
             data = json.loads(text_data)
             if data['type'] == 'join_queue':
-                response = await self.join_queue()
-                await self.send(text_data=json.dumps(response))
-                if response.get('should_create_match'):
+                should_create_match = MemoryStorage.add_to_queue(self.user.id)
+                await self.send(text_data=json.dumps({
+                    'type': 'success',
+                    'message': 'Joined queue'
+                }))
+
+                if should_create_match:
                     await self.create_match()
+
             elif data['type'] == 'leave_queue':
-                response = await self.leave_queue()
-                await self.send(text_data=json.dumps(response))
+                MemoryStorage.remove_from_queue(self.user.id)
+                await self.send(text_data=json.dumps({
+                    'type': 'success',
+                    'message': 'Left queue'
+                }))
         except json.JSONDecodeError:
             pass
     
+    async def create_match(self):
+        players = MemoryStorage.get_match_players()
+        if not players:
+            return
+
+        # Create new game session
+        game_id = MemoryStorage.generate_game_id()
+        game_state = serverPongGame().create_initial_state()
+        MemoryStorage.save_game_state(game_id, game_state)
+
+        # Notify players
+        for player_id in players:
+            await self.channel_layer.group_send(
+                f'queue_{player_id}',
+                {
+                    'type': 'notify_match_created',
+                    'game_id': game_id
+                }
+            )
+
     async def notify_match_created(self, event):
         await self.send(text_data=json.dumps({
             'type': 'match_created',
             'game_id': event['game_id']
-        }))
-    @database_sync_to_async
-    def check_queue_status(self):
-        return QueuePosition.objects.filter(user=self.user).exists()
-
-    async def create_match(self):
-        @database_sync_to_async
-        def create_game_and_players():
-            players = list(QueuePosition.objects.order_by('position')[:2])
-            if len(players) < 2:
-                return None, None
-                
-            game_session = GameSession.objects.create(status='A',
-                state=json.dumps(serverPongGame().create_initial_state()))
-            sides = ['left', 'right']
-            random.shuffle(sides)
-            
-            for i, queued_player in enumerate(players):
-                Player.objects.create(
-                    user=queued_player.user,
-                    game_session=game_session,
-                    side=sides[i]
-                )
-                queued_player.delete()
-            
-            queue_state = QueueState.objects.get(id=1)
-            queue_state.total_players -= 2
-            queue_state.save()
-            
-            QueuePosition.objects.filter(position__gt=2).update(position=models.F('position') - 2)
-            
-            return game_session, players
-
-        game_session, players = await create_game_and_players()
-        if game_session and players:
-            for player in players:
-                await self.channel_layer.group_send(
-                    f'queue_{player.user.id}',
-                    {
-                        'type': 'notify_match_created',
-                        'game_id': game_session.id
-                    }
-                )
+        })) 
