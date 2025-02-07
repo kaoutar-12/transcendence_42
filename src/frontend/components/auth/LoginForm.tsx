@@ -144,7 +144,7 @@ export default function LoginForm() {
 			  <button
 			  // type="submit"
         onClick={() => {
-          router.push("/oauth");
+          router.push("/oauth1");
         }}
 			  className="w-3/4 mx-auto block py-3 px-4 bg-gray-200/80 hover:bg-gray-300/80 text-red-600 font-semibold text-xl rounded-xl border-2 border-red-600 transition-all duration-200"
 			  disabled={isLoading}
