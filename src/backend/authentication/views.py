@@ -17,7 +17,6 @@ from .two_factor_auth import verify_totp_code, generate_qr_code, generate_totp_u
 
 
 
-
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_user(request):
@@ -309,3 +308,5 @@ def disable_2fa(request):
         return Response({
             'error': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        
