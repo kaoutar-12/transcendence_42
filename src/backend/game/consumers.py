@@ -22,6 +22,7 @@ class serverPongGame:
         self.ball_speed = 5
         self.max_bounce_angle = 75
         self.last_update = time.time()
+        self.score_limit = 1
     
     def create_initial_state(self):
         return {
@@ -49,6 +50,14 @@ class serverPongGame:
         if game_state['game_status'] != 'playing':
             return game_state, None
         
+        #check score limit
+        if game_state['paddles']['left']['score'] >= self.score_limit:
+            game_state['game_status'] = 'finished'
+            return game_state, 'left_win'
+        elif game_state['paddles']['right']['score'] >= self.score_limit:
+            game_state['game_status'] = 'finished'
+            return game_state, 'right_win'
+
         current_time = time.time()
         delta_time = current_time - game_state['timestamp']
         game_state['timestamp'] = current_time
@@ -178,20 +187,30 @@ class PongGameConsumer(AsyncWebsocketConsumer):
     async def disconnect(self, close_code):
         if hasattr(self, 'game_id'):
             if self.game_id in self.sides:
+                disconnect_side = None
+                winner_side = None
                 for side, user_id in self.sides[self.game_id].items():
                     if user_id == self.user.id:
-                        del self.sides[self.game_id][side]
-                if not self.sides[self.game_id]:
-                    del self.sides[self.game_id]
-            MemoryStorage.set_game_status(self.game_id, 'F')
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'game_over',
-                    'reason': 'disconnected'
-                }
-            )
-            # Clean up game data
+                        disconnect_side = side
+                        winner_side = 'left' if side == 'right' else 'right'
+                        break
+
+            game_state = MemoryStorage.get_game_state(self.game_id)
+            if game_state and game_state.get('game_status') == 'playing':
+                game_state['game_status'] = 'finished'
+                game_state['timestamp'] = time.time()
+                game_state['paddles'][winner_side]['score'] = 1
+                game_state['winner'] = winner_side
+            
+                await self.channel_layer.group_send(
+                    self.room_group_name,
+                    {
+                        'type': 'game_over',
+                        'winner': self.get_winner(),
+                        'reason': 'player_disconnected',
+                        'side': disconnect_side
+                    }
+                )
             MemoryStorage.delete_game(self.game_id)
 
         if hasattr(self, 'room_group_name'):
@@ -275,7 +294,9 @@ class PongGameConsumer(AsyncWebsocketConsumer):
     async def game_over(self, event):
         await self.send(text_data=json.dumps({
             'type': 'game_over',
-            'reason': event['reason']
+            'reason': event['reason'],
+            'winner': self.get_winner(),
+            'side': self.get_user_side()
         }))
 
 class QueueConsumer(AsyncWebsocketConsumer):
