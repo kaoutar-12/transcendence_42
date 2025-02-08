@@ -17,7 +17,7 @@ class serverPongGame:
         self.height = height
         self.paddle_width = 10
         self.paddle_height = 120
-        self.paddle_speed = 8
+        self.paddle_speed = 50
         self.ball_size = 10
         self.ball_speed = 5
         self.max_bounce_angle = 75
@@ -222,13 +222,14 @@ class PongGameConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         try:
             data = json.loads(text_data)
+            print(data)
             if data['type'] == 'paddle_move':
                 if data['movement'] not in ['up', 'down', 'stop']:
                     return
 
                 MemoryStorage.save_player_movement(
                     self.game_id,
-                    self.user.id,
+                    str(self.user.id),
                     data['movement']
                 )
 
@@ -236,7 +237,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                     self.room_group_name,
                     {
                         'type': 'paddle_move',
-                        'user_id': self.user.id,
+                        'user_id': str(self.user.id),
                         'movement': data['movement']
                     }
                 )
@@ -248,15 +249,17 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             game_state = MemoryStorage.get_game_state(self.game_id)
             if not game_state or game_state.get('game_status') != 'playing':
                 break
-
+            
             movements = MemoryStorage.get_player_movements(self.game_id)
+            print(f"Game loop  movemenets before {movements}")
+            print(f"Game loop  sides before {self.sides}")
             paddle_movements = {}
             if self.game_id in self.sides:
                for side, user_id in self.sides[self.game_id].items():
                    if str(user_id) in movements:
                        paddle_movements[side] = movements[str(user_id)]
 
-
+            print(f"Game loop after movemenets after {paddle_movements}")
             new_game_state, event = self.game.update(game_state, paddle_movements)
             MemoryStorage.save_game_state(self.game_id, new_game_state)
 
