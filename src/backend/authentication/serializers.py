@@ -22,11 +22,22 @@ class UserSerializer(serializers.ModelSerializer):
                         'profile_image': {'required': False} }
 
     def create(self, validated_data):
+        if 'is_42_user' in self.context:  
+            return self.create_42_user(validated_data)
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
             password=validated_data['password'],
             nickname=validated_data['username']
+        )
+        return user
+    
+    def create_42_user(self, validated_data):
+        user = User.objects.create_user(
+            username=validated_data['username'],
+            email=validated_data['email'],
+            password=validated_data['password'],
+            nickname=validated_data['nickname'],
         )
         return user
     

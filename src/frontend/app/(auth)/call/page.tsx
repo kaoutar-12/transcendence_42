@@ -24,9 +24,10 @@ export default function Callback()
                     })
                     const data = await res.json();
                     if (data.status == 200)
-                        router.push('/');
+                        if(data.message=="User entered Successfully;")
+                            router.push('/home');
                     else
-                        console.log('error a nm!! ');
+                        router.push('/');
                         
                 }
             fetchData();
