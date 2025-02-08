@@ -23,9 +23,12 @@ export default function Callback()
                         body: JSON.stringify({ code }),
                     })
                     const data = await res.json();
-                    if (data.status == 200)
-                        if(data.message=="User entered Successfully;")
-                            router.push('/home');
+                    if (res.ok)
+                        if  (data.message==="User entered Successfully;")
+                            {
+                                router.push('/home');
+
+                            }
                     else
                         router.push('/');
                         
