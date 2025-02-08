@@ -24,7 +24,14 @@ interface GameState {
   rightScore: number
 }
 
-const PingPongGame = () => {
+interface PingPongProps {
+    p1: string | null
+    p2: string | null
+    onGameEnd: (winner: string | null) => void
+    setCurrentGame: (game: number) => void
+}
+
+const PingPong1vs1 = ( {p1, p2, onGameEnd, setCurrentGame} : PingPongProps ) => {
 
     const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -41,10 +48,9 @@ const PingPongGame = () => {
 
     const [isRunning, setIsRunning] = useState(false)
     const [gameLoop, setGameLoop] = useState<number | null>(null)
-    const [player1, setPlayer1] = useState("Player 1")
-    const [player2, setPlayer2] = useState("Player 2")
+    const [player1, setPlayer1] = useState(p1)
+    const [player2, setPlayer2] = useState(p2)
     const [gameOver, setGameOver] = useState(false)
-    const [winner, setWinner] = useState("")
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
@@ -149,12 +155,13 @@ const PingPongGame = () => {
           // First check if someone has already won
           if (prev.leftScore >= WIN_SCORE || prev.rightScore >= WIN_SCORE) {
             setGameOver(true);
-            setWinner(prev.leftScore >= WIN_SCORE ? player1 : player2);
             if (gameLoop) {
               clearInterval(gameLoop);
               setGameLoop(null);
             }
             setIsRunning(false);
+            onGameEnd(prev.leftScore >= WIN_SCORE ? player1 : player2);
+            setCurrentGame(-1);
             return prev; // Return previous state without updates
           }
       
@@ -242,7 +249,6 @@ const PingPongGame = () => {
   const restartGame = () => {
     stopGame()
     setGameOver(false)
-    setWinner("")
     setIsRunning(false)
     setGameLoop(null)
     setGameState({
@@ -303,27 +309,10 @@ const PingPongGame = () => {
                   >
                       Pause
                   </button>
-                  <button 
-                      onClick={() => { 
-                          if (confirm("Sure Restart The Game!") == true) 
-                              restartGame() 
-                      }} 
-                      className={styles.button}
-                  >
-                      Restart
-                  </button>
               </div>
           ) : (
               <div className={styles.winnerMessage}>
-                  <h2>{winner} wins!</h2>
-                  <div className={styles.buttonContainer}>
-                      <button 
-                          onClick={restartGame} 
-                          className={styles.button}
-                      >
-                          New Game
-                      </button>
-                  </div>
+                  <h2>Game Finished</h2>
               </div>
           )}
           <div className={styles.instructions}>
@@ -335,4 +324,4 @@ const PingPongGame = () => {
   )
 }
 
-export default PingPongGame
+export default PingPong1vs1;

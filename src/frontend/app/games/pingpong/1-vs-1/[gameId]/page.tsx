@@ -1,10 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
+import LoadingAnimation from "@/components/LandingAnimation/LoadingAnimation";
 import { useParams } from 'next/navigation';
-import styles from '@/styles/modules/GamePage.module.css';
+import styles from '@/styles/modules/PingPongGame.module.css';
 
-// This interface defines the shape of our game state
+const CANVAS_WIDTH = 1300;
+const CANVAS_HEIGHT = 600;
+const PADDLE_WIDTH = 10;
+const PADDLE_HEIGHT = 120;
+const BALL_SIZE = 10;
+
 interface GameState {
   ball: {
     x: number;
@@ -27,32 +33,67 @@ interface GameState {
 }
 
 export default function GamePage() {
-  // Get the game ID from the URL parameters
   const params = useParams();
   const gameId = params.gameId;
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  // State management for game
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [connection, setConnection] = useState<'connecting' | 'connected' | 'error'>('connecting');
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [gameOver, setGameOver] = useState(false);
+  const [winner, setWinner] = useState("");
 
-  // Effect to handle WebSocket connection and game state
+  // Canvas drawing effect
   useEffect(() => {
-    // Create WebSocket connection using the game ID from the route
-    const ws = new WebSocket(`ws://localhost:8000/api/ws/game/${gameId}/`);
+    if (!gameState) return;
     
-    // Track if the component is mounted to prevent state updates after unmounting
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const context = canvas.getContext('2d');
+    if (!context) return;
+
+    const drawGame = () => {
+      // Clear canvas
+      context.fillStyle = "#1a1a1a";
+      context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+
+      // Draw paddles
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, gameState.paddles.left.y, PADDLE_WIDTH, PADDLE_HEIGHT);
+      context.fillRect(CANVAS_WIDTH - PADDLE_WIDTH, gameState.paddles.right.y, PADDLE_WIDTH, PADDLE_HEIGHT);
+
+      // Draw ball
+      context.beginPath();
+      context.arc(gameState.ball.x, gameState.ball.y, BALL_SIZE / 2, 0, Math.PI * 2);
+      context.fill();
+
+      // Draw center line
+      context.setLineDash([5, 15]);
+      context.beginPath();
+      context.moveTo(CANVAS_WIDTH / 2, 0);
+      context.lineTo(CANVAS_WIDTH / 2, CANVAS_HEIGHT);
+      context.strokeStyle = "#ffffff";
+      context.stroke();
+    };
+
+    drawGame();
+  }, [gameState]);
+
+  // WebSocket connection effect
+  useEffect(() => {
+    const ws = new WebSocket(`ws://localhost:8000/api/ws/game/${gameId}/`);
     let isMounted = true;
 
-    // Handle WebSocket connection opening
     ws.onopen = () => {
       if (isMounted) {
+        setIsLoading(false);
         setConnection('connected');
         console.log('Connected to game server');
       }
     };
 
-    // Handle incoming messages from the server
     ws.onmessage = (event) => {
       if (!isMounted) return;
 
@@ -62,13 +103,14 @@ export default function GamePage() {
         switch (data.type) {
           case 'game_state':
             setGameState(data.state);
+            // Check for game over condition
+            if (data.state.paddles.left.score >= 5 || data.state.paddles.right.score >= 5) {
+              setGameOver(true);
+              setWinner(data.state.paddles.left.score >= 5 ? 'Left Player' : 'Right Player');
+            }
             break;
           case 'error':
             setError(data.message);
-            break;
-          case 'event':
-            // Handle game events (scoring, etc.)
-            console.log('Game event:', data.event);
             break;
         }
       } catch (error) {
@@ -76,16 +118,13 @@ export default function GamePage() {
       }
     };
 
-    // Handle WebSocket errors
-    ws.onerror = (error) => {
+    ws.onerror = () => {
       if (isMounted) {
         setConnection('error');
         setError('Connection error occurred');
-        console.error('WebSocket error:', error);
       }
     };
 
-    // Handle WebSocket connection closing
     ws.onclose = () => {
       if (isMounted) {
         setConnection('error');
@@ -93,15 +132,16 @@ export default function GamePage() {
       }
     };
 
-    // Set up keyboard event listeners for paddle movement
     const handleKeyDown = (event: KeyboardEvent) => {
       if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
       switch (event.key) {
         case 'ArrowUp':
+        case 'w':
           ws.send(JSON.stringify({ type: 'paddle_move', movement: 'up' }));
           break;
         case 'ArrowDown':
+        case 's':
           ws.send(JSON.stringify({ type: 'paddle_move', movement: 'down' }));
           break;
       }
@@ -110,16 +150,14 @@ export default function GamePage() {
     const handleKeyUp = (event: KeyboardEvent) => {
       if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
-      if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+      if (['ArrowUp', 'ArrowDown', 'w', 's'].includes(event.key)) {
         ws.send(JSON.stringify({ type: 'paddle_move', movement: 'stop' }));
       }
     };
 
-    // Add keyboard event listeners
     window.addEventListener('keydown', handleKeyDown);
     window.addEventListener('keyup', handleKeyUp);
 
-    // Cleanup function to handle component unmounting
     return () => {
       isMounted = false;
       window.removeEventListener('keydown', handleKeyDown);
@@ -128,11 +166,18 @@ export default function GamePage() {
         ws.close();
       }
     };
-  }, [gameId]); // Only re-run if gameId changes
+  }, [gameId]);
 
-  // Render the game interface
+  if (isLoading) {
+    return (
+      <div className={styles.loadingScreen}>
+        <LoadingAnimation />
+      </div>
+    );
+  }
+
   return (
-    <div className={styles.container}>
+    <div className={styles.gameContainer}>
       {connection === 'connecting' && (
         <div className={styles.message}>
           <h2>Connecting to game...</h2>
@@ -147,50 +192,36 @@ export default function GamePage() {
       )}
 
       {connection === 'connected' && gameState && (
-        <div className={styles.gameContainer}>
-          {/* Score display */}
-          <div className={styles.scoreBoard}>
-            <div className={styles.score}>
-              Left: {gameState.paddles.left.score}
+        <>
+          <div className={styles.header}>
+            <div className={styles.playerScore}>
+              <span>Left Player</span>
+              <span>{gameState.paddles.left.score}</span>
             </div>
-            <div className={styles.score}>
-              Right: {gameState.paddles.right.score}
+            <div className={styles.playerScore}>
+              <span>Right Player</span>
+              <span>{gameState.paddles.right.score}</span>
             </div>
           </div>
 
-          {/* Game canvas */}
-          <div className={styles.gameCanvas}
-               style={{
-                 width: '1300px',
-                 height: '600px'
-               }}>
-            {/* Left paddle */}
-            <div className={styles.paddle}
-                 style={{
-                   left: '0',
-                   top: `${gameState.paddles.left.y}px`
-                 }} />
-            
-            {/* Right paddle */}
-            <div className={styles.paddle}
-                 style={{
-                   right: '0',
-                   top: `${gameState.paddles.right.y}px`
-                 }} />
-            
-            {/* Ball */}
-            <div className={styles.ball}
-                 style={{
-                   left: `${gameState.ball.x}px`,
-                   top: `${gameState.ball.y}px`
-                 }} />
-          </div>
+          <canvas
+            ref={canvasRef}
+            width={CANVAS_WIDTH}
+            height={CANVAS_HEIGHT}
+            className={styles.canvas}
+          />
 
-          {/* Game controls instructions */}
+          {gameOver && (
+            <div className={styles.winnerMessage}>
+              <h2>{winner} wins!</h2>
+            </div>
+          )}
+
           <div className={styles.instructions}>
-            <p>Use ↑ and ↓ arrow keys to move your paddle</p>
+            <p>Use `W` and `S` keys or ↑ and ↓ arrow keys to move your paddle</p>
+            <p>First player to score 5 points wins!</p>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
