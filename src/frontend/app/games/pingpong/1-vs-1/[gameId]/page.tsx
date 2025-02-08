@@ -104,9 +104,9 @@ export default function GamePage() {
           case 'game_state':
             setGameState(data.state);
             // Check for game over condition
-            if (data.state.paddles.left.score >= 5 || data.state.paddles.right.score >= 5) {
+            if (data.state.paddles.left.score >= 1 || data.state.paddles.right.score >= 1) {
               setGameOver(true);
-              setWinner(data.state.paddles.left.score >= 5 ? 'Left Player' : 'Right Player');
+              setWinner(data.state.paddles.left.score >= 1 ? 'Left Player' : 'Right Player');
             }
             break;
           case 'error':
