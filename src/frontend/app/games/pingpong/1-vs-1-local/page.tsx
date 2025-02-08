@@ -2,7 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react"
 import LoadingAnimation from "@/components/LandingAnimation/LoadingAnimation"
-import "@/styles/1vs1pingpong.css"
+import styles from "@/styles/modules/PingPongGame.module.css"
 
 const CANVAS_WIDTH = 1300
 const CANVAS_HEIGHT = 600
@@ -262,54 +262,76 @@ const PingPongGame = () => {
   }
 
   if (isLoading) {
-    return (
-      <div className="loading-screen">
-        <LoadingAnimation />
-      </div>
-    )
+      return (
+          <div className={styles.loadingScreen}>
+              <LoadingAnimation />
+          </div>
+      )
   }
 
   return (
-    <div className="game-container">
-      <div className="header">
-        <div className="player-score">
-          <span>{player1}</span>
-          <span>{gameState.leftScore}</span>
-        </div>
-        <div className="player-score">
-          <span>{player2}</span>
-          <span>{gameState.rightScore}</span>
-        </div>
-      </div>
-      <canvas ref={canvasRef} width={CANVAS_WIDTH} height={CANVAS_HEIGHT} className="canvas" />
-      {!gameOver ? (
-        <div className="buttonContainer">
-          <button onClick={startGame} disabled={isRunning} className="button">
-            Start
-          </button>
-          <button onClick={pauseGame} disabled={!isRunning} className="button">
-            Pause
-          </button>
-          <button onClick={() => { if (confirm("Sure Restart The Game!") == true) restartGame() }} className="button">
-            Restart
-          </button>
-        </div>
-      ) : (
-        <div className="winner-message">
-          <h2>{winner} wins!</h2>
-          <div className="buttonContainer">
-            <button onClick={restartGame} className="button">
-              New Game
-            </button>
+      <div className={styles.gameContainer}>
+          <div className={styles.header}>
+              <div className={styles.playerScore}>
+                  <span>{player1}</span>
+                  <span>{gameState.leftScore}</span>
+              </div>
+              <div className={styles.playerScore}>
+                  <span>{player2}</span>
+                  <span>{gameState.rightScore}</span>
+              </div>
           </div>
-        </div>
-      )}
-      <div className="instructions">
-        <p>Use `W` and `S` keys to move the left paddle</p>
-        <p>Use `Up` and `Down` arrow keys to move the right paddle</p>
-        <p>First player to score {WIN_SCORE} points wins!</p>
+          <canvas 
+              ref={canvasRef} 
+              width={CANVAS_WIDTH} 
+              height={CANVAS_HEIGHT} 
+              className={styles.canvas}
+          />
+          {!gameOver ? (
+              <div className={styles.buttonContainer}>
+                  <button 
+                      onClick={startGame} 
+                      disabled={isRunning} 
+                      className={styles.button}
+                  >
+                      Start
+                  </button>
+                  <button 
+                      onClick={pauseGame} 
+                      disabled={!isRunning} 
+                      className={styles.button}
+                  >
+                      Pause
+                  </button>
+                  <button 
+                      onClick={() => { 
+                          if (confirm("Sure Restart The Game!") == true) 
+                              restartGame() 
+                      }} 
+                      className={styles.button}
+                  >
+                      Restart
+                  </button>
+              </div>
+          ) : (
+              <div className={styles.winnerMessage}>
+                  <h2>{winner} wins!</h2>
+                  <div className={styles.buttonContainer}>
+                      <button 
+                          onClick={restartGame} 
+                          className={styles.button}
+                      >
+                          New Game
+                      </button>
+                  </div>
+              </div>
+          )}
+          <div className={styles.instructions}>
+              <p>Use `W` and `S` keys to move the left paddle</p>
+              <p>Use `Up` and `Down` arrow keys to move the right paddle</p>
+              <p>First player to score {WIN_SCORE} points wins!</p>
+          </div>
       </div>
-    </div>
   )
 }
 
