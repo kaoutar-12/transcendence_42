@@ -1,4 +1,3 @@
-import Sidebar from "@/components/Sidebar";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Particles from "@/components/LandingAnimation/Particles";
 
