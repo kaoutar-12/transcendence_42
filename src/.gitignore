@@ -9,3 +9,5 @@ tests/
 .DS_Store
 *.log
 *.swp
+# add ignore migrations
+migrations/
