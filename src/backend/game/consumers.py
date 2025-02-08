@@ -146,24 +146,51 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         self.game = serverPongGame()
         self.game_id = self.scope['url_route']['kwargs']['game_id']
         self.room_group_name = f'game_{self.game_id}'
-
-        # init player side
-        if self.game_id not in self.sides:
-            self.sides[self.game_id] = {}
-        if len(self.sides[self.game_id]) < 2:
-            if self.user.id not in self.sides[self.game_id].values():
-                available_sides = ['left', 'right']
-                user_sides = list(self.sides[self.game_id].keys())
-                for side in available_sides:
-                    if side not in user_sides:
-                        self.sides[self.game_id][side] = self.user.id
-                        break
-        # Get or create game state
+        # handle reconnection
         game_state = MemoryStorage.get_game_state(self.game_id)
+        is_reconnect = False
+        if self.game_id in self.sides:
+            for side, user_id in self.sides[self.game_id].items():
+                if user_id == self.user.id:
+                    is_reconnect = True
+                    break
+        # handle new connection
+        if not is_reconnect:
+            if self.game_id not in self.sides:
+                self.sides[self.game_id] = {}
+            if len(self.sides[self.game_id]) < 2:
+                if self.user.id not in self.sides[self.game_id].values():
+                    available_sides = ['left', 'right']
+                    user_sides = list(self.sides[self.game_id].keys())
+                    for side in available_sides:
+                        if side not in user_sides:
+                            self.sides[self.game_id][side] = self.user.id
+                            break
+        # Get or create game state
         if not game_state:
             game_state = self.game.create_initial_state()
             MemoryStorage.save_game_state(self.game_id, game_state)
             asyncio.create_task(self.game_loop())
+        elif game_state.get('game_status') == 'playing':
+            if not any(task.get_name() == f'game_loop_{self.game_id}' for task in asyncio.all_tasks()):
+                asyncio.create_task(self.game_loop(), name=f'game_loop_{self.game_id}')
+        # init player side
+        # if self.game_id not in self.sides:
+        #     self.sides[self.game_id] = {}
+        # if len(self.sides[self.game_id]) < 2:
+        #     if self.user.id not in self.sides[self.game_id].values():
+        #         available_sides = ['left', 'right']
+        #         user_sides = list(self.sides[self.game_id].keys())
+        #         for side in available_sides:
+        #             if side not in user_sides:
+        #                 self.sides[self.game_id][side] = self.user.id
+        #                 break
+        # # Get or create game state
+        # game_state = MemoryStorage.get_game_state(self.game_id)
+        # if not game_state:
+        #     game_state = self.game.create_initial_state()
+        #     MemoryStorage.save_game_state(self.game_id, game_state)
+        #     asyncio.create_task(self.game_loop())
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.send(text_data=json.dumps({
@@ -184,6 +211,15 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                 if user_id == self.user.id:
                     return side
         return None
+    def get_winner(self):
+        game_state = MemoryStorage.get_game_state(self.game_id)
+        if game_state and game_state.get('game_status') == 'finished':
+            return game_state.get('winner')
+        if game_state['paddles']['left']['score'] > game_state['paddles']['right']['score']:
+            return 'left'
+        elif game_state['paddles']['left']['score'] < game_state['paddles']['right']['score']:
+            return 'right'
+        return None
     async def disconnect(self, close_code):
         if hasattr(self, 'game_id'):
             if self.game_id in self.sides:
@@ -194,30 +230,37 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                         disconnect_side = side
                         winner_side = 'left' if side == 'right' else 'right'
                         break
-
+            # check if its a real disconnection
             game_state = MemoryStorage.get_game_state(self.game_id)
             if game_state and game_state.get('game_status') == 'playing':
-                game_state['game_status'] = 'finished'
-                game_state['timestamp'] = time.time()
-                game_state['paddles'][winner_side]['score'] = 1
-                game_state['winner'] = winner_side
-            
-                await self.channel_layer.group_send(
-                    self.room_group_name,
-                    {
-                        'type': 'game_over',
-                        'winner': self.get_winner(),
-                        'reason': 'player_disconnected',
-                        'side': disconnect_side
-                    }
-                )
-            MemoryStorage.delete_game(self.game_id)
+                asyncio.create_task(self.handle_disconnect_timeout(disconnect_side, winner_side))
 
         if hasattr(self, 'room_group_name'):
             await self.channel_layer.group_discard(
                 self.room_group_name,
                 self.channel_name
             )
+    async def handle_disconnect_timeout(self, disconnect_side, winner_side):
+        await asyncio.sleep(5)
+        game_state = MemoryStorage.get_game_state(self.game_id)
+        if game_state and game_state.get('game_status') == 'playing':
+            game_state['game_status'] = 'finished'
+            game_state['timestamp'] = time.time()
+            game_state['paddles'][winner_side]['score'] = 1
+            game_state['winner'] = winner_side
+            MemoryStorage.save_game_state(self.game_id, game_state)
+            print(f"player disconnected side {disconnect_side}")
+            print(f"Game over {game_state}")
+            await self.channel_layer.group_send(
+                self.room_group_name,
+                {
+                    'type': 'game_over',
+                    'winner': winner_side,
+                    'reason': 'player_disconnected',
+                    'side': disconnect_side
+                }
+            )
+            MemoryStorage.delete_game(self.game_id)
 
     async def receive(self, text_data):
         try:
@@ -251,15 +294,15 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                 break
             
             movements = MemoryStorage.get_player_movements(self.game_id)
-            print(f"Game loop  movemenets before {movements}")
-            print(f"Game loop  sides before {self.sides}")
+            # print(f"Game loop  movemenets before {movements}")
+            # print(f"Game loop  sides before {self.sides}")
             paddle_movements = {}
             if self.game_id in self.sides:
                for side, user_id in self.sides[self.game_id].items():
                    if str(user_id) in movements:
                        paddle_movements[side] = movements[str(user_id)]
 
-            print(f"Game loop after movemenets after {paddle_movements}")
+            # print(f"Game loop after movemenets after {paddle_movements}")
             new_game_state, event = self.game.update(game_state, paddle_movements)
             MemoryStorage.save_game_state(self.game_id, new_game_state)
 
@@ -295,12 +338,20 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             'movement': event['movement']
         }))
     async def game_over(self, event):
+        is_winner = event['winner'] == self.get_user_side()
         await self.send(text_data=json.dumps({
             'type': 'game_over',
-            'reason': event['reason'],
+            'reason': event.get('reason', 'game_finished'),
             'winner': self.get_winner(),
-            'side': self.get_user_side()
+            'side': self.get_user_side(),
+            'redirect': {
+                'game_id': self.game_id,
+                'result': 'win' if is_winner else 'lose',
+                'side': self.get_user_side()
+            }
         }))
+        if event.get('reason') == 'game_finished':
+            MemoryStorage.delete_game(self.game_id)
 
 class QueueConsumer(AsyncWebsocketConsumer):
     async def connect(self):
