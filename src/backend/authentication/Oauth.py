@@ -47,7 +47,7 @@ def Oauth(request):
                     user = User.objects.get(email=data["email"])
                     # login method 
                 
-                    serialzer = UserSerializer(user.data)
+                    serialzer = UserSerializer(user)
                   
                     refresh = RefreshToken.for_user(user)
                     response = Response({
