@@ -1,0 +1,143 @@
+.container {
+    /* Center the form on the page with a min-height to ensure vertical centering */
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.form {
+    /* Create a contained card-like form with depth */
+    background-color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.08);
+    width: 100%;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.title {
+    /* Style the form title with a modern look */
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2d3748;
+    text-align: center;
+    margin-bottom: 0.5rem;
+}
+
+.inputsContainer {
+    /* Arrange input fields with consistent spacing */
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.inputWrapper {
+    /* Container for input and its error message */
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.input {
+    /* Style input fields with a clean, modern look */
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 1rem;
+    color: #4a5568;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.input:focus {
+    /* Create a clear focus state */
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.15);
+}
+
+.input::placeholder {
+    /* Style placeholders to be slightly muted */
+    color: #a0aec0;
+}
+
+.inputError {
+    /* Highlight inputs with errors */
+    border-color: #f56565;
+    background-color: #fff5f5;
+}
+
+.inputError:focus {
+    /* Maintain error state while focused */
+    border-color: #f56565;
+    box-shadow: 0 0 0 3px rgba(245, 101, 101, 0.15);
+}
+
+.errorMessage {
+    /* Style error messages to be clear but not overwhelming */
+    font-size: 0.875rem;
+    color: #e53e3e;
+    margin-left: 0.25rem;
+}
+
+.button {
+    /* Create an attractive, interactive button */
+    background-color: #4299e1;
+    color: white;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 0.5rem;
+}
+
+.button:hover:not(:disabled) {
+    /* Add subtle interaction feedback */
+    background-color: #3182ce;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.button:active:not(:disabled) {
+    /* Add press effect */
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.button:disabled {
+    /* Clear disabled state styling */
+    background-color: #cbd5e0;
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+/* Add responsive adjustments for smaller screens */
+@media (max-width: 480px) {
+    .form {
+        padding: 1.5rem;
+        max-width: 320px;
+    }
+
+    .title {
+        font-size: 1.25rem;
+    }
+
+    .input {
+        padding: 0.625rem 0.875rem;
+        font-size: 0.875rem;
+    }
+
+    .button {
+        padding: 0.625rem 1.25rem;
+        font-size: 0.875rem;
+    }
+}

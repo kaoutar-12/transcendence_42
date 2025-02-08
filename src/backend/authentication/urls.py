@@ -17,4 +17,9 @@ urlpatterns = [
     path('2fa/verify/', views.verify_2fa, name='verify_2fa'),
     path('2fa/disable/', views.disable_2fa, name='disable_2fa'),
     path('oauth/', Oauth, name='Oauth'),
+	path('friends/', views.get_friends, name='get_friends'),
+	path('friends/add/<int:user_id>/', views.add_friend, name='add_friend'),
+	path('friends/remove/<int:user_id>/', views.remove_friend, name='remove_friend'),
+	path('friends/block/<int:user_id>/', views.block_user, name='block_user'),
+	path('friends/unblock/<int:user_id>/', views.unblock_user, name='unblock_user'),
 ]
