@@ -1,0 +1,54 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 60vh;
+    padding: 2rem;
+}
+
+.searchingState,
+.matchFoundState,
+.errorState {
+    text-align: center;
+}
+
+.title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    color: #2d3748;
+}
+
+.spinner {
+    width: 3rem;
+    height: 3rem;
+    border: 3px solid #e2e8f0;
+    border-top-color: #4299e1;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 1rem auto;
+}
+
+.roleText {
+    font-size: 1.125rem;
+    color: #4a5568;
+    margin-bottom: 0.5rem;
+}
+
+.countdownText {
+    font-size: 1.125rem;
+    color: #4299e1;
+    font-weight: 500;
+}
+
+.errorText {
+    color: #e53e3e;
+    margin-top: 0.5rem;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}

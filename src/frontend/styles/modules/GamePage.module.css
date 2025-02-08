@@ -1,0 +1,72 @@
+.container {
+    width: 100%;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: #1a1a1a;
+    color: white;
+}
+
+.message {
+    text-align: center;
+    padding: 2rem;
+}
+
+.error {
+    text-align: center;
+    color: #ff4444;
+    padding: 2rem;
+}
+
+.gameContainer {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.scoreBoard {
+    display: flex;
+    gap: 4rem;
+    font-size: 2rem;
+    margin-bottom: 1rem;
+}
+
+.score {
+    padding: 0.5rem 2rem;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.gameCanvas {
+    position: relative;
+    background-color: #000;
+    border: 2px solid #333;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.paddle {
+    position: absolute;
+    width: 10px;
+    height: 120px;
+    background-color: white;
+    border-radius: 4px;
+}
+
+.ball {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: white;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.instructions {
+    text-align: center;
+    color: #888;
+    margin-top: 1rem;
+}

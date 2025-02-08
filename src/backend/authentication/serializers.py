@@ -2,13 +2,21 @@ from rest_framework import serializers
 from .models import User ,TwoFactorAuth
 
 
+class UserBasicSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'nickname', 'profile_image')
+
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
     twoFactorEnabled = serializers.SerializerMethodField()
+    friends = serializers.SerializerMethodField()
+    blocked_users = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'password','nickname','profile_image','twoFactorEnabled')
+        fields = ('id', 'username', 'email', 'password','nickname','profile_image','twoFactorEnabled'
+                  ,'friends','blocked_users')
         extra_kwargs = {'password': {'write_only': True},
                         'nickname': {'required': False},
                         'profile_image': {'required': False} }
@@ -27,6 +35,12 @@ class UserSerializer(serializers.ModelSerializer):
             return obj.twofactorauth.is_enabled
         except TwoFactorAuth.DoesNotExist:
             return False
+    
+    def get_friends(self, obj):
+        return UserBasicSerializer(obj.friends.all(), many=True).data
+    
+    def get_blocked_users(self, obj):
+        return UserBasicSerializer(obj.blocked_users.all(), many=True).data
 
 
     
