@@ -63,6 +63,21 @@ const MatchmakingQueue = () => {
         };
     }, [router]);
 
+    /* Matchmaking Queue UI */
+    if (matchStatus === 'match_created') {
+        return (
+            <div className={styles.container}>
+                <div className={styles.matchFoundState}>
+                    <h2 className={styles.title}>Match Found!</h2>
+                    <p className={styles.roleText}>You are {gameData.your_role}</p>
+                    <p className={styles.countdownText}>
+                        Starting game in {countdown} seconds...
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className={styles.container}>
             {matchStatus === 'searching' && (
