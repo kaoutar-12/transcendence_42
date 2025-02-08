@@ -3,7 +3,8 @@
 import { useState } from "react"
 import PlayerEntry from "@/components/gameComps/PlayerEntry";
 import TournamentBracket from "@/components/gameComps/TournamentBracket";
-import styles from "@/styles/modules/PingPongTournament.module.css"
+import PingPong1vs1 from "@/components/gameComps/PingPong1vs1";
+import styles from "@/styles/modules/PingPongTournament.module.css";
 
 type Props = {}
 
@@ -32,18 +33,30 @@ const PingPongTournament = (props: Props) => {
         }
 
         if (currentMatch === 0) {  
-            setWinner1(players[0])
-            setCurrentMatch(-1)
+            return <PingPong1vs1 
+                p1={players[0]}
+                p2={players[1]}
+                onGameEnd={setWinner1}
+                setCurrentGame={setCurrentMatch}
+            />
         }
 
         if (currentMatch === 1) {  
-            setWinner1(players[2])
-            setCurrentMatch(-1)
+            return <PingPong1vs1 
+                p1={players[2]}
+                p2={players[3]}
+                onGameEnd={setWinner2}
+                setCurrentGame={setCurrentMatch}
+            />
         }
 
         if (currentMatch === 2) {  
-            setWinner1(winner1)
-            setCurrentMatch(-1)
+            return <PingPong1vs1 
+                p1={winner1}
+                p2={winner2}
+                onGameEnd={setWinner3}
+                setCurrentGame={setCurrentMatch}
+            />
         }
 
         return (
