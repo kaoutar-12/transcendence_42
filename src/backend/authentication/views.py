@@ -99,16 +99,17 @@ def login(request):
         })
     serialzer = UserSerializer(user)
     twoFactorEnabled=serialzer.data
-    if twoFactorEnabled["twoFactorEnabled"] and not request.data.get('OTP'):
+    if twoFactorEnabled["twoFactorEnabled"]:
+        request.session["pending_user_id"] = twoFactorEnabled["id"]
         return Response({
              'action': 'triger on'
         })
-    elif twoFactorEnabled["twoFactorEnabled"] and  request.data.get('OTP'):
-        two_factor = TwoFactorAuth.objects.get(user=serialzer.data['id'])
-        if not verify_totp_code(two_factor.secret_key, request.data.get('OTP')):
-            return Response({
-             'error': 'Invalid verification code'
-            })
+    # elif twoFactorEnabled["twoFactorEnabled"] and  request.data.get('OTP'):
+    #     two_factor = TwoFactorAuth.objects.get(user=serialzer.data['id'])
+    #     if not verify_totp_code(two_factor.secret_key, request.data.get('OTP')):
+    #         return Response({
+    #          'error': 'Invalid verification code'
+    #         })
         
     refresh = RefreshToken.for_user(user)
     response = Response({
@@ -116,6 +117,42 @@ def login(request):
             'username': user.username,
             'email': user.email,
         },
+    })
+    response.set_cookie(
+        'access_token',
+        refresh.access_token,
+        httponly=True,
+        # secure=True,
+        samesite='Strict',
+        max_age=settings.SIMPLE_JWT.get('ACCESS_TOKEN_LIFETIME').total_seconds()
+        )
+    response.set_cookie(
+        'refresh_token',
+        refresh,
+        httponly=True,
+        # secure=True,
+        samesite='Strict',
+        max_age=settings.SIMPLE_JWT.get('REFRESH_TOKEN_LIFETIME').total_seconds()
+        )
+
+    return response
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def login_otp(request):
+    user_id = request.session.get('pending_user_id')
+    OTP = request.data.get('OTP')
+    if not user_id or not OTP:
+            return Response({'error': 'No pending authentication'})
+    user = User.objects.get(id=user_id)
+    two_factor = TwoFactorAuth.objects.get(user=user.id)
+    if not verify_totp_code(two_factor.secret_key, OTP):
+        return Response({
+         'error': 'Invalid verification code'
+        })
+    refresh = RefreshToken.for_user(user)
+    response = Response({
+        'message':'welcome'
     })
     response.set_cookie(
         'access_token',
@@ -249,6 +286,8 @@ def enable_2fa(request):
         return Response({
             'error': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
         
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])

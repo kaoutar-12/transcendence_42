@@ -5,6 +5,7 @@ from .Oauth import Oauth
 urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.login, name='login'),
+    path('login_otp/', views.login_otp, name='login_otp'),
     path('logout/', views.logout, name='logout'),
     path('user/', views.get_user, name='get_user'),
     # path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),

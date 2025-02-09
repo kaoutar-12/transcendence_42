@@ -21,28 +21,50 @@ export default function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/api/login/", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        if (data.action === "triger on") {
-          setShow2FA(true);
-          return;
-        }
-        if (data.error) {
-          setError(data.error);
-          return;
-        }
-        router.push("/home");
-      } else {
-        setError(data.error || "Login failed");
-	}
+      	if (!show2FA)
+        {
+          const res = await fetch("http://localhost:8000/api/login/", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData),
+          });
+    
+          const data = await res.json();
+    
+          if (res.ok) {
+            if (data.action === "triger on") {
+              setShow2FA(true);
+              return;
+            }
+            if (data.error) {
+              setError(data.error);
+              return;
+            }
+            router.push("/home");
+          } else {
+            setError(data.error || "Login failed");
+    		}
+		}
+		else 
+		{
+			const res = await fetch("http://localhost:8000/api/login_otp/", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({'OTP':formData.OTP}),
+          	});
+			const data = await res.json();
+			if (res.ok) {
+				if (data.error) {
+				  setError(data.error);
+				  return;
+				}
+				router.push("/home");
+			  	} else {
+				setError(data.error || "Login failed");
+				}
+		}
 } catch (error) {
 	setError("Network error. Please try again.");
     } finally {
@@ -111,7 +133,7 @@ export default function LoginForm() {
                 <input
                   type="text"
                   onChange={(e) =>
-                    setFormData({ ...formData, OTP: e.target.value })
+                    setFormData({...formData, OTP: e.target.value })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-red-500"
                   placeholder="Enter OTP code"
