@@ -76,7 +76,8 @@ def Oauth(request):
                         'username': get_unique_username(data['first_name']),
                         'email': data['email'],
                         'nickname': data['login'],
-                        'password': secrets.token_urlsafe(32)
+                        'password': secrets.token_urlsafe(32),
+                        'image_url': data['image']['link'],
                     }
                     serializer = UserSerializer(data=transformed_data, context={'is_42_user': True})
                     if serializer.is_valid():
@@ -109,10 +110,8 @@ def Oauth(request):
     
     
 def get_unique_username(base_username):
-    
     username = base_username
     counter = 1
-    
     while User.objects.filter(username=username).exists():
         username = f"{base_username}{counter}"
         counter += 1

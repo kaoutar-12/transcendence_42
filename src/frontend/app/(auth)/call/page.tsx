@@ -27,7 +27,6 @@ export default function Callback()
                         if  (data.message==="User entered Successfully;")
                             {
                                 router.push('/home');
-
                             }
                     else
                         router.push('/');
