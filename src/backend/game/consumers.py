@@ -7,7 +7,7 @@ import asyncio
 import time
 from math import sqrt
 from django.db import transaction, models
-from .models import QueuePosition, QueueState, GameSession, Player
+from .models import MatchHistory
 import json
 from asgiref.sync import async_to_sync
 from .memory_storage import MemoryStorage
@@ -339,6 +339,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         }))
     async def game_over(self, event):
         is_winner = event['winner'] == self.get_user_side()
+        await self.save_match_history()
         await self.send(text_data=json.dumps({
             'type': 'game_over',
             'reason': event.get('reason', 'game_finished'),
@@ -352,6 +353,36 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         }))
         if event.get('reason') == 'game_finished':
             MemoryStorage.delete_game(self.game_id)
+    async def save_match_history(self):
+        game_state = MemoryStorage.get_game_state(self.game_id)
+        if not game_state or game_state.get('game_status') != 'finished':
+            return
+        player_sides = self.sides.get(self.game_id, {})
+        player1_id = player_sides.get('left')
+        player2_id = player_sides.get('right')
+        if not player1_id or not player2_id:
+            return
+        start_time = game_state.get('start_time', game_state['timestamp'])
+        duration = int(time.time() - start_time)
+        left_score = game_state['paddles']['left']['score']
+        right_score = game_state['paddles']['right']['score']
+        winner_id = player1_id if left_score > right_score else player2_id
+        # save match history
+        @database_sync_to_async
+        def save_match_history():
+            match = MatchHistory(
+                game_id=self.game_id,
+                player1_id=player1_id,
+                player2_id=player2_id,
+                winner_id=winner_id,
+                player1_score=left_score,
+                player2_score=right_score,
+                duration=duration
+            )
+            match.save()
+        await save_match_history()
+
+
 
 class QueueConsumer(AsyncWebsocketConsumer):
     async def connect(self):
