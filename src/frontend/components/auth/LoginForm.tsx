@@ -142,7 +142,7 @@ export default function LoginForm() {
               <div className="flex-grow border-t border-gray-300"></div>
           </div>
 			  <button
-			  // type="submit"
+			  type="button"
         onClick={() => {
           router.push("/oauth1");
         }}
