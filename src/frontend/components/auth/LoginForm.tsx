@@ -7,13 +7,11 @@ import ParticlesBackground from "@/components/auth/particales";
 export default function LoginForm() {
   const [formData, setFormData] = useState({
     email: "",
-    password: "",
-    OTP: "",
+    password: ""
   });
   const [error, setError] = useState("");
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [show2FA, setShow2FA] = useState(false);
 
   // Initialize particles
 
@@ -21,8 +19,7 @@ export default function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      	if (!show2FA)
-        {
+      	
           const res = await fetch("http://localhost:8000/api/login/", {
             method: "POST",
             credentials: "include",
@@ -34,7 +31,7 @@ export default function LoginForm() {
     
           if (res.ok) {
             if (data.action === "triger on") {
-              setShow2FA(true);
+				router.push("/OTP");
               return;
             }
             if (data.error) {
@@ -45,26 +42,8 @@ export default function LoginForm() {
           } else {
             setError(data.error || "Login failed");
     		}
-		}
-		else 
-		{
-			const res = await fetch("http://localhost:8000/api/login_otp/", {
-            method: "POST",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({'OTP':formData.OTP}),
-          	});
-			const data = await res.json();
-			if (res.ok) {
-				if (data.error) {
-				  setError(data.error);
-				  return;
-				}
-				router.push("/home");
-			  	} else {
-				setError(data.error || "Login failed");
-				}
-		}
+		
+		
 } catch (error) {
 	setError("Network error. Please try again.");
     } finally {
@@ -99,9 +78,7 @@ export default function LoginForm() {
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {!show2FA ? (
-              <>
-                <div>
+			<div>
                   <label className="block text-gray-700 mb-2">Email</label>
                   <input
                     type="email"
@@ -124,27 +101,6 @@ export default function LoginForm() {
                     className="w-full px-4 py-3 bg-transparent border-b border-gray-300 focus:border-gray-500 focus:outline-none"
                   />
                 </div>
-              </>
-            ) : (
-              <div className="mb-6">
-                <label className="block text-gray-700 mb-2">
-                  Enter 2FA Code
-                </label>
-                <input
-                  type="text"
-                  onChange={(e) =>
-                    setFormData({...formData, OTP: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-red-500"
-                  placeholder="Enter OTP code"
-                  required
-                />
-                <p className="text-sm text-gray-500 mt-2">
-                  Please enter the verification code sent to your device
-                </p>
-              </div>
-            )}
-
             {error && (
               <div className="text-red-500 text-sm text-center">{error}</div>
             )}
@@ -156,8 +112,6 @@ export default function LoginForm() {
             >
               {isLoading ? "loading..." : "Log in"}
             </button>
-			{!show2FA ? (
-        <>
           <div className="relative flex items-center py-5">
                 <div className="flex-grow border-t border-gray-300"></div>
                 <span className="flex-shrink mx-4 text-gray-500">OR</span>
@@ -188,13 +142,6 @@ export default function LoginForm() {
     				    </div>
     				  )}
     				</button>
-
-            </>
-
-			) : (
-			  <div></div>
-			)}
-            {!show2FA ? (
 				<p className="text-center text-gray-600 text-sm">
                 Don&apos;t have an account?{" "}
                 <a
@@ -206,9 +153,7 @@ export default function LoginForm() {
                   Register here
                 </a>
               </p>
-            ) : (
-				<div></div>
-            )}
+            
           </form>
         </div>
       </div>

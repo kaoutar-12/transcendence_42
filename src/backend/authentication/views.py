@@ -103,14 +103,7 @@ def login(request):
         request.session["pending_user_id"] = twoFactorEnabled["id"]
         return Response({
              'action': 'triger on'
-        })
-    # elif twoFactorEnabled["twoFactorEnabled"] and  request.data.get('OTP'):
-    #     two_factor = TwoFactorAuth.objects.get(user=serialzer.data['id'])
-    #     if not verify_totp_code(two_factor.secret_key, request.data.get('OTP')):
-    #         return Response({
-    #          'error': 'Invalid verification code'
-    #         })
-        
+        })    
     refresh = RefreshToken.for_user(user)
     response = Response({
         'user': {
