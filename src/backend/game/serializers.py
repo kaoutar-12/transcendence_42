@@ -1,23 +1,23 @@
 from rest_framework.serializers import ModelSerializer
 from authentication.models import User
 from authentication.serializers import UserSerializer
-from .models import GameSession, Player, QueuePosition, QueueState, GameHistory
+from .models import MatchHistory
 
-class PlayerSerializer(ModelSerializer):
-    user = UserSerializer(read_only=True)
+class MatchHistorySerializer(ModelSerializer):
+    player1 = UserSerializer()
+    player2 = UserSerializer()
+    winner = UserSerializer()
     class Meta:
-        model = Player
-        fields = ['id', 'user', 'score', 'side', 'ready']    
-
-class GameSessionSerializer(ModelSerializer):
-    players = PlayerSerializer(many=True, read_only=True, source='player_set')
-    class Meta:
-        model = GameSession
-        fields = ['id', 'players', 'state', 'winner', 'created_at', 'updated_at']
-
-class GameHistorySerializer(ModelSerializer):
-    game = GameSessionSerializer(read_only=True)
-    class Meta:
-        model = GameHistory
-        fields = ['id', 'game', 'player1_score', 'player2_score', 'duration', 'completed']
-
+        model = MatchHistory
+        fields = [
+            'id',
+            'game_id',
+            'player1_username',
+            'player2_username',
+            'winner_username',
+            'player1_score',
+            'player2_score',
+            'game_type',
+            'played_at',
+            'duration'
+        ]
