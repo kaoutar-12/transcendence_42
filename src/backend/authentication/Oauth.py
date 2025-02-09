@@ -73,7 +73,7 @@ def Oauth(request):
                 except User.DoesNotExist:
                     # register method 
                     transformed_data = {
-                        'username': data['first_name'],
+                        'username': get_unique_username(data['first_name']),
                         'email': data['email'],
                         'nickname': data['login'],
                         'password': secrets.token_urlsafe(32)
@@ -106,5 +106,19 @@ def Oauth(request):
         return Response({'message': 'code recived successfully'})
     except requests.exceptions.RequestException as e:
         return Response({"error": str(e)})
-    print(code)
-    return Response({'message': 'code recived successfully'})
+    
+    
+def get_unique_username(base_username):
+    """
+    Generate a unique username by appending numbers if the base username already exists.
+    Returns the first available unique username.
+    """
+    username = base_username
+    counter = 1
+    
+    while User.objects.filter(username=username).exists():
+        username = f"{base_username}{counter}"
+        counter += 1
+    
+    return username
+    
