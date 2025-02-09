@@ -46,8 +46,13 @@ def Oauth(request):
                 try:
                     user = User.objects.get(email=data["email"])
                     # login method 
-                
                     serialzer = UserSerializer(user)
+                    twoFactorEnabled=serialzer.data
+                    if twoFactorEnabled["twoFactorEnabled"]:
+                        request.session["pending_user_id"] = twoFactorEnabled["id"]
+                        return Response({
+                             'action': '2fa'
+                        })    
                   
                     refresh = RefreshToken.for_user(user)
                     response = Response({

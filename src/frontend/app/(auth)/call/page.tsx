@@ -28,6 +28,10 @@ export default function Callback()
                             {
                                 router.push('/home');
                             }
+                        else if(data.action==="2fa")
+                            {
+                                router.push('/OTP');
+                            }
                     else
                         router.push('/');
                         
