@@ -109,10 +109,7 @@ def Oauth(request):
     
     
 def get_unique_username(base_username):
-    """
-    Generate a unique username by appending numbers if the base username already exists.
-    Returns the first available unique username.
-    """
+    
     username = base_username
     counter = 1
     
