@@ -8,12 +8,16 @@ services:
   db:
     build: 
       context: ./db
+      args:
+        - POSTGRES_DB=${DB_NAME}
+        - POSTGRES_USER=${DB_USER}
+        - POSTGRES_PASSWORD=${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U djangouser -d djangodb"]
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,13 +34,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_started
-    environment:
-      - DEBUG=True
-      - DB_NAME=djangodb
-      - DB_USER=djangouser
-      - DB_PASSWORD=djangopass
-      - DB_HOST=db
-      - DB_PORT=5432
+    env_file:
+      - .env
 
   frontend:
     build:
@@ -47,6 +46,9 @@ services:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
+    env_file:
+      - .env
+    
   nginx:
     build:
       context: ./nginx
@@ -55,7 +57,7 @@ services:
     depends_on:
       - backend
       - frontend
-
+    
 volumes:
   postgres_data:
 
