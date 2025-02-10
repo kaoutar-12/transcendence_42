@@ -5,12 +5,14 @@ from django.contrib.auth import get_user_model
 import random
 import asyncio
 import time
+import math
 from math import sqrt
 from django.db import transaction, models
 from .models import MatchHistory
 import json
 from asgiref.sync import async_to_sync
 from .memory_storage import MemoryStorage
+
 class serverPongGame:
     def __init__(self, width=1300,height=600):
         self.width = width
@@ -120,10 +122,11 @@ class serverPongGame:
         inter_y = (paddle['y'] + (self.paddle_height / 2)) - ball['y']
         norm_inter_y = inter_y / (self.paddle_height / 2)
         bounce_angle = norm_inter_y * self.max_bounce_angle
-        speed = sqrt(ball['dx'] ** 2 + ball['dy'] ** 2)
+        # convert to rad
+        angle_rad = bounce_angle * (3.14159 / 180)
         direction = 1 if side == 'left' else -1
-        ball['dx'] =direction * speed
-        ball['dy'] = -speed * (inter_y / abs(inter_y))
+        ball['dx'] =direction * self.ball_speed * abs(math.cos(angle_rad))
+        ball['dy'] = -self.ball_speed * math.sin(angle_rad)
     
     def _reset_ball(self, game_state , direction):
         ball = game_state['ball']
@@ -145,7 +148,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             }))
             await self.close()
             return
-        self.game = serverPongGame()
         self.game_id = self.scope['url_route']['kwargs']['game_id']
         if await self.is_game_finished():
             await self.send(text_data=json.dumps({
@@ -154,6 +156,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             }))
             await self.close()
             return
+        self.game = serverPongGame()
         self.room_group_name = f'game_{self.game_id}'
         # handle reconnection
         game_state = MemoryStorage.get_game_state(self.game_id)
@@ -379,6 +382,8 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         }))
         if event.get('reason') == 'game_finished':
             MemoryStorage.delete_game(self.game_id)
+            if self.game_id in self.sides:
+                del PongGameConsumer.sides[self.game_id]
     async def save_match_history(self):
         game_state = MemoryStorage.get_game_state(self.game_id)
         if not game_state or game_state.get('game_status') != 'finished':
