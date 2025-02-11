@@ -188,28 +188,24 @@ class TicTacToeGame:
         game_state['current_player'] = 'O' if game_state['current_player'] == 'X' else 'X'
         return game_state, 'move_made'
 
-    def _check_winner(self, board, last_row, last_col):
+    def check_winner(self, board, last_row, last_col):
         player = board[last_row][last_col]
-        directions = [(0, 1), (1, 0), (1, 1), (1, -1)]
         
-        for dx, dy in directions:
-            count = 1
-            # Check forward direction
-            r, c = last_row + dx, last_col + dy
-            while (0 <= r < self.board_size and 0 <= c < self.board_size and 
-                   board[r][c] == player):
-                count += 1
-                r, c = r + dx, c + dy
+        # hotizontal
+        if board[last_row][0] == player and board[last_row][1] == player and board[last_row][2] == player:
+            return True
             
-            # Check backward direction
-            r, c = last_row - dx, last_col - dy
-            while (0 <= r < self.board_size and 0 <= c < self.board_size and 
-                   board[r][c] == player):
-                count += 1
-                r, c = r - dx, c - dy
+        #vertical
+        if board[0][last_col] == player and board[1][last_col] == player and board[2][last_col] == player:
+            return True
             
-            if count >= self.win_length:  # Fixed: using win_length instead of winning_length
-                return True
+        # diagonal /
+        if board[0][0] == player and board[1][1] == player and board[2][2] == player:
+            return True
+        #  vs diagonal \
+        if board[0][2] == player and board[1][1] == player and board[2][0] == player:
+            return True
+            
         return False
     def _is_board_full(self, board):
         return all(cell != '' for row in board for cell in row)
