@@ -447,3 +447,16 @@ def unblock_user(request,user_id):
         return Response({
             'error': 'User not found'
         })
+
+# @api_view(['post'])
+# @permission_classes([IsAuthenticated])
+# def update_online_status(request):
+#     user = request.user
+#     status = request.data.get('status', False)
+#     user.is_online = status
+#     if not status:
+#         user.last_seen = datetime.now()
+#     user.save()
+#     return Response({
+#         'status':user.is_online
+#     })
