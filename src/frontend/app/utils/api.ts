@@ -48,7 +48,6 @@ api.interceptors.response.use(
 
             isRefreshing = true;
             originalRequest._retry = true;
-
             try {
                 const response = await axios.post('http://localhost:8000/api/token/refresh/', {},{withCredentials: true}
             );

@@ -7,13 +7,11 @@ import ParticlesBackground from "@/components/auth/particales";
 export default function LoginForm() {
   const [formData, setFormData] = useState({
     email: "",
-    password: "",
-    OTP: "",
+    password: ""
   });
   const [error, setError] = useState("");
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [show2FA, setShow2FA] = useState(false);
 
   // Initialize particles
 
@@ -21,30 +19,33 @@ export default function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const res = await fetch("http://localhost:8000/api/login/", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        if (data.action === "triger on") {
-          setShow2FA(true);
-          return;
-        }
-        if (data.error) {
-          setError(data.error);
-          return;
-        }
-        router.push("/home");
-      } else {
-        setError(data.error || "Login failed");
-      }
-    } catch (error) {
-      setError("Network error. Please try again.");
+      	
+          const res = await fetch("http://localhost:8000/api/login/", {
+            method: "POST",
+            credentials: "include",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(formData),
+          });
+    
+          const data = await res.json();
+    
+          if (res.ok) {
+            if (data.action === "triger on") {
+				router.push("/OTP");
+              return;
+            }
+            if (data.error) {
+              setError(data.error);
+              return;
+            }
+            router.push("/home");
+          } else {
+            setError(data.error || "Login failed");
+    		}
+		
+		
+} catch (error) {
+	setError("Network error. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +68,7 @@ export default function LoginForm() {
             onClick={() => {
               router.push("/");
             }}
-          />
+			/>
         </div>
 
         {/* Login Card */}
@@ -77,9 +78,7 @@ export default function LoginForm() {
           </h1>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            {!show2FA ? (
-              <>
-                <div>
+			<div>
                   <label className="block text-gray-700 mb-2">Email</label>
                   <input
                     type="email"
@@ -102,27 +101,6 @@ export default function LoginForm() {
                     className="w-full px-4 py-3 bg-transparent border-b border-gray-300 focus:border-gray-500 focus:outline-none"
                   />
                 </div>
-              </>
-            ) : (
-              <div className="mb-6">
-                <label className="block text-gray-700 mb-2">
-                  Enter 2FA Code
-                </label>
-                <input
-                  type="text"
-                  onChange={(e) =>
-                    setFormData({ ...formData, OTP: e.target.value })
-                  }
-                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-red-500"
-                  placeholder="Enter OTP code"
-                  required
-                />
-                <p className="text-sm text-gray-500 mt-2">
-                  Please enter the verification code sent to your device
-                </p>
-              </div>
-            )}
-
             {error && (
               <div className="text-red-500 text-sm text-center">{error}</div>
             )}
@@ -134,22 +112,48 @@ export default function LoginForm() {
             >
               {isLoading ? "loading..." : "Log in"}
             </button>
+          <div className="relative flex items-center py-5">
+                <div className="flex-grow border-t border-gray-300"></div>
+                <span className="flex-shrink mx-4 text-gray-500">OR</span>
+              <div className="flex-grow border-t border-gray-300"></div>
+          </div>
+			  <button
+			  type="button"
+        onClick={() => {
+          router.push("/oauth1");
+        }}
+			  className="w-3/4 mx-auto block py-3 px-4 bg-gray-200/80 hover:bg-gray-300/80 text-red-600 font-semibold text-xl rounded-xl border-2 border-red-600 transition-all duration-200"
+			  disabled={isLoading}
+			>
+			       {isLoading ? (
+    				    <span>Loading...</span>
+    				  ) : (
+						<div className="flex items-center justify-center space-x-3">
+							<div className="w-12 h-auto">
 
-            {!show2FA ? (
-              <p className="text-center text-gray-600 text-sm">
+    				      <Image
+    				        src="/42_Logo.svg"
+    				        alt="42 Logo"
+    				        width={50}
+    				        height={50}
+							/>
+							</div>
+    				      <span>Login with Intra</span>
+    				    </div>
+    				  )}
+    				</button>
+				<p className="text-center text-gray-600 text-sm">
                 Don&apos;t have an account?{" "}
                 <a
                   onClick={() => {
-                    router.push("/register");
-                  }}
-                  className="text-red-500 hover:text-red-600 cursor-pointer"
-                >
+					  router.push("/register");
+					}}
+					className="text-red-500 hover:text-red-600 cursor-pointer"
+					>
                   Register here
                 </a>
               </p>
-            ) : (
-              <div></div>
-            )}
+            
           </form>
         </div>
       </div>

@@ -15,6 +15,7 @@ const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({ enabled, onStatusChange }
 	const [verificationCode, setVerificationCode] = useState<string>('');
 	const [error, setError] = useState<string>('');
 	const [success, setSuccess] = useState<string>('');
+
 	const [isEnabled, setIsEnabled] = useState<boolean>(enabled);
   
   useEffect(() => {
@@ -25,6 +26,7 @@ const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({ enabled, onStatusChange }
     try {
 		// console.log(isEnabled);
       if (!isEnabled) {
+        
         // Enable 2FA
         const response = await api.post('/2fa/enable/');
         if (response.status === 200) {
@@ -34,6 +36,8 @@ const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({ enabled, onStatusChange }
 				setError(response.data.error);
 				return;
 			}
+			setSuccess('');
+
           setQrCodeUrl(response.data.qr_code);
           setShowQRCode(true);
           setError('');

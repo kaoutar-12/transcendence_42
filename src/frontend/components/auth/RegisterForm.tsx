@@ -128,6 +128,38 @@ export default function Register() {
           >
                 {isLoading ? 'Loading...' : 'Sign Up'}
           </button>
+          	<div className="relative flex items-center py-5">
+                <div className="flex-grow border-t border-gray-300"></div>
+                    <span className="flex-shrink mx-4 text-gray-500">OR</span>
+                <div className="flex-grow border-t border-gray-300"></div>
+        	</div>
+                
+          <button
+			      type="button"
+            onClick={() => {
+              router.push("/oauth1");
+            }}
+            className="w-3/4 mx-auto block py-3 px-4 bg-gray-200/80 hover:bg-gray-300/80 text-red-600 font-semibold text-xl rounded-xl border-2 border-red-600 transition-all duration-200"
+            disabled={isLoading}
+            >
+            {isLoading ? (
+               <span>Loading...</span>
+            ) : (
+            <div className="flex items-center justify-center space-x-3">
+              <div className="w-12 h-auto">
+                  <Image
+                    src="/42_Logo.svg"
+                    alt="42 Logo"
+                    width={50}
+                    height={50}
+              />
+              </div>
+                  <span>Register with Intra</span>
+                </div>
+              )}
+            </button>
+          
+                
 
         <p className="text-center text-gray-600 text-sm">
           Already have an account?{' '}

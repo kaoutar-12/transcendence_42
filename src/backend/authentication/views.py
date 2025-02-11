@@ -17,7 +17,6 @@ from .two_factor_auth import verify_totp_code, generate_qr_code, generate_totp_u
 
 
 
-
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def update_user(request):
@@ -30,14 +29,15 @@ def update_user(request):
             user.nickname = data['nickname']
         
         # Handle password update
-        if 'currentPassword' in data and 'newPassword' in data:
+        if 'currentPassword' in data and 'newPassword' in data or 'newPassword' in data and user.is_42:
             # Verify current password
-            if not check_password(data['currentPassword'], user.password):
+            if not user.is_42 and not check_password(data['currentPassword'], user.password):
                 return Response(
                     {'error': 'password is incorrect'}
                 )
             
             # Set new password
+            user.is_42 = False
             user.set_password(data['newPassword'])
         
         # Save the changes
@@ -100,17 +100,11 @@ def login(request):
         })
     serialzer = UserSerializer(user)
     twoFactorEnabled=serialzer.data
-    if twoFactorEnabled["twoFactorEnabled"] and not request.data.get('OTP'):
+    if twoFactorEnabled["twoFactorEnabled"]:
+        request.session["pending_user_id"] = twoFactorEnabled["id"]
         return Response({
              'action': 'triger on'
-        })
-    elif twoFactorEnabled["twoFactorEnabled"] and  request.data.get('OTP'):
-        two_factor = TwoFactorAuth.objects.get(user=serialzer.data['id'])
-        if not verify_totp_code(two_factor.secret_key, request.data.get('OTP')):
-            return Response({
-             'error': 'Invalid verification code'
-            })
-        
+        })    
     refresh = RefreshToken.for_user(user)
     response = Response({
         'user': {
@@ -138,26 +132,59 @@ def login(request):
     return response
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
+def login_otp(request):
+    user_id = request.session.get('pending_user_id')
+    OTP = request.data.get('OTP')
+    if not user_id or not OTP:
+            return Response({'error': 'No pending authentication'})
+    user = User.objects.get(id=user_id)
+    two_factor = TwoFactorAuth.objects.get(user=user.id)
+    if not verify_totp_code(two_factor.secret_key, OTP):
+        return Response({
+         'error': 'Invalid verification code'
+        })
+    refresh = RefreshToken.for_user(user)
+    response = Response({
+        'message':'welcome'
+    })
+    response.set_cookie(
+        'access_token',
+        refresh.access_token,
+        httponly=True,
+        # secure=True,
+        samesite='Strict',
+        max_age=settings.SIMPLE_JWT.get('ACCESS_TOKEN_LIFETIME').total_seconds()
+        )
+    response.set_cookie(
+        'refresh_token',
+        refresh,
+        httponly=True,
+        # secure=True,
+        samesite='Strict',
+        max_age=settings.SIMPLE_JWT.get('REFRESH_TOKEN_LIFETIME').total_seconds()
+        )
+
+    return response
+
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout(request):
     try:
         refresh_token = request.COOKIES.get('refresh_token')
         if not refresh_token:
-            return Response({'error': 'Refresh token is required'}, 
-                          status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Refresh token is required'})
             
         token = RefreshToken(refresh_token)
         token.blacklist()
         
         response = Response({'message': 'Successfully logged out'})
         response.set_cookie('access_token', '', expires=0)
-        response.set_cookie('refresh_token', '', expires=0)
-
-        
+        response.set_cookie('refresh_token', '', expires=0) 
         return response
 
     except Exception as e:
-        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': str(e)})
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -253,6 +280,8 @@ def enable_2fa(request):
         return Response({
             'error': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
         
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -419,15 +448,15 @@ def unblock_user(request,user_id):
             'error': 'User not found'
         })
 
-@api_view(['post'])
-@permission_classes([IsAuthenticated])
-def update_online_status(request):
-    user = request.user
-    status = request.data.get('status', False)
-    user.is_online = status
-    if not status:
-        user.last_seen = datetime.now()
-    user.save()
-    return Response({
-        'status':user.is_online
-    })
+# @api_view(['post'])
+# @permission_classes([IsAuthenticated])
+# def update_online_status(request):
+#     user = request.user
+#     status = request.data.get('status', False)
+#     user.is_online = status
+#     if not status:
+#         user.last_seen = datetime.now()
+#     user.save()
+#     return Response({
+#         'status':user.is_online
+#     })
