@@ -5,19 +5,21 @@ from django.contrib.auth import get_user_model
 import random
 import asyncio
 import time
+import math
 from math import sqrt
 from django.db import transaction, models
 from .models import MatchHistory
 import json
 from asgiref.sync import async_to_sync
 from .memory_storage import MemoryStorage
+
 class serverPongGame:
     def __init__(self, width=1300,height=600):
         self.width = width
         self.height = height
         self.paddle_width = 10
         self.paddle_height = 120
-        self.paddle_speed = 50
+        self.paddle_speed = 5
         self.ball_size = 10
         self.ball_speed = 5
         self.max_bounce_angle = 75
@@ -53,10 +55,12 @@ class serverPongGame:
         #check score limit
         if game_state['paddles']['left']['score'] >= self.score_limit:
             game_state['game_status'] = 'finished'
-            return game_state, 'left_win'
+            game_state['winner'] = 'left'
+            return game_state, 'game_over'
         elif game_state['paddles']['right']['score'] >= self.score_limit:
             game_state['game_status'] = 'finished'
-            return game_state, 'right_win'
+            game_state['winner'] = 'right'
+            return game_state, 'game_over'
 
         current_time = time.time()
         delta_time = current_time - game_state['timestamp']
@@ -65,12 +69,12 @@ class serverPongGame:
         for side, movement in paddle_movements.items():
             if movement == 'up':
                 game_state['paddles'][side]['y'] = max(
-                    game_state['paddles'][side]['y'] - self.paddle_speed * delta_time,
+                    game_state['paddles'][side]['y'] - self.paddle_speed,
                     0
                 )
             elif movement == 'down':
                 game_state['paddles'][side]['y'] = min(
-                    game_state['paddles'][side]['y'] + self.paddle_speed * delta_time,
+                    game_state['paddles'][side]['y'] + self.paddle_speed,
                     self.height - self.paddle_height
                 )
         
@@ -118,10 +122,11 @@ class serverPongGame:
         inter_y = (paddle['y'] + (self.paddle_height / 2)) - ball['y']
         norm_inter_y = inter_y / (self.paddle_height / 2)
         bounce_angle = norm_inter_y * self.max_bounce_angle
-        speed = sqrt(ball['dx'] ** 2 + ball['dy'] ** 2)*1.05
+        # convert to rad
+        angle_rad = bounce_angle * (3.14159 / 180)
         direction = 1 if side == 'left' else -1
-        ball['dx'] =direction * speed
-        ball['dy'] = -speed * (inter_y / abs(inter_y))
+        ball['dx'] =direction * self.ball_speed * abs(math.cos(angle_rad))
+        ball['dy'] = -self.ball_speed * math.sin(angle_rad)
     
     def _reset_ball(self, game_state , direction):
         ball = game_state['ball']
@@ -143,8 +148,15 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             }))
             await self.close()
             return
-        self.game = serverPongGame()
         self.game_id = self.scope['url_route']['kwargs']['game_id']
+        if await self.is_game_finished():
+            await self.send(text_data=json.dumps({
+                'type': 'error',
+                'message': 'Game already finished'
+            }))
+            await self.close()
+            return
+        self.game = serverPongGame()
         self.room_group_name = f'game_{self.game_id}'
         # handle reconnection
         game_state = MemoryStorage.get_game_state(self.game_id)
@@ -199,6 +211,9 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             'side': self.get_user_side()
         }))
 
+    @database_sync_to_async
+    def is_game_finished(self):
+        return MatchHistory.objects.filter(game_id=self.game_id).exists()
     async def event(self, event):
         await self.send(text_data=json.dumps({
             'type': 'event',
@@ -213,6 +228,8 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         return None
     def get_winner(self):
         game_state = MemoryStorage.get_game_state(self.game_id)
+        if not game_state:
+            return None
         if game_state and game_state.get('game_status') == 'finished':
             return game_state.get('winner')
         if game_state['paddles']['left']['score'] > game_state['paddles']['right']['score']:
@@ -290,8 +307,20 @@ class PongGameConsumer(AsyncWebsocketConsumer):
     async def game_loop(self):
         while True:
             game_state = MemoryStorage.get_game_state(self.game_id)
+
             if not game_state or game_state.get('game_status') != 'playing':
-                break
+                if not game_state:
+                    break
+                if game_state and game_state.get('game_status') == 'finished':
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            'type': 'game_over',
+                            'winner': game_state.get('winner'),
+                            'reason': 'game_finished'
+                        }
+                    )
+                    break
             
             movements = MemoryStorage.get_player_movements(self.game_id)
             # print(f"Game loop  movemenets before {movements}")
@@ -353,33 +382,44 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         }))
         if event.get('reason') == 'game_finished':
             MemoryStorage.delete_game(self.game_id)
+            if self.game_id in self.sides:
+                del PongGameConsumer.sides[self.game_id]
     async def save_match_history(self):
         game_state = MemoryStorage.get_game_state(self.game_id)
         if not game_state or game_state.get('game_status') != 'finished':
             return
+            
         player_sides = self.sides.get(self.game_id, {})
         player1_id = player_sides.get('left')
         player2_id = player_sides.get('right')
         if not player1_id or not player2_id:
             return
+            
         start_time = game_state.get('start_time', game_state['timestamp'])
         duration = int(time.time() - start_time)
         left_score = game_state['paddles']['left']['score']
         right_score = game_state['paddles']['right']['score']
         winner_id = player1_id if left_score > right_score else player2_id
-        # save match history
+
         @database_sync_to_async
         def save_match_history():
-            match = MatchHistory(
-                game_id=self.game_id,
-                player1_id=player1_id,
-                player2_id=player2_id,
-                winner_id=winner_id,
-                player1_score=left_score,
-                player2_score=right_score,
-                duration=duration
-            )
-            match.save()
+            try:
+                # Check if match already exists
+                if not MatchHistory.objects.filter(game_id=self.game_id).exists():
+                    match = MatchHistory(
+                        game_id=self.game_id,
+                        player1_id=player1_id,
+                        player2_id=player2_id,
+                        winner_id=winner_id,
+                        player1_score=left_score,
+                        player2_score=right_score,
+                        duration=duration
+                    )
+                    match.save()
+            except Exception as e:
+                print(f"Error saving match history: {e}")
+                pass  # Continue even if save fails
+
         await save_match_history()
 
 
