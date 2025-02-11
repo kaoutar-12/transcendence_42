@@ -30,7 +30,8 @@ while True:
     time.sleep(1)
 END
 
-python3 manage.py makemigrations game
+# Apply database migrations
+python3 manage.py makemigrations
 python3 manage.py migrate
 python3 manage.py collectstatic --noinput
 
