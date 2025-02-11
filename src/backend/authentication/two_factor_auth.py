@@ -6,9 +6,9 @@ from io import BytesIO
 def generate_totp_secret():
     return pyotp.random_base32()
 
-def generate_totp_uri(secret: str, username: str, issuer: str = "ft_trencendense"):
+def generate_totp_uri(secret: str, email: str, issuer: str = "ft_trencendense"):
     totp = pyotp.TOTP(secret)
-    return totp.provisioning_uri(username, issuer_name=issuer)
+    return totp.provisioning_uri(email, issuer_name=issuer)
 
 def generate_qr_code(uri: str) -> str:
     qr = qrcode.QRCode(version=1, box_size=10, border=5)
