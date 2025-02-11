@@ -8,6 +8,11 @@ const nextConfig = {
         pathname: "/**", // Correct pattern for all paths
         protocol: "https",
       },
+      {
+        hostname: "localhost",
+        pathname: "/**", // Correct pattern for all paths
+        protocol: "http",
+      },
     ],
   },
   reactStrictMode: false,

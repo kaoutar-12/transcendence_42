@@ -1,14 +1,42 @@
+.conv-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 50px;
+  width: 450px;
+}
+
 .conversation {
-  width: 90%;
-  height: 81px;
-  background: white;
-  border: 1px solid black;
-  border-radius: 20px;
-  flex-direction: row;
   display: flex;
   align-items: center;
-  gap: 20px;
-  padding: 20px;
+  padding: 12px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  width: 450px;
+  background: black;
+  color:white;
+  height: 100px;
+}
+
+.conversation:hover {
+  background: #252525;
+}
+
+.conversation.selected {
+  background: #181818;
+  width: 450px;
+}
+
+.image {
+  margin-right: 10px;
+  height: 70px;
+  width: 70px;
+  position: relative;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .name-row {
@@ -16,80 +44,36 @@
   justify-content: space-between;
   align-items: center;
 }
-.message-badge {
-  background: #ff4d4f;
-  color: white;
-  border-radius: 50%;
-  padding: 2px 6px;
-  font-size: 12px;
-  margin-left: 8px;
-}
-
-.conversation:hover {
-  background: #c1c1c1;
-  cursor: pointer;
-}
-
-.image {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  margin-left: 10px;
-}
-
-.main {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-}
 
 .name {
-  font-size: 16px;
   font-weight: bold;
-}
-
-.message {
-  font-size: 16px;
-  font-weight: 400;
-  color: #9a9a9a;
-  overflow: hidden; /* Hides the overflow text */
-  text-overflow: ellipsis; /* Adds the "..." */
-  max-width: 300px;
-  white-space: nowrap; /* Prevents the text from wrapping */
+  font-size: 14px;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  color: white;
 }
 
 .time {
   font-size: 12px;
-  font-weight: 200;
-  color: #7c7c7d;
-  margin-left: auto;
-  margin-right: 10px;
-  margin-bottom: 30px;
+  color: #808080
 }
 
-.conv-wrraper {
+
+
+.message {
+  font-size: 13px;
+  color: #A0A0A0;
+  margin-top: 4px;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 20px;
-  width: 100%;
-  height: 100%;
-  overflow-y: auto;
-  /* margin-bottom: 100px; */
+  justify-content: space-between;
 }
 
-::-webkit-scrollbar {
-  width: 5px;
-}
-
-::-webkit-scrollbar-track {
-  background: black;
-}
-
-::-webkit-scrollbar-thumb {
+.message-badge {
   background: #bb151f;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: #7c0e16;
+  color: white;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 12px;
+  align-self: flex-end;
 }
