@@ -14,6 +14,3 @@ class MatchHistoryViewSet(viewsets.ReadOnlyModelViewSet):
 			return MatchHistory.objects.filter(
 				models.Q(player1=user_id) | models.Q(player2=user_id)
 			)
-		return MatchHistory.objects.filter(
-			models.Q(player1=self.request.user) | models.Q(player2=self.request.user)
-		)
