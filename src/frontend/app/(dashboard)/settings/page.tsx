@@ -13,6 +13,7 @@ interface UserData {
   repeatPassword: string;
   profile_image: string;
   twoFactorEnabled: boolean;
+  is_42: boolean;
 }
 
 const ProfileSettings: React.FC = () => {
@@ -23,6 +24,7 @@ const ProfileSettings: React.FC = () => {
     password: '',
     repeatPassword: '',
     profile_image: '',
+    is_42: true,
     twoFactorEnabled: false
   });
   
@@ -36,7 +38,7 @@ const ProfileSettings: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
     setIsUploading(true);
-	setError('');
+	  setError('');
     setSuccess('');
     
     const formData = new FormData();
@@ -82,6 +84,7 @@ const ProfileSettings: React.FC = () => {
     setSuccess('');
 
     try {
+      let pass: boolean = false;
       const updateData: {
         nickname: string;
         currentPassword?: string;
@@ -89,12 +92,22 @@ const ProfileSettings: React.FC = () => {
       } = {
         nickname: userData.nickname
       };
-
-      if (userData.password && userData.repeatPassword) {
-        updateData.currentPassword = userData.password;
-        updateData.newPassword = userData.repeatPassword;
-      } else if ((userData.password && !userData.repeatPassword) || (!userData.password && userData.repeatPassword)) {
-        throw new Error('Please fill both PASSWORD & NEW PASSWORD if you want to update your password');
+      if (!userData.is_42)
+      {
+        if (userData.password && userData.repeatPassword) {
+          updateData.currentPassword = userData.password;
+          updateData.newPassword = userData.repeatPassword;
+        } else if ((userData.password && !userData.repeatPassword) || (!userData.password && userData.repeatPassword)) {
+          throw new Error('Please fill both PASSWORD & NEW PASSWORD if you want to update your password');
+        }
+      }
+      else
+      {
+        if (userData.repeatPassword)
+          {
+            pass=true;
+            updateData.newPassword = userData.repeatPassword;
+          }
       }
 
       const response = await api.put('/update_user/', updateData);
@@ -103,7 +116,8 @@ const ProfileSettings: React.FC = () => {
         if (response.data.error) {
           throw new Error(response.data.error);
         }
-
+        if (pass)
+            userData.is_42 = false;
         setUserData(prev => ({
           ...prev,
           password: '',
@@ -204,6 +218,7 @@ const ProfileSettings: React.FC = () => {
               />
             </div>
 
+            {!userData.is_42 ? (
             <div>
               <label className="block text-gray-400 mb-2">Current Password</label>
               <input
@@ -213,7 +228,10 @@ const ProfileSettings: React.FC = () => {
                 onChange={handleChange}
                 className="w-full bg-white text-black px-4 py-3 rounded"
               />
-            </div>
+            </div>)
+            :
+            (<></>)
+            }
 
             <div>
               <label className="block text-gray-400 mb-2">New Password</label>

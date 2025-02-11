@@ -19,11 +19,11 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'password','nickname','profile_image','twoFactorEnabled', 'image_url'
+        fields = ('id', 'username', 'email', 'password','nickname','profile_image','twoFactorEnabled', 'image_url', 'is_42'
                   ,'friends','blocked_users')
         extra_kwargs = {'password': {'write_only': True},
                         'nickname': {'required': False},
-                        'profile_image': {'required': False} }
+                        'profile_image': {'required': False}}
 
     def create(self, validated_data):
         if 'is_42_user' in self.context:  
@@ -43,6 +43,7 @@ class UserSerializer(serializers.ModelSerializer):
             email=validated_data['email'],
             password=validated_data['password'],
             nickname=validated_data['nickname'],
+            is_42=True,
         )
         if image_url:
             try:

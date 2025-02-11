@@ -29,14 +29,15 @@ def update_user(request):
             user.nickname = data['nickname']
         
         # Handle password update
-        if 'currentPassword' in data and 'newPassword' in data:
+        if 'currentPassword' in data and 'newPassword' in data or 'newPassword' in data and user.is_42:
             # Verify current password
-            if not check_password(data['currentPassword'], user.password):
+            if not user.is_42 and not check_password(data['currentPassword'], user.password):
                 return Response(
                     {'error': 'password is incorrect'}
                 )
             
             # Set new password
+            user.is_42 = False
             user.set_password(data['newPassword'])
         
         # Save the changes
