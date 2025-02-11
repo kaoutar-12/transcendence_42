@@ -36,17 +36,18 @@ class RoomsView(APIView):
         for room in rooms:
             user = room.users.exclude(id=request.user.id).first()
             last_message = room.messages.last()
+            print('user.profile_image', user.profile_image)
             roomData.append({
                 'room_id': room.id,
                 'user': {
                     'id': user.id,
                     'username': user.username,
                     'email': user.email,
-                    # 'profile_image': user.profile_image,
+                    'profile_image': str(user.profile_image),
                     'nickname': user.nickname
                 },
                 'last_message': last_message.content if last_message else [],
-                'time': last_message.time if last_message else [],
+                'time': last_message.time if last_message else "",
             })
         return Response(roomData, status=status.HTTP_200_OK)
 
@@ -75,7 +76,7 @@ class RoomsView(APIView):
                     'id': other_user.id,
                     'username': other_user.username,
                     'email': other_user.email,
-                    # 'profile_image': other_user.profile_image
+                    'profile_image': str(other_user.profile_image),
                     'nickname': other_user.nickname,
                 },
                 'last_message': [],
@@ -92,7 +93,7 @@ class RoomsView(APIView):
                             'user': {
                                 'id': other_user.id,
                                 'username': other_user.username,
-                                # 'profile_image': other_user.profile_image
+                                'profile_image': str(other_user.profile_image),
                                 'nickname': other_user.nickname,
                             },
                             'last_message': f"Say Hello to {other_user.username}",
@@ -110,7 +111,7 @@ class RoomsView(APIView):
                             'user': {
                                 'id': logged_user.id,
                                 'username': logged_user.username,
-                                # 'profile_image': logged_user.profile_image,
+                                'profile_image': logged_user.profile_image,
                                 'nickname': logged_user.nickname,
                             },
                             'last_message': f"Say Hello to {logged_user.username}",
@@ -132,14 +133,18 @@ class RoomDetailView(APIView):
         try:
             room = Room.objects.get(id=room_id)
             other_user = room.users.exclude(id=request.user.id).first()
+            i_blocked_them = request.user.blocked_users.filter(id=other_user.id).exists()
+            they_blocked_me = other_user.blocked_users.filter(id=request.user.id).exists()
 
             return Response({
                 'other_user': {
                     'id': other_user.id,
                     'username': other_user.username,
                     'email': other_user.email,
-                    # 'profile_image': other_user.profile_image,
-                    'nickname': other_user.nickname
+                    'profile_image': str(other_user.profile_image),
+                    'nickname': other_user.nickname,
+                    'i_blocked_them': i_blocked_them,
+                    'block_status' : i_blocked_them or they_blocked_me
                 }
             })
         except Room.DoesNotExist:
@@ -187,6 +192,19 @@ class MessagesView(APIView):
             room_id = validator.validated_data['room_id']
             content = validator.validated_data['content']
             room = Room.objects.get(id=room_id)
+            other_user = room.users.exclude(id=request.user.id).first()
+
+            if request.user.blocked_users.filter(id=other_user.id).exists():
+                return Response(
+                    {'error': 'You have blocked this user. Unblock them to send messages.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
+            
+            if other_user.blocked_users.filter(id=request.user.id).exists():
+                return Response(
+                    {'error': 'This user has blocked you. You cannot send messages.'},
+                    status=status.HTTP_403_FORBIDDEN
+                )
         
             created_message = room.messages.create(
                 content=content,

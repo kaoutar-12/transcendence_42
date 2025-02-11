@@ -47,14 +47,29 @@ class ChatConsumer(AsyncWebsocketConsumer):
             if not message_content:
                 return
             
-            # Saviw lmessage f database
-            saved_message = await self.save_message(message_content, sender_id)
-
             # Get room users
             room = await self.get_room()
             users = await self.get_room_users(room)
+            sender = await User.objects.aget(id = sender_id)
+            other_user = await room.users.exclude(id=sender_id).afirst()
 
-            print(users)
+            is_sender_blocked = await other_user.blocked_users.filter(id=sender.id).aexists()
+            is_other_user_blocked = await sender.blocked_users.filter(id=other_user.id).aexists()
+
+            if is_other_user_blocked:
+                await self.send(text_data=json.dumps({
+                    'error': 'Message not sent. You have blocked this user.'
+                }))
+                return
+
+            if is_sender_blocked:
+                await self.send(text_data=json.dumps({
+                    'error': 'Message not sent. You are blocked by this user.'
+                }))
+                return
+
+            # Saviw lmessage f database
+            saved_message = await self.save_message(message_content, sender_id)
 
             # Send to both room group and users' global groups
             await asyncio.gather(
@@ -87,6 +102,10 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.send(text_data=json.dumps({
                 'error': 'Invalid JSON'
             }))
+        except User.DoesNotExist:
+            await self.send(text_data=json.dumps({'error': 'User not found'}))
+        except Room.DoesNotExist:
+            await self.send(text_data=json.dumps({'error': 'Room not found'}))
 
     async def chat_message(self, event):
         await self.send(text_data=json.dumps({
