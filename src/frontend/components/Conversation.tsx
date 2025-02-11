@@ -10,6 +10,7 @@ import EmptyConversation from "./EmptyConversation";
 import { User } from "@/app/chat/[room_id]/page";
 import { IoSearch } from "react-icons/io5";
 import { useWebSocket } from "./context/useWebsocket";
+import { formatToLocalTime } from "@/app/utils/time";
 
 type ConversationProps = {
   last_message: string;
@@ -146,28 +147,37 @@ const Conversation = () => {
                   >
                     <div className="image">
                       <Image
-                        src={conversation.user.profile_image || "/prfl.png"}
+                        src={
+                          conversation.user.profile_image
+                            ? `${process.env.NEXT_PUBLIC_MEDIA_URL}/${conversation.user.profile_image}`
+                            : "/prfl.png"
+                        }
+                        // src={"/prfl.png"}
+                        priority
                         alt="avatar"
-                        width="50"
-                        height="50"
-                        style={{ borderRadius: "50%" }}
+                        fill
+                        style={{ objectFit: "cover", borderRadius: "50%" }}
                       />
                     </div>
                     <div className="main">
                       <div className="name-row">
-                        <div className="name">{conversation.user.username}</div>
-                        {!isSelected && unread_count > 0 && (
-                          <span className="message-badge">{unread_count}</span>
-                        )}
+                        <div className="name">
+                          <div>{conversation.user.username}</div>
+                          <div className="time">
+                            {conversation.time &&
+                              formatToLocalTime(conversation.time)}
+                          </div>
+                        </div>
                       </div>
                       <div className="message">
                         {conversation.last_message.length > 30
                           ? conversation.last_message.slice(0, 30) + "..."
                           : conversation.last_message}
+                          {!isSelected && unread_count > 0 && (
+                            <span className="message-badge">{unread_count}</span>
+                          )}
                       </div>
-                      {/* <div className="message">{conversation.message}</div> */}
                     </div>
-                    <div className="time">{conversation.time}</div>
                   </div>
                 );
               })}
