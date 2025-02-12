@@ -80,7 +80,7 @@ class RoomsView(APIView):
                     'nickname': other_user.nickname,
                 },
                 'last_message': [],
-                'time': []
+                'time': ""
             }
 
             # Send real-time update to both users
@@ -97,7 +97,7 @@ class RoomsView(APIView):
                                 'nickname': other_user.nickname,
                             },
                             'last_message': f"Say Hello to {other_user.username}",
-                            'time': []
+                            'time': ""
                         }
                     }
             )
@@ -111,11 +111,11 @@ class RoomsView(APIView):
                             'user': {
                                 'id': logged_user.id,
                                 'username': logged_user.username,
-                                'profile_image': logged_user.profile_image,
+                                'profile_image': str(logged_user.profile_image),
                                 'nickname': logged_user.nickname,
                             },
                             'last_message': f"Say Hello to {logged_user.username}",
-                            'time': []
+                            'time': ""
                         }
                     }
             )
@@ -125,6 +125,37 @@ class RoomsView(APIView):
                           status=status.HTTP_201_CREATED if created else status.HTTP_200_OK)
 
         return Response(validator.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request):
+        room_id = request.query_params.get('room_id')
+        print("roomID ==> ", room_id)
+        if not room_id:
+            return Response({'error': 'room_id is required'}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            room = Room.objects.get(id=room_id, users=request.user)
+        except Room.DoesNotExist:
+            return Response({'error': 'Room not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        # Get users before deletion
+        users_in_room = list(room.users.all())
+        room.delete()
+
+        # Send deletion notification via WebSocket
+        channel_layer = get_channel_layer()
+        for user in users_in_room:
+            async_to_sync(channel_layer.group_send)(
+                f"global_{user.id}",
+                {
+                    'type': 'room_deleted',
+                    'data': {
+                        'room_id': str(room_id),
+                        'deleted_by': str(request.user.id)
+                    }
+                }
+            )
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class RoomDetailView(APIView):
     permission_classes = [IsAuthenticated]
