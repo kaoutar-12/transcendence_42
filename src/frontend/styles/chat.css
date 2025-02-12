@@ -14,15 +14,12 @@
   width: 20%;
   gap: 20px;
   align-items: center;
-
 }
 
 .selected {
   background: rgb(180, 180, 180);
-  color:black;
+  color: black;
 }
-
-
 
 .chat-text {
   color: white;
@@ -42,7 +39,6 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
 }
 
 .top-conversations {
@@ -106,38 +102,37 @@
   color: white;
 }
 
-.no-chat{
+.no-chat {
   width: 300px;
   height: 300px;
 }
 
-.no-chat-icon{
+.no-chat-icon {
   width: 100%;
   height: 100%;
   color: #bb151f;
 }
 
-.no-chat-text{
+.no-chat-text {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  font-family: family
+  font-family: family;
 }
 
-.no-chat-text h1{
+.no-chat-text h1 {
   color: white;
   font-size: 32px;
   font-weight: 700;
 }
 
-.no-chat-text h2{
+.no-chat-text h2 {
   font-size: 16px;
   font-weight: 400;
-  color:gray;
+  color: gray;
   text-align: center;
 }
-
 
 .empty {
   display: flex;
@@ -167,18 +162,27 @@
   cursor: pointer;
   display: flex;
   align-items: center;
+  position: relative;
   justify-content: center;
 }
 
-/* .contact:first-child {
-  margin-left: 0;
-} */
+.contact-name {
+  background: lightgray;
+  border-radius:25px;
+  padding:0 10px;
+  margin-bottom: 130px;
+  visibility: hidden;
+
+}
+
+.contact:hover > .contact-name {
+  visibility: visible;
+}
 
 .contact:hover {
   transform: translateY(-5px);
   z-index: 2;
   transition: transform 0.5s ease;
-
 }
 
 .add-contact {

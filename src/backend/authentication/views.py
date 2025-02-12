@@ -434,6 +434,7 @@ def block_user(request,user_id):
                         'type': 'block_update',
                         'data': {
                             'block_status': True,
+                            'i_blocked_them': True
                         }
                     }
             )
@@ -473,6 +474,7 @@ def unblock_user(request,user_id):
                         'type': 'block_update',
                         'data': {
                             'block_status': False,
+                            'i_blocked_them': False
                         }
                     }
             )
