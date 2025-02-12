@@ -3,6 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import "@/styles/conversation.css";
+import "@/styles/pageId.css";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
@@ -11,6 +12,7 @@ import { User } from "@/app/chat/[room_id]/page";
 import { IoSearch } from "react-icons/io5";
 import { useWebSocket } from "./context/useWebsocket";
 import { formatToLocalTime } from "@/app/utils/time";
+import { RiDeleteBin6Line } from "react-icons/ri";
 
 type ConversationProps = {
   last_message: string;
@@ -28,7 +30,7 @@ const Conversation = () => {
   );
   const [isLoading, setIsLoading] = useState(false);
   const { on, off, unreadCounts, markAsRead, send } = useWebSocket();
-
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
@@ -61,14 +63,22 @@ const Conversation = () => {
       });
     };
 
+    const handleDeleteRoom = (data: any) => {
+      setConversations((prev) => {
+        return prev.filter((conv) => conv.room_id !== data.room_id);
+      });
+    };
+
     // Register handler
     on("message_update", handleChatMessage);
     on("room_update", handleRoomCreate);
+    on("room_deleted", handleDeleteRoom);
 
     // Cleanup
     return () => {
       off("message_update");
       off("room_update");
+      off("room_deleted");
     };
   }, [on, off]);
 
@@ -87,6 +97,21 @@ const Conversation = () => {
   const handleConversationClick = (id: string) => {
     send(JSON.stringify({ type: "mark_read", room_id: id }));
     router.push(`/chat/${id}`);
+  };
+
+  const deleteRoom = async (id: string) => {
+    // setIsLoading(true);
+    try {
+      console.log("asdasdasd", id);
+      const response = await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/chat/rooms/?room_id=${id}`,
+        {
+          withCredentials: true,
+        }
+      );
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const fetchConversations = async () => {
@@ -128,60 +153,100 @@ const Conversation = () => {
       ) : (
         <>
           {filteredConversations && (
-            <div className="conv-wrraper">
-              {filteredConversations.map((conversation, i) => {
-                const unread_count = unreadCounts[conversation.room_id] || 0;
-                const isSelected = selectConversation === conversation.room_id;
+            <>
+              <div className="conv-wrraper">
+                {filteredConversations.map((conversation, i) => {
+                  const unread_count = unreadCounts[conversation.room_id] || 0;
+                  const isSelected =
+                    selectConversation === conversation.room_id;
 
-                return (
-                  <div
-                    className={`conversation ${
-                      selectConversation === conversation.room_id
-                        ? "selected"
-                        : ""
-                    }`}
-                    onClick={() =>
-                      handleConversationClick(conversation.room_id)
-                    }
-                    key={i}
-                  >
-                    <div className="image">
-                      <Image
-                        src={
-                          conversation.user.profile_image
-                            ? `${process.env.NEXT_PUBLIC_MEDIA_URL}/${conversation.user.profile_image}`
-                            : "/prfl.png"
+                  return (
+                    <>
+                      <div
+                        className={`conversation ${
+                          selectConversation === conversation.room_id
+                            ? "selected"
+                            : ""
+                        }`}
+                        onClick={() =>
+                          handleConversationClick(conversation.room_id)
                         }
-                        // src={"/prfl.png"}
-                        priority
-                        alt="avatar"
-                        fill
-                        style={{ objectFit: "cover", borderRadius: "50%" }}
-                      />
-                    </div>
-                    <div className="main">
-                      <div className="name-row">
-                        <div className="name">
-                          <div>{conversation.user.username}</div>
-                          <div className="time">
-                            {conversation.time &&
-                              formatToLocalTime(conversation.time)}
+                        key={i}
+                      >
+                        <div className="image">
+                          <Image
+                            src={
+                              conversation.user.profile_image
+                                ? `${process.env.NEXT_PUBLIC_MEDIA_URL}/${conversation.user.profile_image}`
+                                : "/prfl.png"
+                            }
+                            // src={"/prfl.png"}
+                            priority
+                            alt="avatar"
+                            fill
+                            style={{ objectFit: "cover", borderRadius: "50%" }}
+                          />
+                        </div>
+                        <div className="main">
+                          <div className="name-row">
+                            <div className="name">
+                              <div>{conversation.user.username}</div>
+                              <div className="time">
+                                {conversation.time &&
+                                  formatToLocalTime(conversation.time)}
+                              </div>
+                            </div>
+                          </div>
+                          <div className="message">
+                            {conversation.last_message.length > 30
+                              ? conversation.last_message.slice(0, 30) + "..."
+                              : conversation.last_message}
+                            {!isSelected && unread_count > 0 && (
+                              <span className="message-badge">
+                                {unread_count}
+                              </span>
+                            )}
                           </div>
                         </div>
+                        <div
+                          className="delete"
+                          onClick={() => {
+                            setIsDeleteOpen(true);
+                          }}
+                        >
+                          <RiDeleteBin6Line />
+                        </div>
                       </div>
-                      <div className="message">
-                        {conversation.last_message.length > 30
-                          ? conversation.last_message.slice(0, 30) + "..."
-                          : conversation.last_message}
-                          {!isSelected && unread_count > 0 && (
-                            <span className="message-badge">{unread_count}</span>
-                          )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                      {isDeleteOpen && (
+                        <div className="burl">
+                          <div className="conf">
+                            <h1>Are you sure ?</h1>
+                            <div className="buttons">
+                              <button
+                                onClick={() => {
+                                  deleteRoom(conversation.room_id);
+                                  setIsDeleteOpen(false);
+                                  router.push("/chat/");
+                                }}
+                              >
+                                Yes
+                              </button>
+                              <button
+                                onClick={() => {
+                                  setIsDeleteOpen(false);
+                                }}
+                              >
+                                No
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  );
+                })}
+              </div>
+            </>
           )}
         </>
       )}
