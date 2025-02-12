@@ -14,6 +14,10 @@ from .models import TwoFactorAuth,User
 from rest_framework_simplejwt.views import TokenRefreshView
 from .two_factor_auth import verify_totp_code, generate_qr_code, generate_totp_uri, generate_totp_secret
 
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
+
+
 
 
 
@@ -422,6 +426,28 @@ def block_user(request,user_id):
             request.user.friends.remove(user)
             user.friends.remove(request.user)
         request.user.blocked_users.add(user)
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+                f"global_{request.user.id}",
+                    {
+                        'type': 'block_update',
+                        'data': {
+                            'block_status': True,
+                            'i_blocked_them': True
+                        }
+                    }
+            )
+        async_to_sync(channel_layer.group_send)(
+                f"global_{user.id}",  
+                    {
+                        'type': 'block_update',
+                        'data': {
+                            'block_status': True,
+                        }
+                    }
+            )
+        
         return Response({
             'message': 'User blocked'
         })
@@ -440,6 +466,27 @@ def unblock_user(request,user_id):
                 'error': 'User is not blocked'
             })
         request.user.blocked_users.remove(user)
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+                f"global_{request.user.id}",  
+                    {
+                        'type': 'block_update',
+                        'data': {
+                            'block_status': False,
+                            'i_blocked_them': False
+                        }
+                    }
+            )
+        async_to_sync(channel_layer.group_send)(
+                f"global_{user.id}",  
+                    {
+                        'type': 'block_update',
+                        'data': {
+                            'block_status': False,
+                        }
+                    }
+            )
         return Response({
             'message': 'User unblocked'
         })

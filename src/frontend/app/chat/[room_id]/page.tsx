@@ -14,6 +14,8 @@ import InfiniteScroll from "react-infinite-scroll-component";
 import Image from "next/image";
 import { stat } from "fs";
 import { RiProfileFill } from "react-icons/ri";
+import Conversation from "@/components/Conversation";
+import { useWebSocket } from "@/components/context/useWebsocket";
 
 type Message = {
   id: number;
@@ -31,6 +33,8 @@ export type User = {
   email: string;
   profile_image: string;
   nickname: string;
+  i_blocked_them?: boolean;
+  block_status?: boolean;
 };
 
 type ChatRoomState = {
@@ -46,6 +50,7 @@ type ChatRoomState = {
   isConnected: boolean;
   nextPageUrl: string;
   messagesCount: number;
+  block_status: boolean;
 };
 
 const Page = () => {
@@ -64,7 +69,44 @@ const Page = () => {
     isConnected: false,
     nextPageUrl: "",
     messagesCount: 0,
+    block_status: false,
   });
+  const { on, off } = useWebSocket();
+
+  useEffect(() => {
+    const handleBlockUpdate = (data: any) => {
+      console.log("SCKET DATA ==> ", data);
+      setState((prev) => ({
+        ...prev,
+        block_status: data.block_status,
+        otherUser: {
+          ...prev.otherUser,
+          i_blocked_them: data.i_blocked_them,
+        },
+      }));
+    };
+
+    on("block_update", handleBlockUpdate);
+
+    return () => {
+      off("block_update");
+    };
+  }, [on, off]);
+
+  const blockUser = async (user_id: number, type: string) => {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/friends/${type}/${user_id}/`,
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+      console.log(response);
+    } catch (error) {
+      console.log("error block user", error);
+    }
+  };
 
   // kanjibo user li mloggi
   const fetchUserData = async () => {
@@ -94,10 +136,13 @@ const Page = () => {
           withCredentials: true,
         }
       );
+      console.log("other user data", response.data);
 
       setState((prev) => ({
         ...prev,
         otherUser: response.data.other_user,
+        isBlocked: response.data.other_user.i_blocked_them,
+        block_status: response.data.other_user.block_status,
       }));
     } catch (error) {
       console.error("Error fetching user data:", error);
@@ -259,9 +304,16 @@ const Page = () => {
   };
 
   const confirmBlock = () => {
+    // const type = isBlocked ? "block" : "unblock"
+    console.log("STATUS ==> ", state.otherUser?.i_blocked_them);
+    blockUser(
+      state.otherUser?.id,
+      state.otherUser?.i_blocked_them ? "unblock" : "block"
+    );
+
     setState((prev) => ({
       ...prev,
-      isBlocked: true,
+      isBlocked: !prev.otherUser?.i_blocked_them,
       isBlockOpen: false,
     }));
   };
@@ -280,10 +332,14 @@ const Page = () => {
           <div className="info">
             <div className="profile-pic">
               <Image
-                src={state.otherUser?.profile_image || "/prfl.png"}
+                src={
+                  state.otherUser?.profile_image
+                    ? `${process.env.NEXT_PUBLIC_MEDIA_URL}/${state.otherUser?.profile_image}`
+                    : "/prfl.png"
+                }
                 alt="profile pic"
-                width={100}
-                height={100}
+                fill
+                style={{ objectFit: "cover", borderRadius: "50%" }}
               />
             </div>
             <div className="name-online">
@@ -341,7 +397,12 @@ const Page = () => {
             <input
               autoComplete="off"
               type="text"
-              placeholder="Type a message"
+              placeholder={
+                state.block_status
+                  ? "You can't send a message! You may be blocked"
+                  : "Type a message ..."
+              }
+              disabled={state.block_status}
               id="msginput"
               value={state.message}
               onChange={(e) =>

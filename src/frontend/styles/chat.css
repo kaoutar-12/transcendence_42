@@ -1,37 +1,24 @@
 .chat {
   display: flex;
   background: turquoise;
-  height: 100%;
+  height: 100vh;
   width: 100%;
 }
 
 .left {
   display: flex;
   flex-direction: column;
-  background: black;
+  background: rgb(0, 0, 0);
   width: 30%;
   height: 100vh;
   width: 20%;
   gap: 20px;
   align-items: center;
-
-  @media screen and (max-width: 768px) {
-    width: 100%;
-  }
-}
-
-.isOpen {
-  @media screen and (max-width: 768px) {
-    display: none;
-  }
 }
 
 .selected {
-  background: #bb151f;
-}
-
-.selected:hover {
-  background: #bb151f;
+  background: rgb(180, 180, 180);
+  color: black;
 }
 
 .chat-text {
@@ -47,11 +34,11 @@
   flex-direction: column;
   background: black;
   width: 80%;
-  dissplay: flex;
+  height: 100vh;
+  display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-
 }
 
 .top-conversations {
@@ -115,109 +102,117 @@
   color: white;
 }
 
-.no-chat{
+.no-chat {
   width: 300px;
   height: 300px;
 }
 
-.no-chat-icon{
+.no-chat-icon {
   width: 100%;
   height: 100%;
   color: #bb151f;
 }
 
-.no-chat-text{
+.no-chat-text {
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  font-family: family
+  font-family: family;
 }
 
-.no-chat-text h1{
+.no-chat-text h1 {
   color: white;
   font-size: 32px;
   font-weight: 700;
 }
 
-.no-chat-text h2{
+.no-chat-text h2 {
   font-size: 16px;
   font-weight: 400;
-  color:gray;
+  color: gray;
   text-align: center;
 }
 
-.empty{
-  width: 100%;
-  height: 100%;
-  /* background:pink; */
+.empty {
   display: flex;
-  justify-content: center;
-  align-items: center;
   flex-direction: column;
-
-  gap: 20px;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  padding: 20px;
+  /* background-color: #f5f5f5; */
 }
 
-.contacts{
-  width: 100%;
-  height:10%;
-  /* background: #141414; */
-  display: flex;
-  position: relative;
-}
-
-.contact{
-  width:60px;
-  height:60px;
-  border-radius:50%;
-  background:pink;
-  border: 4px solid black;
-  position:absolute;
-  transform: translateY(offset, 0%);
-  z-index: 1;
-  top: 40%;
-  right: 30%;
-  cursor: pointer;
-}
-
-.add-contact{
-  width: 100%;
-  height: 100%;
+.contacts {
   display: flex;
   justify-content: center;
+  margin-bottom: 20px;
+  /* position: relative; */
+}
+
+.contact {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background-color: #e0e0e0;
+  border: 2px solid white;
+  margin-left: -25px;
+  transition: transform 0.2s ease;
+  cursor: pointer;
+  display: flex;
   align-items: center;
+  position: relative;
+  justify-content: center;
 }
 
-.empty-conversation-text{
-  color: white;
-  font-size: 16px;
-  font-family: family;
-  font-weight: 700;
+.contact-name {
+  background: lightgray;
+  border-radius:25px;
+  padding:0 10px;
+  margin-bottom: 130px;
+  visibility: hidden;
+
 }
 
+.contact:hover > .contact-name {
+  visibility: visible;
+}
 
-.contact:nth-child(1){
-  left: 20%;
+.contact:hover {
+  transform: translateY(-5px);
   z-index: 2;
+  transition: transform 0.5s ease;
 }
 
-.contact:nth-child(2){
-  left: 30%;
-  z-index: 3;
+.add-contact {
+  background-color: #bb151f;
+  color: white;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  transition: background-color 0.2s ease;
 }
 
-.contact:nth-child(3){
-  left: 40%;
-  z-index: 4;
+.add-contact:hover {
+  background-color: gray;
 }
 
-.contact:nth-child(4){
-  left: 50%;
-  z-index: 5;
+.empty-conversation {
+  text-align: center;
+  padding: 20px;
+  /* background-color: white; */
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
 
-.contact:nth-child(5){
-  left: 60%;
-  z-index: 6;
+.empty-conversation-text {
+  color: #666;
+  font-size: 25px;
+  margin: 0;
+  font-weight: 500;
 }

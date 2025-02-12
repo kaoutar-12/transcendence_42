@@ -23,10 +23,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-&kvhuv8b49v3-!!#is8x9r%%w*9*-zlhq@rnu4wwsa2k(u*^8a'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG')
 
 ALLOWED_HOSTS = ['*']
 
@@ -49,8 +49,7 @@ INSTALLED_APPS = [
 	'game',
     'rest_framework_simplejwt.token_blacklist',
 ]
-    # 'django_otp.plugins.otp_totp',
-    # 'django_otp',
+   
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
@@ -88,39 +87,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 ASGI_APPLICATION = 'backend.asgi.application'
 
-# Database
-# https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
 
 # Replace the DATABASES configuration in settings.py with:
 
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('DB_NAME', 'djangodb'),
-        'USER': os.environ.get('DB_USER', 'djangouser'),
-        'PASSWORD': os.environ.get('DB_PASSWORD', 'djangopass'),
-        'HOST': os.environ.get('DB_HOST', 'db'),
-        'PORT': os.environ.get('DB_PORT', '5432'),
+        'NAME': os.environ.get('DB_NAME'),
+        'USER': os.environ.get('DB_USER'),
+        'PASSWORD': os.environ.get('DB_PASSWORD'),
+        'HOST': os.environ.get('DB_HOST'),
+        'PORT': os.environ.get('DB_PORT'),
     }
 }
-
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'mydatabase',
-#         'USER': 'myuser',
-#         'PASSWORD': 'mypassword',
-#         'HOST': 'localhost',
-#         'PORT': '5432',
-#     }
-# }
 
 
 # Password validation
@@ -172,14 +151,14 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://localhost:3001",
-    "http://localhost:8000",
-	"http://localhost:5500",
-    "http://localhost:8001",
-    "http://localhost:80",
-    "http://localhost",
-	"null",
 ]
+    # "http://localhost:3001",
+    # "http://localhost:8000",
+	# "http://localhost:5500",
+    # "http://localhost:8001",
+    # "http://localhost:80",
+    # "http://localhost",
+	# "null",
 
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
