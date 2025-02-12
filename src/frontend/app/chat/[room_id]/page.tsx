@@ -75,10 +75,14 @@ const Page = () => {
 
   useEffect(() => {
     const handleBlockUpdate = (data: any) => {
-      // console.log(data);
+      console.log("SCKET DATA ==> ", data);
       setState((prev) => ({
         ...prev,
         block_status: data.block_status,
+        otherUser: {
+          ...prev.otherUser,
+          i_blocked_them: data.i_blocked_them,
+        },
       }));
     };
 
@@ -301,6 +305,7 @@ const Page = () => {
 
   const confirmBlock = () => {
     // const type = isBlocked ? "block" : "unblock"
+    console.log("STATUS ==> ", state.otherUser?.i_blocked_them);
     blockUser(
       state.otherUser?.id,
       state.otherUser?.i_blocked_them ? "unblock" : "block"
