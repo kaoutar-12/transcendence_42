@@ -6,6 +6,7 @@ from .serializers import UserSerializer,UserProfileImageSerializer
 from django.conf import settings
 from rest_framework import status
 import secrets
+import os
 
 
 
@@ -23,17 +24,17 @@ def Oauth(request):
     
     if not code:
         return Response({'message': 'Code is required'})
-    url= "https://api.intra.42.fr/oauth/token/"
-    url1 = "https://api.intra.42.fr/v2/me/"
+    url= os.environ.get('url')
+    url1 = os.environ.get('url1')
     headers = {
         "Content-Type": "application/json",
     }
     body={
         'grant_type':'authorization_code',
-        'client_id':'u-s4t2ud-4719e3779c459d1f6e4055ac6167c2cdc82154e41df26314bb0cdca56a1210e1',
-        'client_secret':'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',
+        'client_id':os.environ.get('UID'),
+        'client_secret':os.environ.get('SECRET'),
         'code': code,
-        'redirect_uri': 'http://localhost:3000/call/',
+        'redirect_uri': os.environ.get('redirect_uri'),
     }
     try:
         response = requests.post(url, json=body, headers=headers)        
