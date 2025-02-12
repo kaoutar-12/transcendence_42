@@ -1,38 +1,48 @@
-.home{
+section {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.home {
   width: 100%;
   height: 100vh;
   display: flex;
-  justify-content: center;
-  /* align-items: center; */
-  padding-top: 60px;
+  justify-content: start;
+  flex-direction: column;
+  align-items: center;
+  padding: 60px 0;
+  gap: 20px;
 }
 
 .profile-info {
-width: 90%;
-height: 380px;
-background-color: #f5f5f5;
-border-radius: 34px;
-display: flex;
-/* flex-direction: column; */
-position: relative;
+  width: 90%;
+  height: 380px;
+  background-color: #f5f5f5;
+  border-radius: 34px;
+  display: flex;
+  position: relative;
 }
 
-.info{
+.info {
   width: 100%;
   height: 40%;
-  background:black;
+  background: black;
   display: flex;
   align-self: end;
   border-radius: 34px;
   justify-content: space-between;
   align-items: center;
   padding: 0 120px;
-  color:white;
-  font-size: 30px;
+  color: white;
+  font-size: 20px;
   font-weight: 600;
 }
 
-.avatar{
+.avatar {
   width: 150px;
   height: 150px;
   border-radius: 33px;
@@ -44,34 +54,168 @@ position: relative;
   transform: translateX(+50%);
 }
 
-.friends-list{
+.friends-list {
   display: flex;
   gap: 40px;
   align-items: center;
 }
 
-.friends{
+.friends {
   padding-right: 40px;
-  height: 60px;
+  height: 40px;
   border-right: solid 2px gray;
   display: flex;
   align-items: center;
 }
 
-.online{
+.online {
   display: flex;
   gap: 20px;
   align-items: center;
-
 }
 
-.online-col{
-  width: 20px;
-  height: 20px;
+.online-col {
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background-color: #bb151f;
 }
 
-.username{
-padding-right: 70px;
+.username {
+  padding-right: 70px;
+}
+
+.level-bar {
+  --level: 0%;
+
+  position: relative;
+  width: 90%;
+  height: 20px;
+  background-color: white;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.level-bar__fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: var(--level);
+  background-color: #bb151f;
+  transition: width 0.3s ease-in-out;
+}
+
+.level-bar__label {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  color: gray;
+  font-weight: bold;
+  mix-blend-mode: difference;
+  z-index: 100;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* grid-cols-5 */
+  grid-template-rows: repeat(5, 1fr); /* grid-rows-5 */
+  gap: 30px;
+  width: 90%;
+  height: 1000px;
+  /* background: lightsalmon; */
+}
+
+.item-1 {
+  grid-column: span 3;
+  grid-row: span 2;
+  background: lightblue;
+  border: solid 3px rgba(68, 71, 72, 100);
+  border-radius: 26px;
+}
+
+.item-2 {
+  grid-column: 4 / span 2; /* col-span-2 col-start-4 */
+  grid-row: span 2;
+  background: lightgreen;
+  border: solid 3px rgba(68, 71, 72, 100);
+  border-radius: 26px;
+}
+
+.item-3 {
+  grid-column: span 5; /* col-span-5 */
+  grid-row: 3 / span 3;
+  /* background: lightcoral; */
+  border: solid 3px rgba(68, 71, 72, 100);
+  border-radius: 26px;
+}
+
+/* MatchHistory.css */
+.match-history {
+  font-family: Arial, sans-serif;
+  width: 100%;
+  height: 100%;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: black;
+}
+
+h1 {
+  color: white;
+  font-size: 24px;
+  margin-bottom: 20px;
+  padding-left: 20px;
+}
+
+table {
+  width: 90%;
+  padding-left: 20px;
+  border-collapse: collapse;
+  background-color: black;
+  color: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+
+th,
+td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+th {
+  background-color: black;
+  color: #4a5568;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+}
+
+ td:hover {
+  /* border-bottom-color: transparent; */
+  /* border-top-color: transparent; */
+  background-color: #4a5568;
+}
+
+
+.result-badge {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.result-badge.win {
+  background-color: #48bb78;
+  color: white;
+}
+
+.result-badge.lose{
+  background-color: #4299e1;
+  color: white;
 }

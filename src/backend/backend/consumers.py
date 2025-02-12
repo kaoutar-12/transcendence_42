@@ -46,6 +46,18 @@ class GlobalConsumer(AsyncWebsocketConsumer):
             'data': event['data']
         }))
 
+    async def block_update(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'block_update',
+            'data': event['data']
+        }))
+    
+    async def room_deleted(self, event):
+        await self.send(text_data=json.dumps({
+            'type': event['type'],
+            'data': event['data']
+        }))
+
     async def global_message(self, event):
         # Handle all global message types
         await self.send(text_data=json.dumps({
