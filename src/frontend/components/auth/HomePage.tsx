@@ -48,9 +48,10 @@ const HomePage = () => {
             your friends
           </h1>
           <p className="text-gray-400 max-w-lg mb-8">
-            Lorem ipsum is simply dummy text of the printing and 
-            typesetting industry. Lorem Ipsum has been the industry's 
-            standard.
+          Experience the classic arcade game reimagined for the modern web. 
+          Challenge your friends to thrilling matches while chatting in real-time. 
+          Simple to learn, yet endlessly entertaining.
+
           </p>
           <button className="text-black w-48 bg-gradient-to-r from-red-500 via-red-550 to-red-600 hover:bg-gradient-to-br focus:ring-4 focus:outline-none focus:ring-red-300 dark:focus:ring-red-800 font-medium rounded-full text-sm px-5 py-2.5 text-center " onClick={ ()=>{ router.push('/login')}}>
             PLAY NOW
@@ -76,12 +77,6 @@ const HomePage = () => {
             ))}
           </div>
         </section>
-
-        {/* Game Preview Section */}
-        {/* <section className="py-12">
-          <h2 className="text-2xl font-bold mb-8">Game Preview</h2>
-          <div className="w-full aspect-video bg-zinc-900 rounded-lg"></div>
-        </section> */}
       </main>
     </div>
   );

@@ -2,7 +2,7 @@ import axios from 'axios';
 import Router from 'next/router';
 
 const api = axios.create({
-    baseURL: 'http://localhost:8000/api',
+    baseURL: `${process.env.NEXT_PUBLIC_API_URL}`,
     withCredentials: true
 });
 
@@ -49,7 +49,7 @@ api.interceptors.response.use(
             isRefreshing = true;
             originalRequest._retry = true;
             try {
-                const response = await axios.post('http://localhost:8000/api/token/refresh/', {},{withCredentials: true}
+                const response = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/token/refresh/`, {},{withCredentials: true}
             );
                 isRefreshing = false;
                 return api(originalRequest);
