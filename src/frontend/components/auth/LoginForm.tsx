@@ -31,7 +31,7 @@ export default function LoginForm() {
     
           if (res.ok) {
             if (data.action === "triger on") {
-				router.push("/OTP");
+				      router.push("/OTP");
               return;
             }
             if (data.error) {
