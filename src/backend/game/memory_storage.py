@@ -3,6 +3,31 @@ class MemoryStorage:
     _movements = {}  # Store movements
     _queues = {'pong': [], 'tictactoe': []}  #each game type its queue
     _game_counter = 1000  #forgame id
+    _invites = {}  # just for inviations
+
+    @classmethod
+    def save_invite(cls, game_id, sender_id, recipient_id, game_type):
+        cls._invites[game_id] = {
+            'sender_id': sender_id,
+            'recipient_id': recipient_id,
+            'game_type': game_type,
+            'status': 'pending'
+        }
+
+    @classmethod
+    def get_invite(cls, game_id):
+        return cls._invites.get(game_id)
+    
+    @classmethod
+    def delete_invite(cls, game_id):
+        cls._invites.pop(game_id, None)
+    
+    @classmethod
+    def get_user_invites(cls, user_id):
+        return {
+            game_id: invite for game_id, invite in cls._invites.items()
+            if invite['recipient_id'] == user_id and invite['status'] == 'pending'
+        }
 
     @classmethod
     def save_game_state(cls, game_id, state, game_type=None):

@@ -799,3 +799,127 @@ class QueueConsumer(AsyncWebsocketConsumer):
             'game_id': event['game_id'],
             'game_type': event['game_type']
         }))
+
+
+class InviteConsumer(AsyncWebsocketConsumer):
+    async def connect(self):
+        self.user = self.scope['user']
+        if self.user.is_anonymous:
+            await self.close()
+            return
+
+        await self.accept()
+        self.user_group = f'user_{self.user.id}'
+        await self.channel_layer.group_add(
+            self.user_group,
+            self.channel_name
+        )
+    
+    async def disconnect(self, close_code):
+        if hasattr(self, 'user_group'):
+            await self.channel_layer.group_discard(
+                self.user_group,
+                self.channel_name
+            )
+    
+    async def receive(self, text_data):
+        try:
+            data = json.loads(text_data)
+            if data['type'] == 'send_invite':
+                if not all(key in data for key in ['recipient_id', 'game_type']):
+                    await self.send(text_data=json.dumps({
+                        'type': 'error',
+                        'message': 'Invalid invite format'
+                    }))
+                    return
+                game_id = MemoryStorage.generate_game_id()
+                
+                # Save invite to memory storage
+                MemoryStorage.save_invite(
+                    game_id,
+                    self.user.id,
+                    data['recipient_id'],
+                    data['game_type']
+                )
+
+                # Send invite to recipient
+                await self.channel_layer.group_send(
+                    f'user_{data["recipient_id"]}',
+                    {
+                        'type': 'game_invite',
+                        'game_id': game_id,
+                        'sender_id': self.user.id,
+                        'sender_username': await self.get_username(self.user.id),
+                        'game_type': data['game_type']
+                    }
+                )
+            elif data['type'] == 'accept_invite':
+                if 'game_id' not in data:
+                    return
+                invite = MemoryStorage.get_invite(data['game_id'])
+                if not invite or invite['status'] != 'pending':
+                    return
+                if not invite or invite['recipient_id'] != self.user.id:
+                    return
+                if invite['game_type'] == 'pong':
+                    game_state = serverPongGame().create_initial_state()
+                else:  # tictactoe
+                    game_state = TicTacToeGame().create_initial_state()
+                MemoryStorage.save_game_state(data['game_id'], game_state, invite['game_type'])
+                for player_id in [invite['sender_id'], invite['recipient_id']]:
+                    await self.channel_layer.group_send(
+                        f'user_{player_id}',
+                        {
+                            'type': 'invite_accepted',
+                            'game_id': data['game_id'],
+                            'game_type': invite['game_type']
+                        }
+                    )
+                MemoryStorage.delete_invite(data['game_id'])
+            elif data['type'] == 'decline_invite':
+                if 'game_id' not in data:
+                    return
+
+                invite = MemoryStorage.get_invite(data['game_id'])
+                if not invite or invite['recipient_id'] != self.user.id:
+                    return
+
+                # Notify sender of decline
+                await self.channel_layer.group_send(
+                    f'user_{invite["sender_id"]}',
+                    {
+                        'type': 'invite_declined',
+                        'game_id': data['game_id']
+                    }
+                )
+
+                # Clean up invite
+                MemoryStorage.delete_invite(data['game_id'])
+        except json.JSONDecodeError:
+            pass
+    async def game_invite(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'game_invite',
+            'game_id': event['game_id'],
+            'sender_id': event['sender_id'],
+            'sender_username': event['sender_username'],
+            'game_type': event['game_type']
+        }))
+    async def invite_accepted(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'invite_accepted',
+            'game_id': event['game_id'],
+            'game_type': event['game_type']
+        }))
+    async def invite_declined(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'invite_declined',
+            'game_id': event['game_id']
+        }))
+    async def get_username(self, user_id):
+        try:
+            User = get_user_model()
+            user = User.objects.get(id=user_id)
+            return user.username
+        except User.DoesNotExist:
+            return None
