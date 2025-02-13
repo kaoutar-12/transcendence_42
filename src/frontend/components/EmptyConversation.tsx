@@ -21,6 +21,7 @@ const EmptyConversation = (props: Props) => {
         }
       );
       setContacts(response.data.friends.slice(0, 4));
+      console.log(response.data.friends.slice(0, 4));
     } catch (error) {
       console.error("Error fetching contacts:", error);
     }
@@ -50,38 +51,47 @@ const EmptyConversation = (props: Props) => {
 
   return (
     <div className="empty">
-      <div className="contacts">
-        {contacts?.map((contact, index) => (
-          <div key={index} className="contact">
-            <div className="contact-name">{contact.username}</div>
-            <Image
-              src={
-                contact?.profile_image
-                  ? `${process.env.NEXT_PUBLIC_MEDIA_URL}/${contact.profile_image}`
-                  : "/prfl.png"
-              }
-              alt="profile pic"
-              fill
-              style={{ objectFit: "cover", borderRadius: "50%" }}
-              onClick={async () => {
-                const id = await createConversation(contact.id);
-                console.log("Created Conv ==> ", id);
-                router.push(`/chat/${id}`);
-              }}
-            />
-          </div>
-        ))}
-        <div className="contact">
+      {contacts.length > 0 ? (
+        <>
+          <div className="contacts">
+            {contacts?.map((contact, index) => (
+              <div key={index} className="contact">
+                <div className="contact-name">{contact.username}</div>
+                <Image
+                  src={
+                    contact?.profile_image
+                      ? `${process.env.NEXT_PUBLIC_MEDIA_URL}/${contact.profile_image}`
+                      : "/prfl.png"
+                  }
+                  alt="profile pic"
+                  fill
+                  style={{ objectFit: "cover", borderRadius: "50%" }}
+                  onClick={async () => {
+                    const id = await createConversation(contact.id);
+                    console.log("Created Conv ==> ", id);
+                    router.push(`/chat/${id}`);
+                  }}
+                />
+              </div>
+            ))}
+
+            {/* <div className="contact">
           <div className="add-contact">
             <FaPlus />
           </div>
-        </div>
-      </div>
-      <div className="empty-conversation">
-        <div className="empty-conversation-text">
-          Select a chat to start messaging
-        </div>
-      </div>
+        </div> */}
+          </div>
+          <div className="empty-conversation">
+            <div className="empty-conversation-text">
+              Select a chat to start messaging
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="no-contacts-message">No friends found</div>
+        </>
+      )}
     </div>
   );
 };
