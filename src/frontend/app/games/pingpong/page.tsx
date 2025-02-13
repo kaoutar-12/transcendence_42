@@ -8,7 +8,7 @@ const PingPong = (props: Props) => {
   return (
     <div className="games-container">
       <div className="games-header">
-        <h1>Tic Tac Toe | Chosse a Game Mode </h1>
+        <h1>Ping Pong | Chosse a Game Mode </h1>
       </div>
       <div className="games-list">
         <GameLinkItem href="/games/pingpong/1-vs-1-local" title="Local 1 vs 1" image="/1vs1.png" status="Working" />
