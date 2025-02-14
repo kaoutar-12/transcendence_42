@@ -136,302 +136,6 @@ class serverPongGame:
         ball['dy'] = random.choice([-1, 1]) * self.ball_speed
         game_state['timestamp'] = time.time()
 
-class TicTacToeGame:
-    def __init__(self):
-        self.board_size = 3
-        self.win_length = 3
-
-    def create_initial_state(self):
-        return {
-            'board': [['' for _ in range(self.board_size)] for _ in range(self.board_size)],
-            'current_player': 'X',
-            'winner': None,
-            'game_status': 'playing',
-            'timestamp': time.time(),
-            'start_time': time.time(),
-            'moves': []
-        }
-
-    def update(self, game_state, move=None):
-        if game_state['game_status'] != 'playing':
-            return game_state, None
-
-        if not move:
-            return game_state, None
-            
-        try:
-            row, col = move['row'], move['col']
-        except (KeyError, TypeError):
-            return game_state, None
-            
-        if not (0 <= row < self.board_size and 
-                0 <= col < self.board_size and 
-                game_state['board'][row][col] == ''):
-            return game_state, None
-        game_state['board'][row][col] = game_state['current_player']
-        game_state['moves'].append({
-            'player': game_state['current_player'],
-            'position': {'row': row, 'col': col},
-            'timestamp': time.time()
-        })
-
-        if self._check_winner(game_state['board'], row, col):
-            game_state['game_status'] = 'finished'
-            game_state['winner'] = game_state['current_player']
-            return game_state, 'game_over'
-        
-        if self._is_board_full(game_state['board']):
-            game_state['game_status'] = 'finished'
-            game_state['winner'] = 'draw'
-            return game_state, 'game_over'
-        
-        game_state['current_player'] = 'O' if game_state['current_player'] == 'X' else 'X'
-        return game_state, 'move_made'
-
-    def check_winner(self, board, last_row, last_col):
-        player = board[last_row][last_col]
-        
-        # hotizontal
-        if board[last_row][0] == player and board[last_row][1] == player and board[last_row][2] == player:
-            return True
-            
-        #vertical
-        if board[0][last_col] == player and board[1][last_col] == player and board[2][last_col] == player:
-            return True
-            
-        # diagonal /
-        if board[0][0] == player and board[1][1] == player and board[2][2] == player:
-            return True
-        #  vs diagonal \
-        if board[0][2] == player and board[1][1] == player and board[2][0] == player:
-            return True
-            
-        return False
-    def _is_board_full(self, board):
-        return all(cell != '' for row in board for cell in row)
-
-class TicTacToeConsumer(AsyncWebsocketConsumer):
-    sides = {}
-    async def connect(self):
-        await self.accept()
-        self.user = self.scope['user']
-        if self.user.is_anonymous:
-            await self.send(text_data=json.dumps({
-                'type': 'error',
-                'message': 'Authentication required'
-            }))
-            await self.close()
-            return
-        self.game_id = self.scope['url_route']['kwargs']['game_id']
-        if await self.is_game_finished():
-            await self.send(text_data=json.dumps({
-                'type': 'error',
-                'message': 'Game already finished'
-            }))
-            await self.close()
-            return
-        self.game = TicTacToeGame()
-        self.room_group_name = f'game_{self.game_id}'
-        # handle reconnection
-        game_state = MemoryStorage.get_game_state(self.game_id)
-        is_reconnect = False
-        if self.game_id in self.sides:
-            for side, user_id in self.sides[self.game_id].items():
-                if user_id == self.user.id:
-                    is_reconnect = True
-                    break
-        if not is_reconnect:
-            if self.game_id not in self.sides:
-                self.sides[self.game_id] = {}
-            if len(self.sides[self.game_id]) < 2:
-                if self.user.id not in self.sides[self.game_id].values():
-                    available_sides = ['X', 'O']
-                    user_sides = list(self.sides[self.game_id].keys())
-                    for side in available_sides:
-                        if side not in user_sides:
-                            self.sides[self.game_id][side] = self.user.id
-                            break
-        # Get or create game state
-        if not game_state:
-            game_state = self.game.create_initial_state()
-            MemoryStorage.save_game_state(self.game_id, game_state)
-        
-        await self.channel_layer.group_add(self.room_group_name, self.channel_name)
-        await self.send(text_data=json.dumps({
-            'type': 'game_state',
-            'state': game_state,
-            'side': self.get_user_side()
-        }))
-    @database_sync_to_async
-    def is_game_finished(self):
-        return MatchHistory.objects.filter(game_id=self.game_id).exists()
-    
-    def get_user_side(self):
-        if self.game_id in self.sides:
-            for side, user_id in self.sides[self.game_id].items():
-                if user_id == self.user.id:
-                    return side
-        return None
-
-    async def disconnect(self, close_code):
-        if hasattr(self, 'game_id'):
-            if self.game_id in self.sides:
-                disconnect_side = None
-                winner_side = None
-                for side, user_id in self.sides[self.game_id].items():
-                    if user_id == self.user.id:
-                        disconnect_side = side
-                        winner_side = 'O' if side == 'X' else 'X'
-                        break
-                        
-                game_state = MemoryStorage.get_game_state(self.game_id)
-                if game_state and game_state.get('game_status') == 'playing':
-                    asyncio.create_task(self.handle_disconnect_timeout(disconnect_side, winner_side))
-        
-        if hasattr(self, 'room_group_name'):
-            await self.channel_layer.group_discard(
-                self.room_group_name,
-                self.channel_name
-            )
-    
-    async def handle_disconnect_timeout(self, disconnect_side, winner_side):
-        await asyncio.sleep(5)  # Wait 5 seconds before ending game
-        game_state = MemoryStorage.get_game_state(self.game_id)
-        if game_state and game_state.get('game_status') == 'playing':
-            game_state['game_status'] = 'finished'
-            game_state['winner'] = winner_side
-            MemoryStorage.save_game_state(self.game_id, game_state)
-            
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'game_over',
-                    'winner': winner_side,
-                    'reason': 'player_disconnected',
-                    'side': disconnect_side
-                }
-            )
-            MemoryStorage.delete_game(self.game_id)
-            if self.game_id in self.sides:
-                del TicTacToeConsumer.sides[self.game_id]
-    
-    async def receive(self, text_data):
-        try:
-            data = json.loads(text_data)
-            if data['type'] == 'make_move':
-                user_side = self.get_user_side()
-                game_state = MemoryStorage.get_game_state(self.game_id)
-                if not all(key in data for key in ['row', 'col']):
-                    await self.send(text_data=json.dumps({
-                        'type': 'error',
-                        'message': 'Invalid move format'
-                    }))
-                    return
-                if (game_state and 
-                    game_state['game_status'] == 'playing' and 
-                    user_side == game_state['current_player']):
-                    
-                    new_game_state, event = self.game.update(game_state, {
-                        'row': data['row'],
-                        'col': data['col']
-                    })
-                    
-                    if new_game_state != game_state:
-                        MemoryStorage.save_game_state(self.game_id, new_game_state)
-                        await self.channel_layer.group_send(
-                            self.room_group_name,
-                            {
-                                'type': 'game_state',
-                                'state': new_game_state
-                            }
-                        )
-                        
-                        if event:
-                            await self.channel_layer.group_send(
-                                self.room_group_name,
-                                {
-                                    'type': 'event',
-                                    'event': event
-                                }
-                            )
-        except json.JSONDecodeError:
-            pass
-    
-    async def game_state(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'game_state',
-            'state': event['state']
-        }))
-    
-    async def event(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'event',
-            'event': event['event']
-        }))
-    
-    async def game_over(self, event):
-        game_state = MemoryStorage.get_game_state(self.game_id)
-        is_winner = False
-        if game_state:
-            user_side = self.get_user_side()
-            is_winner = game_state.get('winner') == user_side
-        
-        await self.save_match_history()
-        await self.send(text_data=json.dumps({
-            'type': 'game_over',
-            'reason': event.get('reason', 'game_finished'),
-            'winner': game_state.get('winner') if game_state else None,
-            'side': self.get_user_side(),
-            'redirect': {
-                'game_id': self.game_id,
-                'result': 'win' if is_winner else 'lose' if game_state.get('winner') != 'draw' else 'draw',
-                'side': self.get_user_side()
-            }
-        }))
-        
-        if event.get('reason') == 'game_finished':
-            MemoryStorage.delete_game(self.game_id)
-            if self.game_id in self.sides:
-                del TicTacToeConsumer.sides[self.game_id]
-
-    @database_sync_to_async
-    def save_match_history(self):
-        game_state = MemoryStorage.get_game_state(self.game_id)
-        if not game_state or game_state.get('game_status') != 'finished':
-            return
-
-        player_sides = self.sides.get(self.game_id, {})
-        player1_id = player_sides.get('X')
-        player2_id = player_sides.get('O')
-        if not player1_id or not player2_id:
-            return
-            
-        start_time = game_state.get('start_time', game_state['timestamp'])
-        duration = int(time.time() - start_time)
-        winner = game_state.get('winner')
-        winner_id = None
-        if winner == 'X':
-            winner_id = player1_id
-        elif winner == 'O':
-            winner_id = player2_id
-        
-        try:
-            with transaction.atomic():
-                if not MatchHistory.objects.filter(game_id=self.game_id).exists():
-                    match = MatchHistory(
-                        game_id=self.game_id,
-                        player1_id=player1_id,
-                        player2_id=player2_id,
-                        game_type='tic_tac_toe',
-                        winner_id=winner_id,
-                        player1_score=1 if winner == 'X' else 0,
-                        player2_score=1 if winner == 'O' else 0,
-                        duration=duration
-                    )
-                    match.save()
-        except Exception as e:
-            print(f"Error saving match history: {e}")
-
 class PongGameConsumer(AsyncWebsocketConsumer):
     sides = {}
     async def connect(self):
@@ -482,23 +186,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         elif game_state.get('game_status') == 'playing':
             if not any(task.get_name() == f'game_loop_{self.game_id}' for task in asyncio.all_tasks()):
                 asyncio.create_task(self.game_loop(), name=f'game_loop_{self.game_id}')
-        # init player side
-        # if self.game_id not in self.sides:
-        #     self.sides[self.game_id] = {}
-        # if len(self.sides[self.game_id]) < 2:
-        #     if self.user.id not in self.sides[self.game_id].values():
-        #         available_sides = ['left', 'right']
-        #         user_sides = list(self.sides[self.game_id].keys())
-        #         for side in available_sides:
-        #             if side not in user_sides:
-        #                 self.sides[self.game_id][side] = self.user.id
-        #                 break
-        # # Get or create game state
-        # game_state = MemoryStorage.get_game_state(self.game_id)
-        # if not game_state:
-        #     game_state = self.game.create_initial_state()
-        #     MemoryStorage.save_game_state(self.game_id, game_state)
-        #     asyncio.create_task(self.game_loop())
 
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.send(text_data=json.dumps({
@@ -619,8 +306,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                     break
             
             movements = MemoryStorage.get_player_movements(self.game_id)
-            # print(f"Game loop  movemenets before {movements}")
-            # print(f"Game loop  sides before {self.sides}")
             paddle_movements = {}
             if self.game_id in self.sides:
                for side, user_id in self.sides[self.game_id].items():
@@ -706,7 +391,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                         game_id=self.game_id,
                         player1_id=player1_id,
                         player2_id=player2_id,
-                        game_type='pong',
                         winner_id=winner_id,
                         player1_score=left_score,
                         player2_score=right_score,
@@ -728,12 +412,11 @@ class QueueConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
-        self.game_type = self.scope['url_route']['kwargs']['game_type']
         await self.accept()
-        self.room_name = f'queue_{self.game_type}_{self.user.id}'
+        self.room_name = f'queue_{self.user.id}'
         await self.channel_layer.group_add(self.room_name, self.channel_name)
 
-        is_in_queue = MemoryStorage.is_in_queue(self.game_type, self.user.id)
+        is_in_queue = MemoryStorage.is_in_queue(self.user.id)
         await self.send(text_data=json.dumps({
             'type': 'queue_status',
             'in_queue': is_in_queue
@@ -741,7 +424,7 @@ class QueueConsumer(AsyncWebsocketConsumer):
 
     async def disconnect(self, close_code):
         if hasattr(self, 'room_name'):
-            MemoryStorage.remove_from_queue(self.game_type, self.user.id)
+            MemoryStorage.remove_from_queue(self.user.id)
             await self.channel_layer.group_discard(self.room_name, self.channel_name)
 
     async def receive(self, text_data):
@@ -751,7 +434,7 @@ class QueueConsumer(AsyncWebsocketConsumer):
         try:
             data = json.loads(text_data)
             if data['type'] == 'join_queue':
-                should_create_match = MemoryStorage.add_to_queue(self.game_type, self.user.id)
+                should_create_match = MemoryStorage.add_to_queue(self.user.id)
                 await self.send(text_data=json.dumps({
                     'type': 'success',
                     'message': 'Joined queue'
@@ -761,7 +444,7 @@ class QueueConsumer(AsyncWebsocketConsumer):
                     await self.create_match()
 
             elif data['type'] == 'leave_queue':
-                MemoryStorage.remove_from_queue(self.game_type, self.user.id)
+                MemoryStorage.remove_from_queue(self.user.id)
                 await self.send(text_data=json.dumps({
                     'type': 'success',
                     'message': 'Left queue'
@@ -770,156 +453,27 @@ class QueueConsumer(AsyncWebsocketConsumer):
             pass
     
     async def create_match(self):
-        players = MemoryStorage.get_match_players(self.game_type)
+        players = MemoryStorage.get_match_players()
         if not players:
             return
 
+        # Create new game session
         game_id = MemoryStorage.generate_game_id()
-        
-        if self.game_type == 'pong':
-            game_state = serverPongGame().create_initial_state()
-        else:  #tictactoe
-            game_state = TicTacToeGame().create_initial_state()
-            
-        MemoryStorage.save_game_state(game_id, game_state, self.game_type)
+        game_state = serverPongGame().create_initial_state()
+        MemoryStorage.save_game_state(game_id, game_state)
 
+        # Notify players
         for player_id in players:
             await self.channel_layer.group_send(
-                f'queue_{self.game_type}_{player_id}',
+                f'queue_{player_id}',
                 {
                     'type': 'notify_match_created',
-                    'game_id': game_id,
-                    'game_type': self.game_type
+                    'game_id': game_id
                 }
             )
 
     async def notify_match_created(self, event):
         await self.send(text_data=json.dumps({
             'type': 'match_created',
-            'game_id': event['game_id'],
-            'game_type': event['game_type']
-        }))
-
-
-class InviteConsumer(AsyncWebsocketConsumer):
-    async def connect(self):
-        self.user = self.scope['user']
-        if self.user.is_anonymous:
-            await self.close()
-            return
-
-        await self.accept()
-        self.user_group = f'user_{self.user.id}'
-        await self.channel_layer.group_add(
-            self.user_group,
-            self.channel_name
-        )
-    
-    async def disconnect(self, close_code):
-        if hasattr(self, 'user_group'):
-            await self.channel_layer.group_discard(
-                self.user_group,
-                self.channel_name
-            )
-    
-    async def receive(self, text_data):
-        try:
-            data = json.loads(text_data)
-            if data['type'] == 'send_invite':
-                if not all(key in data for key in ['recipient_id', 'game_type']):
-                    await self.send(text_data=json.dumps({
-                        'type': 'error',
-                        'message': 'Invalid invite format'
-                    }))
-                    return
-                game_id = MemoryStorage.generate_game_id()
-                
-                # Save invite to memory storage
-                MemoryStorage.save_invite(
-                    game_id,
-                    self.user.id,
-                    data['recipient_id'],
-                    data['game_type']
-                )
-
-                # Send invite to recipient
-                await self.channel_layer.group_send(
-                    f'user_{data["recipient_id"]}',
-                    {
-                        'type': 'game_invite',
-                        'game_id': game_id,
-                        'sender_id': self.user.id,
-                        'sender_username': await self.get_username(self.user.id),
-                        'game_type': data['game_type']
-                    }
-                )
-            elif data['type'] == 'accept_invite':
-                if 'game_id' not in data:
-                    return
-                invite = MemoryStorage.get_invite(data['game_id'])
-                if not invite or invite['status'] != 'pending':
-                    return
-                if not invite or invite['recipient_id'] != self.user.id:
-                    return
-                if invite['game_type'] == 'pong':
-                    game_state = serverPongGame().create_initial_state()
-                else:  # tictactoe
-                    game_state = TicTacToeGame().create_initial_state()
-                MemoryStorage.save_game_state(data['game_id'], game_state, invite['game_type'])
-                for player_id in [invite['sender_id'], invite['recipient_id']]:
-                    await self.channel_layer.group_send(
-                        f'user_{player_id}',
-                        {
-                            'type': 'invite_accepted',
-                            'game_id': data['game_id'],
-                            'game_type': invite['game_type']
-                        }
-                    )
-                MemoryStorage.delete_invite(data['game_id'])
-            elif data['type'] == 'decline_invite':
-                if 'game_id' not in data:
-                    return
-
-                invite = MemoryStorage.get_invite(data['game_id'])
-                if not invite or invite['recipient_id'] != self.user.id:
-                    return
-
-                # Notify sender of decline
-                await self.channel_layer.group_send(
-                    f'user_{invite["sender_id"]}',
-                    {
-                        'type': 'invite_declined',
-                        'game_id': data['game_id']
-                    }
-                )
-
-                # Clean up invite
-                MemoryStorage.delete_invite(data['game_id'])
-        except json.JSONDecodeError:
-            pass
-    async def game_invite(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'game_invite',
-            'game_id': event['game_id'],
-            'sender_id': event['sender_id'],
-            'sender_username': event['sender_username'],
-            'game_type': event['game_type']
-        }))
-    async def invite_accepted(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'invite_accepted',
-            'game_id': event['game_id'],
-            'game_type': event['game_type']
-        }))
-    async def invite_declined(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'invite_declined',
             'game_id': event['game_id']
-        }))
-    async def get_username(self, user_id):
-        try:
-            User = get_user_model()
-            user = User.objects.get(id=user_id)
-            return user.username
-        except User.DoesNotExist:
-            return None
+        })) 
