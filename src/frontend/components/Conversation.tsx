@@ -13,6 +13,7 @@ import { IoSearch } from "react-icons/io5";
 import { useWebSocket } from "./context/useWebsocket";
 import { formatToLocalTime } from "@/app/utils/time";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import api from "@/app/utils/api";
 
 type ConversationProps = {
   last_message: string;
@@ -116,24 +117,31 @@ const Conversation = () => {
 
   const fetchConversations = async () => {
     setIsLoading(true);
-    const response = await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/chat/rooms/`,
-      {
+    await api
+      .get(`/chat/rooms/`, {
         withCredentials: true,
-      }
-    );
-    console.log("response", response.data);
-    setConversations(response.data);
-    setIsLoading(false);
+      })
+      .then((response) => {
+        setConversations(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+    // console.log("response", response.data);
+    // setConversations(response.data);
+    // setIsLoading(false);
   };
 
   useEffect(() => {
     fetchConversations();
   }, []);
 
-  if (conversations.length === 0) {
-    return <EmptyConversation />;
-  }
+  // if (conversations.length === 0) {
+  //   return <EmptyConversation />;
+  // }
 
   return (
     <>
@@ -152,100 +160,117 @@ const Conversation = () => {
         <div>Loading...</div>
       ) : (
         <>
-          {filteredConversations && (
+          {conversations.length === 0 ? (
             <>
-              <div className="conv-wrraper">
-                {filteredConversations.map((conversation, i) => {
-                  const unread_count = unreadCounts[conversation.room_id] || 0;
-                  const isSelected =
-                    selectConversation === conversation.room_id;
+              <EmptyConversation />
+            </>
+          ) : (
+            <>
+              {filteredConversations && (
+                <>
+                  <div className="conv-wrraper">
+                    {filteredConversations.map((conversation, i) => {
+                      const unread_count =
+                        unreadCounts[conversation.room_id] || 0;
+                      const isSelected =
+                        selectConversation === conversation.room_id;
 
-                  return (
-                    <>
-                      <div
-                        className={`conversation ${
-                          selectConversation === conversation.room_id
-                            ? "selected"
-                            : ""
-                        }`}
-                        onClick={() =>
-                          handleConversationClick(conversation.room_id)
-                        }
-                        key={i}
-                      >
-                        <div className="image">
-                          <Image
-                            src={
-                              conversation.user.profile_image
-                                ? `${process.env.NEXT_PUBLIC_MEDIA_URL}/${conversation.user.profile_image}`
-                                : "/prfl.png"
+                      return (
+                        <React.Fragment key={i}>
+                          <div
+                            className={`conversation ${
+                              selectConversation === conversation.room_id
+                                ? "selected"
+                                : ""
+                            }`}
+                            onClick={() =>
+                              handleConversationClick(conversation.room_id)
                             }
-                            // src={"/prfl.png"}
-                            priority
-                            alt="avatar"
-                            fill
-                            style={{ objectFit: "cover", borderRadius: "50%" }}
-                          />
-                        </div>
-                        <div className="main">
-                          <div className="name-row">
-                            <div className="name">
-                              <div>{conversation.user.username}</div>
-                              <div className="time">
-                                {conversation.time &&
-                                  formatToLocalTime(conversation.time)}
+                          >
+                            <div className="image">
+                              <Image
+                                src={
+                                  conversation.user.profile_image
+                                    ? `${process.env.NEXT_PUBLIC_MEDIA_URL}/${conversation.user.profile_image}`
+                                    : "/prfl.png"
+                                }
+                                // src={"/prfl.png"}
+                                priority
+                                alt="avatar"
+                                sizes={"70px, 70px"}
+                                fill
+                                style={{
+                                  objectFit: "cover",
+                                  borderRadius: "50%",
+                                }}
+                              />
+                            </div>
+                            <div className="main">
+                              <div className="name-row">
+                                <div className="name">
+                                  <div>{conversation.user.username}</div>
+                                  <div className="time">
+                                    {conversation.time &&
+                                      formatToLocalTime(conversation.time)}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="message">
+                                {conversation.last_message.length > 30
+                                  ? conversation.last_message.slice(0, 30) +
+                                    "..."
+                                  : conversation.last_message}
+                                {!isSelected && unread_count > 0 && (
+                                  <span className="message-badge">
+                                    {unread_count}
+                                  </span>
+                                )}
                               </div>
                             </div>
-                          </div>
-                          <div className="message">
-                            {conversation.last_message.length > 30
-                              ? conversation.last_message.slice(0, 30) + "..."
-                              : conversation.last_message}
-                            {!isSelected && unread_count > 0 && (
-                              <span className="message-badge">
-                                {unread_count}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        <div
-                          className="delete"
-                          onClick={() => {
-                            setIsDeleteOpen(true);
-                          }}
-                        >
-                          <RiDeleteBin6Line />
-                        </div>
-                      </div>
-                      {isDeleteOpen && (
-                        <div className="burl">
-                          <div className="conf">
-                            <h1>Are you sure ?</h1>
-                            <div className="buttons">
-                              <button
-                                onClick={() => {
-                                  deleteRoom(conversation.room_id);
-                                  setIsDeleteOpen(false);
-                                  router.push("/chat/");
-                                }}
-                              >
-                                Yes
-                              </button>
-                              <button
-                                onClick={() => {
-                                  setIsDeleteOpen(false);
-                                }}
-                              >
-                                No
-                              </button>
+                            <div
+                              className="delete"
+                              onClick={() => {
+                                setIsDeleteOpen(true);
+                              }}
+                            >
+                              <RiDeleteBin6Line />
                             </div>
                           </div>
-                        </div>
-                      )}
-                    </>
-                  );
-                })}
-              </div>
+                          {isDeleteOpen && (
+                            <div className="burl1">
+                              <div className="conf1">
+                                <h1>
+                                  Are you sure you want to{" "}
+                                  <b style={{ color: "#bb151f" }}>delete</b>{" "}
+                                  this conversation?
+                                </h1>
+                                <div className="buttons1">
+                                  <button
+                                    onClick={() => {
+                                      deleteRoom(conversation.room_id);
+                                      setIsDeleteOpen(false);
+                                      router.push("/chat/");
+                                    }}
+                                  >
+                                    Yes
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      setIsDeleteOpen(false);
+                                    }}
+                                  >
+                                    No
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
+                </>
+              )}
             </>
           )}
         </>
