@@ -494,6 +494,13 @@ def unblock_user(request,user_id):
         return Response({
             'error': 'User not found'
         })
+        
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_all_users(request):
+    users=User.objects.all()
+    serializer = UserSerializer(users, many=True)
+    return Response({"users": serializer.data})
 
 # @api_view(['post'])
 # @permission_classes([IsAuthenticated])
