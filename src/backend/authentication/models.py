@@ -11,7 +11,6 @@ class User(AbstractUser):
                     null=True)
     friends = models.ManyToManyField('self', symmetrical=True ,blank=True)
     blocked_users = models.ManyToManyField('self', symmetrical=False, related_name='blocked_by' ,blank=True)
-    # is_online = models.BooleanField(default=False)
     is_42 = models.BooleanField(default=False)
     def add_friend(self, user):
         if user not in self.friends.all() and user not in self.blocked_users.all() and user not in self.blocked_by.all():
