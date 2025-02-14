@@ -1,50 +1,16 @@
 class MemoryStorage:
     _games = {}  # for game stats
-    _movements = {}  # Store movements
-    _queues = {'pong': [], 'tictactoe': []}  #each game type its queue
-    _game_counter = 1000  #forgame id
-    _invites = {}  # just for inviations
+    _movements = {}  # Store  movements
+    _queue = []  # store queue
+    _game_counter = 1000  # for game- ids
 
     @classmethod
-    def save_invite(cls, game_id, sender_id, recipient_id, game_type):
-        cls._invites[game_id] = {
-            'sender_id': sender_id,
-            'recipient_id': recipient_id,
-            'game_type': game_type,
-            'status': 'pending'
-        }
-
-    @classmethod
-    def get_invite(cls, game_id):
-        return cls._invites.get(game_id)
-    
-    @classmethod
-    def delete_invite(cls, game_id):
-        cls._invites.pop(game_id, None)
-    
-    @classmethod
-    def get_user_invites(cls, user_id):
-        return {
-            game_id: invite for game_id, invite in cls._invites.items()
-            if invite['recipient_id'] == user_id and invite['status'] == 'pending'
-        }
-
-    @classmethod
-    def save_game_state(cls, game_id, state, game_type=None):
-        if game_type:
-            cls._games[game_id] = {'state': state, 'type': game_type}
-        else:
-            cls._games[game_id] = state
+    def save_game_state(cls, game_id, state):
+        cls._games[game_id] = state
 
     @classmethod
     def get_game_state(cls, game_id):
-        game = cls._games.get(game_id)
-        return game.get('state') if isinstance(game, dict) else game
-
-    @classmethod
-    def get_game_type(cls, game_id):
-        game = cls._games.get(game_id)
-        return game.get('type') if isinstance(game, dict) else None
+        return cls._games.get(game_id)
 
     @classmethod
     def save_player_movement(cls, game_id, user_id, movement):
@@ -58,11 +24,8 @@ class MemoryStorage:
 
     @classmethod
     def set_game_status(cls, game_id, status):
-        game = cls._games.get(game_id)
-        if isinstance(game, dict):
-            game['state']['game_status'] = status
-        elif game:
-            game['game_status'] = status
+        if game_id in cls._games:
+            cls._games[game_id]['game_status'] = status
 
     @classmethod
     def delete_game(cls, game_id):
@@ -70,31 +33,29 @@ class MemoryStorage:
         cls._movements.pop(game_id, None)
 
     @classmethod
-    def add_to_queue(cls, game_type, user_id):
-        if game_type not in cls._queues:
-            cls._queues[game_type] = []
-        if user_id not in cls._queues[game_type]:
-            cls._queues[game_type].append(user_id)
-        return len(cls._queues[game_type]) >= 2
+    def add_to_queue(cls, user_id):
+        if user_id not in cls._queue:
+            cls._queue.append(user_id)
+        return len(cls._queue) >= 2
 
     @classmethod
-    def remove_from_queue(cls, game_type, user_id):
-        if game_type in cls._queues and user_id in cls._queues[game_type]:
-            cls._queues[game_type].remove(user_id)
+    def remove_from_queue(cls, user_id):
+        if user_id in cls._queue:
+            cls._queue.remove(user_id)
 
     @classmethod
-    def get_queue_length(cls, game_type):
-        return len(cls._queues.get(game_type, []))
+    def get_queue_length(cls):
+        return len(cls._queue)
 
     @classmethod
-    def is_in_queue(cls, game_type, user_id):
-        return game_type in cls._queues and user_id in cls._queues[game_type]
+    def is_in_queue(cls, user_id):
+        return user_id in cls._queue
 
     @classmethod
-    def get_match_players(cls, game_type):
-        if game_type in cls._queues and len(cls._queues[game_type]) >= 2:
-            player1 = cls._queues[game_type].pop(0)
-            player2 = cls._queues[game_type].pop(0)
+    def get_match_players(cls):
+        if len(cls._queue) >= 2:
+            player1 = cls._queue.pop(0)
+            player2 = cls._queue.pop(0)
             return [player1, player2]
         return None
 
