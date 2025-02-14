@@ -498,7 +498,7 @@ def unblock_user(request,user_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_all_users(request):
-    users=User.objects.all()
+    users=User.objects.exclude(id=request.user.id)
     serializer = UserSerializer(users, many=True)
     return Response({"users": serializer.data})
 
