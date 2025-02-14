@@ -374,14 +374,17 @@ const Page = () => {
             scrollableTarget="scrollableDiv"
           >
             {state.messages.map((message, id) => (
-              <MsgText
-                key={id}
-                text={message.content}
-                position={
-                  message.sender_id === state.loggedUser?.id ? "right" : "left"
-                }
-                status={message.status}
-              />
+              <React.Fragment key={id}>
+                <MsgText
+                  text={message.content}
+                  position={
+                    message.sender_id === state.loggedUser?.id
+                      ? "right"
+                      : "left"
+                  }
+                  status={message.status}
+                />
+              </React.Fragment>
             ))}
           </InfiniteScroll>
         </div>
@@ -414,10 +417,13 @@ const Page = () => {
       </div>
 
       {state.isBlockOpen && (
-        <div className="burl">
-          <div className="conf">
-            <h1>Are you sure ?</h1>
-            <div className="buttons">
+        <div className="burl1">
+          <div className="conf1">
+            <h1>
+              Are you sure you want to block{" "}
+              <span className="title">{state.otherUser?.nickname}</span>?
+            </h1>
+            <div className="buttons1">
               <button
                 onClick={() => {
                   confirmBlock();
