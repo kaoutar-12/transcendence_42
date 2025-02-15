@@ -3,6 +3,35 @@ class MemoryStorage:
     _movements = {}  # Store  movements
     _queue = []  # store queue
     _game_counter = 1000  # for game- ids
+    _invites = {}  # store invites
+    _invites_counter = 1 # for invite-ids
+
+    @classmethod
+    def create_invite(cls, from_user_id, to_user_id):
+        invite_id = cls._invite_counter
+        cls._invite_counter += 1
+        cls._invites[invite_id] = {
+            'from_user_id': from_user_id,
+            'to_user_id': to_user_id,
+            'status': 'pending'
+        }
+        return invite_id
+
+    @classmethod
+    def get_invite(cls, invite_id):
+        return cls._invites.get(invite_id)
+
+    @classmethod
+    def remove_invite(cls, invite_id):
+        cls._invites.pop(invite_id, None)
+
+    @classmethod
+    def get_user_invites(cls, user_id):
+        return {
+            invite_id: invite 
+            for invite_id, invite in cls._invites.items() 
+            if invite['to_user_id'] == user_id
+        }
 
     @classmethod
     def save_game_state(cls, game_id, state):
