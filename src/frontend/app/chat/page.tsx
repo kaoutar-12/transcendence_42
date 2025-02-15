@@ -7,11 +7,7 @@ import ProtectedRoute from "@/components/auth/ProtectedRoute";
 type Props = {};
 
 const page = (props: Props) => {
-  return (
-    // <ProtectedRoute>
-      <ChatBox />
-    //  </ProtectedRoute>
-  );
+  return <ChatBox />;
 };
 
 export default page;

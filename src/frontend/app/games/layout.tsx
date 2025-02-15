@@ -7,9 +7,9 @@ export default function GameLayout({
   children: React.ReactNode;
 }) {
   return (
-    <ProtectedRoute>
+    <>
       <Particles />
       {children}
-    </ProtectedRoute>
+    </>
   );
 }

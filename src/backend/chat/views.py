@@ -1,3 +1,4 @@
+from authentication.serializers import UserSerializer
 from rest_framework import status
 from django.shortcuts import render
 from rest_framework.decorators import APIView, permission_classes
@@ -36,16 +37,10 @@ class RoomsView(APIView):
         for room in rooms:
             user = room.users.exclude(id=request.user.id).first()
             last_message = room.messages.last()
-            print('user.profile_image', user.profile_image)
+            serializer = UserSerializer(user)
             roomData.append({
                 'room_id': room.id,
-                'user': {
-                    'id': user.id,
-                    'username': user.username,
-                    'email': user.email,
-                    'profile_image': str(user.profile_image),
-                    'nickname': user.nickname
-                },
+                'user': serializer.data,
                 'last_message': last_message.content if last_message else [],
                 'time': last_message.time if last_message else "",
             })
@@ -70,15 +65,10 @@ class RoomsView(APIView):
 
             # Prepare WebSocket notification
             channel_layer = get_channel_layer()
+            serializer = UserSerializer(other_user)
             response_data = {
                 'room_id': str(room.id),
-                'user': {
-                    'id': other_user.id,
-                    'username': other_user.username,
-                    'email': other_user.email,
-                    'profile_image': str(other_user.profile_image),
-                    'nickname': other_user.nickname,
-                },
+                'user': serializer.data,
                 'last_message': [],
                 'time': ""
             }
@@ -90,30 +80,21 @@ class RoomsView(APIView):
                         'type': 'room_update',
                         'data': {
                             'room_id': str(room.id),
-                            'user': {
-                                'id': other_user.id,
-                                'username': other_user.username,
-                                'profile_image': str(other_user.profile_image),
-                                'nickname': other_user.nickname,
-                            },
+                            'user': serializer.data,
                             'last_message': f"Say Hello to {other_user.username}",
                             'time': ""
                         }
                     }
             )
 
+            logged_user_serializer = UserSerializer(logged_user)
             async_to_sync(channel_layer.group_send)(
                 f"global_{other_user.id}",  # Send to User2's group
                     {
                         'type': 'room_update',
                         'data': {
                             'room_id': str(room.id),
-                            'user': {
-                                'id': logged_user.id,
-                                'username': logged_user.username,
-                                'profile_image': str(logged_user.profile_image),
-                                'nickname': logged_user.nickname,
-                            },
+                            'user': logged_user_serializer.data,
                             'last_message': f"Say Hello to {logged_user.username}",
                             'time': ""
                         }
@@ -167,17 +148,14 @@ class RoomDetailView(APIView):
             i_blocked_them = request.user.blocked_users.filter(id=other_user.id).exists()
             they_blocked_me = other_user.blocked_users.filter(id=request.user.id).exists()
 
-            return Response({
-                'other_user': {
-                    'id': other_user.id,
-                    'username': other_user.username,
-                    'email': other_user.email,
-                    'profile_image': str(other_user.profile_image),
-                    'nickname': other_user.nickname,
-                    'i_blocked_them': i_blocked_them,
-                    'block_status' : i_blocked_them or they_blocked_me
-                }
+            user_data = UserSerializer(other_user).data
+
+            user_data.update({
+                'i_blocked_them': i_blocked_them,
+                'block_status' : i_blocked_them or they_blocked_me
             })
+
+            return Response({'other_user': user_data})
         except Room.DoesNotExist:
             return Response("Room not found", status=status.HTTP_404_NOT_FOUND)
 
@@ -246,6 +224,3 @@ class MessagesView(APIView):
             return Response("Message created successfully", status=status.HTTP_201_CREATED)
         
         return Response(validator.errors, status=status.HTTP_400_BAD_REQUEST)
-
-        
-        
