@@ -16,6 +16,7 @@ import { stat } from "fs";
 import { RiProfileFill } from "react-icons/ri";
 import Conversation from "@/components/Conversation";
 import { useWebSocket } from "@/components/context/useWebsocket";
+import api from "@/app/utils/api";
 
 type Message = {
   id: number;
@@ -95,8 +96,8 @@ const Page = () => {
 
   const blockUser = async (user_id: number, type: string) => {
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/friends/${type}/${user_id}/`,
+      const response = await api.post(
+        `/friends/${type}/${user_id}/`,
         {},
         {
           withCredentials: true,
@@ -111,12 +112,9 @@ const Page = () => {
   // kanjibo user li mloggi
   const fetchUserData = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/user/`,
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await api.get(`/user/`, {
+        withCredentials: true,
+      });
 
       setState((prev) => ({
         ...prev,
@@ -130,12 +128,9 @@ const Page = () => {
   // kanjibo user lakher
   const fetchOtherUserData = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/chat/rooms/${params.room_id}/`,
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await api.get(`/chat/rooms/${params.room_id}/`, {
+        withCredentials: true,
+      });
       console.log("other user data", response.data);
 
       setState((prev) => ({
@@ -236,8 +231,8 @@ const Page = () => {
           messages: [tempMessage, ...prev.messages],
           message: "",
         }));
-        const response = await axios.post(
-          `${process.env.NEXT_PUBLIC_API_URL}/chat/messages/`,
+        const response = await api.post(
+          `/chat/messages/`,
           {
             content: state.message,
             room_id: params.room_id,
@@ -334,7 +329,7 @@ const Page = () => {
               <Image
                 src={
                   state.otherUser?.profile_image
-                    ? `${process.env.NEXT_PUBLIC_MEDIA_URL}/${state.otherUser?.profile_image}`
+                    ? `http://backend:8000${state.otherUser?.profile_image}`
                     : "/prfl.png"
                 }
                 alt="profile pic"
@@ -351,9 +346,7 @@ const Page = () => {
             <button>
               <FaGamepad className="chat-icon" />
             </button>
-            <button>
-              <RiProfileFill className="chat-icon" />
-            </button>
+
             <button onClick={openBlockMenu}>
               {state.isBlocked ? (
                 <MdPerson className="chat-icon" />
