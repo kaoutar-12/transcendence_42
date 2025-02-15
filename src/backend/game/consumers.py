@@ -265,7 +265,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
     async def receive(self, text_data):
         try:
             data = json.loads(text_data)
-            print(data)
             if data['type'] == 'paddle_move':
                 if data['movement'] not in ['up', 'down', 'stop']:
                     return
@@ -289,21 +288,24 @@ class PongGameConsumer(AsyncWebsocketConsumer):
 
     async def game_loop(self):
         while True:
-            game_state = MemoryStorage.get_game_state(self.game_id)
-
-            if not game_state or game_state.get('game_status') != 'playing':
-                if not game_state:
-                    break
-                if game_state and game_state.get('game_status') == 'finished':
-                    await self.channel_layer.group_send(
-                        self.room_group_name,
-                        {
-                            'type': 'game_over',
-                            'winner': game_state.get('winner'),
-                            'reason': 'game_finished'
-                        }
-                    )
-                    break
+            try:
+                game_state = MemoryStorage.get_game_state(self.game_id)
+                if not game_state or game_state.get('game_status') != 'playing':
+                    if not game_state:
+                        break
+                    if game_state and game_state.get('game_status') == 'finished':
+                        await self.channel_layer.group_send(
+                            self.room_group_name,
+                            {
+                                'type': 'game_over',
+                                'winner': game_state.get('winner'),
+                                'reason': 'game_finished'
+                            }
+                        )
+                        break
+            except Exception as e:
+                print(f"Error in game loop: {e}")
+                continue
             
             movements = MemoryStorage.get_player_movements(self.game_id)
             paddle_movements = {}
@@ -514,7 +516,7 @@ class InviteConsumer(AsyncWebsocketConsumer):
             elif data['type'] == 'accept_invite':
                 invite_id = data['invite_id']
                 invite = MemoryStorage.get_invite(invite_id)
-                
+
                 if invite and invite['to_user_id'] == self.user.id:
                     game_id = MemoryStorage.generate_game_id()
                     game_state = serverPongGame().create_initial_state()
