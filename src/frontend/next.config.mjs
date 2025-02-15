@@ -13,6 +13,11 @@ const nextConfig = {
         pathname: "/**", // Correct pattern for all paths
         protocol: "http",
       },
+      {
+        hostname: "backend",
+        pathname: "/**", // Correct pattern for all paths
+        protocol: "http",
+      },
     ],
   },
   reactStrictMode: false,

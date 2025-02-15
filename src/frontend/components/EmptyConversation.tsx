@@ -5,6 +5,7 @@ import { FaPlus } from "react-icons/fa";
 import axios from "axios";
 import { User } from "@/app/chat/[room_id]/page";
 import Image from "next/image";
+import api from "@/app/utils/api";
 
 type Props = {};
 
@@ -14,12 +15,9 @@ const EmptyConversation = (props: Props) => {
 
   const fetchContacts = async () => {
     try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/friends/`,
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await api.get(`/friends/`, {
+        withCredentials: true,
+      });
       setContacts(response.data.friends.slice(0, 4));
       console.log(response.data.friends.slice(0, 4));
     } catch (error) {
@@ -29,8 +27,8 @@ const EmptyConversation = (props: Props) => {
 
   const createConversation = async (id: number) => {
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/chat/rooms/`,
+      const response = await api.post(
+        `/chat/rooms/`,
         {
           userId: id,
         },
@@ -60,7 +58,7 @@ const EmptyConversation = (props: Props) => {
                 <Image
                   src={
                     contact?.profile_image
-                      ? `${process.env.NEXT_PUBLIC_MEDIA_URL}/${contact.profile_image}`
+                      ? `http://backend:8000${contact.profile_image}`
                       : "/prfl.png"
                   }
                   alt="profile pic"
