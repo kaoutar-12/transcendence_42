@@ -31,6 +31,7 @@ const Sidebar = (props: Props) => {
     "/games",
     "/settings",
     "/leaderboard",
+    "/search",
   ];
 
   const shouldHideSidebar = !excludedPaths.some(
