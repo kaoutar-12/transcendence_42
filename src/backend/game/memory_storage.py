@@ -1,3 +1,4 @@
+from threading import Lock
 class MemoryStorage:
     _games = {}  # for game stats
     _movements = {}  # Store  movements
@@ -5,17 +6,18 @@ class MemoryStorage:
     _game_counter = 1000  # for game- ids
     _invites = {}  # store invites
     _invites_counter = 1 # for invite-ids
-
+    _lock = Lock()
     @classmethod
     def create_invite(cls, from_user_id, to_user_id):
-        invite_id = cls._invite_counter
-        cls._invite_counter += 1
-        cls._invites[invite_id] = {
-            'from_user_id': from_user_id,
-            'to_user_id': to_user_id,
-            'status': 'pending'
-        }
-        return invite_id
+        with cls._lock:
+            invite_id = cls._invite_counter
+            cls._invite_counter += 1
+            cls._invites[invite_id] = {
+                'from_user_id': from_user_id,
+                'to_user_id': to_user_id,
+                'status': 'pending'
+            }
+            return invite_id
 
     @classmethod
     def get_invite(cls, invite_id):
@@ -43,9 +45,10 @@ class MemoryStorage:
 
     @classmethod
     def save_player_movement(cls, game_id, user_id, movement):
-        if game_id not in cls._movements:
-            cls._movements[game_id] = {}
-        cls._movements[game_id][user_id] = movement
+        with cls._lock:
+            if game_id not in cls._movements:
+                cls._movements[game_id] = {}
+            cls._movements[game_id][user_id] = movement
 
     @classmethod
     def get_player_movements(cls, game_id):
@@ -82,11 +85,12 @@ class MemoryStorage:
 
     @classmethod
     def get_match_players(cls):
-        if len(cls._queue) >= 2:
-            player1 = cls._queue.pop(0)
-            player2 = cls._queue.pop(0)
-            return [player1, player2]
-        return None
+        with cls._lock:
+            if len(cls._queue) >= 2:
+                player1 = cls._queue.pop(0)
+                player2 = cls._queue.pop(0)
+                return [player1, player2]
+            return None
 
     @classmethod
     def generate_game_id(cls):
