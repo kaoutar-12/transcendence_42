@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
-
+from django.db import transaction
 class User(AbstractUser):
     email = models.EmailField(unique=True)
     nickname = models.CharField(max_length=50, blank=True, null=True)
@@ -17,16 +17,19 @@ class User(AbstractUser):
             self.friends.add(user)
             user.friends.add(self)
     
+    @transaction.atomic
     def remove_friend(self, user):
-        if user in self.friends.all():
+        if self.friends.filter(id=user.id).exists():
             self.friends.remove(user)
             user.friends.remove(self)
+    @transaction.atomic
     def block_user(self, user):
-        if user in self.friends.all():
+        if self.friends.filter(id=user.id).exists():
             self.friends.remove(user)
             user.friends.remove(self)
         if user not in self.blocked_users.all() and user not in self.blocked_by.all():
             self.blocked_users.add(user)
+    @transaction.atomic
     def unblock_user(self, user):
         if user in self.blocked_users.all():
             self.blocked_users.remove(user)
