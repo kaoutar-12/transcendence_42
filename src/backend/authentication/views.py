@@ -376,11 +376,12 @@ def add_friend(request,user_id):
             return Response({
                 'error': 'User is already your friend'
             })
-        if friend in request.user.blocked_users.all() or request.user in friend.blocked_users.all():
+        if friend in request.user.blocked_users.all():
             return Response({
-                'error': 'Cannot add friend due to blocking'
+                'error': 'User is blocked'
             })
-        request.user.add_friend(friend)
+        request.user.friends.add(friend)
+        friend.friends.add(request.user)
         return Response({
             'message': 'User added to friends'
         })
@@ -409,7 +410,7 @@ def remove_friend(request,user_id):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def block_user(request, user_id):
+def block_user(request,user_id):
     try:
         user = User.objects.get(id=user_id)
         if user == request.user:
@@ -420,12 +421,31 @@ def block_user(request, user_id):
             return Response({
                 'error': 'User is already blocked'
             })
-        if request.user in user.blocked_users.all():
-            return Response({
-                'error': 'You are blocked by this user'
-            })
+        if user in request.user.friends.all():
+            request.user.friends.remove(user)
+            user.friends.remove(request.user)
+        request.user.blocked_users.add(user)
 
-        request.user.block_user(user)
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+                f"global_{request.user.id}",
+                    {
+                        'type': 'block_update',
+                        'data': {
+                            'block_status': True,
+                            'i_blocked_them': True
+                        }
+                    }
+            )
+        async_to_sync(channel_layer.group_send)(
+                f"global_{user.id}",  
+                    {
+                        'type': 'block_update',
+                        'data': {
+                            'block_status': True,
+                        }
+                    }
+            )
         
         return Response({
             'message': 'User blocked'
@@ -437,7 +457,7 @@ def block_user(request, user_id):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
-def unblock_user(request, user_id):
+def unblock_user(request,user_id):
     try:
         user = User.objects.get(id=user_id)
         if user not in request.user.blocked_users.all():
@@ -445,7 +465,27 @@ def unblock_user(request, user_id):
                 'error': 'User is not blocked'
             })
         request.user.blocked_users.remove(user)
-        
+
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+                f"global_{request.user.id}",  
+                    {
+                        'type': 'block_update',
+                        'data': {
+                            'block_status': False,
+                            'i_blocked_them': False
+                        }
+                    }
+            )
+        async_to_sync(channel_layer.group_send)(
+                f"global_{user.id}",  
+                    {
+                        'type': 'block_update',
+                        'data': {
+                            'block_status': False,
+                        }
+                    }
+            )
         return Response({
             'message': 'User unblocked'
         })
@@ -454,10 +494,9 @@ def unblock_user(request, user_id):
             'error': 'User not found'
         })
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_all_users(request):
     users=User.objects.exclude(id=request.user.id)
     serializer = UserSerializer(users, many=True, context={'request': request})
-    return Response({"users": serializer.data})
+    return Response({"users": serializer.data}
