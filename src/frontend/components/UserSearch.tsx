@@ -1,21 +1,31 @@
-import React, { useState } from 'react';
+'use client';
+import React, { useState, KeyboardEvent, ChangeEvent } from 'react';
 import { Search, UserPlus, MessageSquare, Ban, Gamepad2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/auth/alert';
 
-const UserSearch = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [users, setUsers] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
+// Define interfaces for our data types
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  isFriend: boolean;
+  isBlocked: boolean;
+}
 
-  // Fetch users from Django backend
-  const searchUsers = async (query) => {
+const UserSearch: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [users, setUsers] = useState<User[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+
+  // Fetch users from backend
+  const searchUsers = async (query: string): Promise<void> => {
     setIsLoading(true);
     setError('');
     try {
       const response = await fetch(`/api/users/search?query=${query}`);
       if (!response.ok) throw new Error('Failed to fetch users');
-      const data = await response.json();
+      const data: User[] = await response.json();
       setUsers(data);
     } catch (err) {
       setError('Failed to load users. Please try again.');
@@ -25,7 +35,7 @@ const UserSearch = () => {
   };
 
   // Action handlers
-  const handleAddFriend = async (userId) => {
+  const handleAddFriend = async (userId: number): Promise<void> => {
     try {
       const response = await fetch('/api/friends/add', {
         method: 'POST',
@@ -33,26 +43,25 @@ const UserSearch = () => {
         body: JSON.stringify({ userId }),
       });
       if (!response.ok) throw new Error('Failed to add friend');
-      // Refresh user list to update status
-      searchUsers(searchQuery);
+      await searchUsers(searchQuery);
     } catch (err) {
       setError('Failed to add friend. Please try again.');
     }
   };
 
-  const handleBlock = async (userId, isBlocked) => {
+  const handleBlock = async (userId: number, isBlocked: boolean): Promise<void> => {
     try {
-      const response = await fetch(`/api/users/${userId}/${isBlocked ? 'unblock' : 'block'}`, {
+      const response = await fetch(`/api/friends/${isBlocked ? 'unblock' : 'block'}/${userId}/`, {
         method: 'POST',
       });
       if (!response.ok) throw new Error(`Failed to ${isBlocked ? 'unblock' : 'block'} user`);
-      searchUsers(searchQuery);
+      await searchUsers(searchQuery);
     } catch (err) {
       setError(`Failed to ${isBlocked ? 'unblock' : 'block'} user. Please try again.`);
     }
   };
 
-  const handleInviteToMatch = async (userId) => {
+  const handleInviteToMatch = async (userId: number): Promise<void> => {
     try {
       const response = await fetch('/api/matches/invite', {
         method: 'POST',
@@ -66,6 +75,16 @@ const UserSearch = () => {
     }
   };
 
+  const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
+    setSearchQuery(e.target.value);
+  };
+
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>): void => {
+    if (e.key === 'Enter') {
+      searchUsers(searchQuery);
+    }
+  };
+
   return (
     <div className="w-full max-w-2xl mx-auto p-4">
       {/* Search Input */}
@@ -76,8 +95,8 @@ const UserSearch = () => {
           placeholder="Search users..."
           className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          onKeyPress={(e) => e.key === 'Enter' && searchUsers(searchQuery)}
+          onChange={handleInputChange}
+          onKeyPress={handleKeyPress}
         />
       </div>
 
