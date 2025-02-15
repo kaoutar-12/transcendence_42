@@ -398,8 +398,7 @@ def remove_friend(request,user_id):
             return Response({
                 'error': 'User is not your friend'
             })
-        request.user.friends.remove(friend)
-        friend.friends.remove(request.user)
+        request.user.remove_friend(friend)  # Use the model method instead
         return Response({
             'message': 'User removed from friends'
         })
