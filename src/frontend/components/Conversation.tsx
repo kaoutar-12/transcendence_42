@@ -101,15 +101,10 @@ const Conversation = () => {
   };
 
   const deleteRoom = async (id: string) => {
-    // setIsLoading(true);
     try {
-      console.log("asdasdasd", id);
-      const response = await axios.delete(
-        `${process.env.NEXT_PUBLIC_API_URL}/chat/rooms/?room_id=${id}`,
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await api.delete(`/chat/rooms/?room_id=${id}`, {
+        withCredentials: true,
+      });
     } catch (error) {
       console.log(error);
     }
@@ -191,7 +186,7 @@ const Conversation = () => {
                               <Image
                                 src={
                                   conversation.user.profile_image
-                                    ? `${process.env.NEXT_PUBLIC_MEDIA_URL}/${conversation.user.profile_image}`
+                                    ? `http://backend:8000${conversation.user.profile_image}`
                                     : "/prfl.png"
                                 }
                                 // src={"/prfl.png"}
@@ -229,7 +224,7 @@ const Conversation = () => {
                             </div>
                             <div
                               className="delete"
-                              onClick={() => {
+                              onClick={(e) => {
                                 setIsDeleteOpen(true);
                               }}
                             >
