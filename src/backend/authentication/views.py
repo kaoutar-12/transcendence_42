@@ -452,7 +452,9 @@ def unblock_user(request, user_id):
     except User.DoesNotExist:
         return Response({
             'error': 'User not found'
-        
+        })
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_all_users(request):
