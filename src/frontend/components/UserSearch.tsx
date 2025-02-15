@@ -2,13 +2,14 @@
 import React, { useState, KeyboardEvent, ChangeEvent } from 'react';
 import { Search, UserPlus, MessageSquare, Ban, Gamepad2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/auth/alert';
+import api from '@/app/utils/api';
 
 // Define interfaces for our data types
 interface User {
   id: number;
   username: string;
   email: string;
-  isFriend: boolean;
+  is_friend: boolean;
   isBlocked: boolean;
 }
 
@@ -17,18 +18,22 @@ const UserSearch: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
+  const [success, setSuccess] = useState<string>('');
+
 
   // Fetch users from backend
   const searchUsers = async (query: string): Promise<void> => {
     setIsLoading(true);
     setError('');
+    setSuccess('');
     try {
-      const response = await fetch(`/api/users/search?query=${query}`);
-      if (!response.ok) throw new Error('Failed to fetch users');
-      const data: User[] = await response.json();
+      const response = await api.get(`/users/search?query=${query}`);
+      if (!(response.status === 200)) throw new Error('Failed to fetch users');
+
+      const data: User[] = await response.data.users;
       setUsers(data);
     } catch (err) {
-      setError('Failed to load users. Please try again.');
+      setError(err + 'Failed to load users. Please try again.');
     } finally {
       setIsLoading(false);
     }
@@ -36,16 +41,16 @@ const UserSearch: React.FC = () => {
 
   // Action handlers
   const handleAddFriend = async (userId: number): Promise<void> => {
+	setError('');
+    setSuccess('');
     try {
-      const response = await fetch('/api/friends/add', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ userId }),
-      });
-      if (!response.ok) throw new Error('Failed to add friend');
-      await searchUsers(searchQuery);
+      const response = await api.post(`/friends/add/${userId}/`);
+    	if (response.data.error) 
+        	throw new Error(response.data.error);
+		await searchUsers(searchQuery);
+		setSuccess('User added to friends');
     } catch (err) {
-      setError('Failed to add friend. Please try again.');
+      setError(err+'');
     }
   };
 
@@ -106,6 +111,7 @@ const UserSearch: React.FC = () => {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
+	  {success && <Alert className="mb-4 bg-green-700"><AlertDescription>{success}</AlertDescription></Alert>}
 
       {/* Loading State */}
       {isLoading && <div className="text-center">Loading...</div>}
@@ -113,14 +119,14 @@ const UserSearch: React.FC = () => {
       {/* Users List */}
       <div className="space-y-4">
         {users.map((user) => (
-          <div key={user.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+          <div key={user.id} className="group flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
             <div>
-              <h3 className="font-medium">{user.username}</h3>
+              <h3 className="font-medium text-white group-hover:text-black ">{user.username}</h3>
               <p className="text-sm text-gray-500">{user.email}</p>
             </div>
             
             <div className="flex space-x-2">
-              {!user.isFriend && !user.isBlocked && (
+              {!user.is_friend && !user.isBlocked && (
                 <button
                   onClick={() => handleAddFriend(user.id)}
                   className="p-2 text-green-600 hover:bg-green-50 rounded-full"
@@ -130,7 +136,7 @@ const UserSearch: React.FC = () => {
                 </button>
               )}
               
-              {user.isFriend && !user.isBlocked && (
+              {user.is_friend && !user.isBlocked && (
                 <>
                   <button
                     onClick={() => window.location.href = `/messages/${user.id}`}

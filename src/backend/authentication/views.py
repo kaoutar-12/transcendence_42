@@ -500,3 +500,12 @@ def get_all_users(request):
     users=User.objects.exclude(id=request.user.id)
     serializer = UserSerializer(users, many=True, context={'request': request})
     return Response({"users": serializer.data})
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def search_users(request):
+    query = request.GET.get('query', '').strip()
+    users_queryset = User.objects.filter(username__icontains=query)
+
+    serializer = UserSerializer(users_queryset, many=True, context={'request': request})
+    return Response({"users": serializer.data})
