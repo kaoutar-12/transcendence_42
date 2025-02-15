@@ -15,16 +15,29 @@ class UserSerializer(serializers.ModelSerializer):
     friends = serializers.SerializerMethodField()
     blocked_users = serializers.SerializerMethodField()
     image_url = serializers.URLField(write_only=True, required=False)
+    is_friend = serializers.SerializerMethodField()
+
 
 
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'password','nickname','profile_image','twoFactorEnabled', 'image_url', 'is_42'
-                  ,'friends','blocked_users')
+                  ,'friends','blocked_users','is_friend')
         extra_kwargs = {'password': {'write_only': True},
                         'nickname': {'required': False},
                         'profile_image': {'required': False}}
+    
+    def get_is_friend(self, obj):
+        request = self.context.get('request')
+        if request:
+            try:
+                requesting_user_profile = request.user
+                return obj in requesting_user_profile.friends.all()
+            except User.DoesNotExist:
+                return False
+        return False
 
+    
     def create(self, validated_data):
         if 'is_42_user' in self.context:  
             return self.create_42_user(validated_data)
