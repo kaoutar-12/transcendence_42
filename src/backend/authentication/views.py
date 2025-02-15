@@ -399,8 +399,7 @@ def remove_friend(request,user_id):
             return Response({
                 'error': 'User is not your friend'
             })
-        request.user.friends.remove(friend)
-        friend.friends.remove(request.user)
+        request.user.remove_friend(friend)  # Use the model method instead
         return Response({
             'message': 'User removed from friends'
         })
@@ -494,7 +493,7 @@ def unblock_user(request,user_id):
         return Response({
             'error': 'User not found'
         })
-        
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_all_users(request):
