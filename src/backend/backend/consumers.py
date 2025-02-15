@@ -32,6 +32,26 @@ class GlobalConsumer(AsyncWebsocketConsumer):
         if message_type == 'mark_read':
             room_id = data.get('room_id')
             await self.mark_messages_as_read(room_id)
+        if message_type == 'tournament_match_start':
+            # notif in channel layer
+            for player_id in data['player_ids']:
+                    await self.channel_layer.group_send(
+                        f'global_{player_id}',
+                        {
+                            'type': 'tournament_match',
+                            'data': {
+                                'message': f'Your match is starting! Match #{data["match_index"] + 1}',
+                                'match_index': data['match_index'],
+                                'players': data['players']
+                            }
+                        }
+                    )
+
+    async def tournament_match(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'tournament_match',
+            'data': event['data']
+        }))
 
     async def disconnect(self, close_code):
         await self.channel_layer.group_discard(
