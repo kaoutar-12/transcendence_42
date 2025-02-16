@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, KeyboardEvent, ChangeEvent } from 'react';
+import React, { useEffect, useState, KeyboardEvent, ChangeEvent } from 'react';
 import { Search, UserPlus, MessageSquare, Ban, Gamepad2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/auth/alert';
 import api from '@/app/utils/api';
@@ -20,7 +20,29 @@ const UserSearch: React.FC = () => {
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
 
+  useEffect(() => {
+    const fetchUserData = async (): Promise<void> => {
+    setIsLoading(true);
+    setError('');
+    setSuccess('');
 
+      try {
+        const response = await api.get('/users/search?query=');
+
+        if (response.status === 200) {
+          const data: User[] = await response.data.users;
+          setUsers(data);
+        } else {
+          throw new Error('Failed to fetch user data');
+        }
+      } catch (error) {
+        setError(error+'');
+        
+      }finally{setIsLoading(false);}
+    };
+
+    fetchUserData();
+  }, []);
   // Fetch users from backend
   const searchUsers = async (query: string): Promise<void> => {
     setIsLoading(true);
@@ -33,7 +55,7 @@ const UserSearch: React.FC = () => {
       const data: User[] = await response.data.users;
       setUsers(data);
     } catch (err) {
-      setError(err + 'Failed to load users. Please try again.');
+      setError(err + '');
     } finally {
       setIsLoading(false);
     }
