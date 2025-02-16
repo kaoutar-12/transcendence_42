@@ -15,8 +15,10 @@ interface User {
 
 const UserSearch: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [searchQueryTmp, setSearchQueryTmp] = useState<string>('');
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [IsEmpty, setIsEmpty] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [success, setSuccess] = useState<string>('');
 
@@ -46,6 +48,7 @@ const UserSearch: React.FC = () => {
   // Fetch users from backend
   const searchUsers = async (query: string): Promise<void> => {
     setIsLoading(true);
+    setIsEmpty(false);
     setError('');
     setSuccess('');
     try {
@@ -53,6 +56,14 @@ const UserSearch: React.FC = () => {
       if (!(response.status === 200)) throw new Error('Failed to fetch users');
 
       const data: User[] = await response.data.users;
+      if (!data.length)
+        {
+          setIsEmpty(true);
+          setSearchQueryTmp(query);
+        }
+      else
+        setIsEmpty(false);
+        
       setUsers(data);
     } catch (err) {
       setError(err + '');
@@ -192,9 +203,9 @@ const UserSearch: React.FC = () => {
       </div>
 
       {/* No Results */}
-      {!isLoading && users.length === 0 && searchQuery && (
+      {!isLoading && users.length === 0 && searchQueryTmp && IsEmpty && (
         <div className="text-center text-gray-500 mt-4">
-          No users found matching "{searchQuery}"
+          No users found matching "{searchQueryTmp}"
         </div>
       )}
     </div>
