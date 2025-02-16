@@ -10,7 +10,7 @@ interface User {
   username: string;
   email: string;
   is_friend: boolean;
-  isBlocked: boolean;
+  is_blocked: boolean;
 }
 
 const UserSearch: React.FC = () => {
@@ -90,13 +90,13 @@ const UserSearch: React.FC = () => {
   };
   
 
-  const handleBlock = async (userId: number, isBlocked: boolean): Promise<void> => {
+  const handleBlock = async (userId: number, is_blocked: boolean): Promise<void> => {
     try {
-      const response = await api.post(`/friends/${isBlocked ? 'unblock' : 'block'}/${userId}/`);
+      const response = await api.post(`/friends/${is_blocked ? 'unblock' : 'block'}/${userId}/`);
       if (response.data.error) throw new Error(response.data.error);
-		  // setSuccess(`${isBlocked ? 'User unblocked successfully' : 'User blocked successfully'}`);
+		  // setSuccess(`${is_blocked ? 'User unblocked successfully' : 'User blocked successfully'}`);
       await searchUsers(searchQuery);
-		  setSuccess(` User ${isBlocked ? 'unblocked' : 'Blocked' } successfully`);
+		  setSuccess(` User ${is_blocked ? 'unblocked' : 'Blocked' } successfully`);
 
     } catch (err) {
       setError(err +'');
@@ -164,7 +164,7 @@ const UserSearch: React.FC = () => {
             </div>
             
             <div className="flex space-x-2">
-              {!user.is_friend && !user.isBlocked && (
+              {!user.is_friend && !user.is_blocked && (
                 <button
                   onClick={() => handleAddFriend(user.id)}
                   className="p-2 text-green-600 hover:bg-green-50 rounded-full"
@@ -174,7 +174,7 @@ const UserSearch: React.FC = () => {
                 </button>
               )}
               
-              {user.is_friend && !user.isBlocked && (
+              {user.is_friend && !user.is_blocked && (
                 
                 <>
                   <button
@@ -203,10 +203,10 @@ const UserSearch: React.FC = () => {
               )}
               
               <button
-                onClick={() => handleBlock(user.id, user.isBlocked)}
-                className={`p-2 ${user.isBlocked ? 'text-gray-600' : 'text-red-600'} 
+                onClick={() => handleBlock(user.id, user.is_blocked)}
+                className={`p-2 ${user.is_blocked ? 'text-gray-600' : 'text-red-600'} 
                   hover:bg-red-50 rounded-full`}
-                title={user.isBlocked ? 'Unblock' : 'Block'}
+                title={user.is_blocked ? 'Unblock' : 'Block'}
               >
                 <Ban size={20} />
               </button>
