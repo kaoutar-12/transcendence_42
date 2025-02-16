@@ -73,19 +73,22 @@ const UserSearch: React.FC = () => {
   };
 
   // Action handlers
-  const handleAddFriend = async (userId: number): Promise<void> => {
+  const handleAddFriend = async (userId: number, add: boolean = true): Promise<void> => {
 	setError('');
     setSuccess('');
     try {
-      const response = await api.post(`/friends/add/${userId}/`);
+      // const response = await api.post(`/friends/add/${userId}/`);
+      const response = await api.post(`/friends/${add ? 'add' : 'remove'}/${userId}/`);
     	if (response.data.error) 
         	throw new Error(response.data.error);
 		await searchUsers(searchQuery);
-		setSuccess('User added to friends');
+		// setSuccess('User added to friends');
+		setSuccess(`${add ? 'User added to your  friends' : 'User remove your  from friends'}`);
     } catch (err) {
       setError(err+'');
     }
   };
+  
 
   const handleBlock = async (userId: number, isBlocked: boolean): Promise<void> => {
     try {
@@ -135,6 +138,7 @@ const UserSearch: React.FC = () => {
           value={searchQuery}
           onChange={handleInputChange}
           onKeyPress={handleKeyPress}
+          disabled={isLoading}
         />
       </div>
 
@@ -170,7 +174,15 @@ const UserSearch: React.FC = () => {
               )}
               
               {user.is_friend && !user.isBlocked && (
+                
                 <>
+                  <button
+                    onClick={() => handleAddFriend(user.id,false)}
+                    className="p-2 text-red-600 hover:bg-red-50 rounded-full"
+                    title="Unfriend"
+                  >
+                    <UserPlus size={20} className="transform rotate-45" />
+                  </button>
                   <button
                     onClick={() => window.location.href = `/messages/${user.id}`}
                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-full"
