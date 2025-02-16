@@ -1,5 +1,8 @@
+'use client';
 import React from "react";
 import "@/styles/dashboard.css";
+import { useRouter } from 'next/navigation';
+
 import LevelBar from "@/components/ProcessBar";
 import MatchHistory from "@/components/HistoryTable";
 
@@ -21,8 +24,8 @@ const sampleMatches: MatchHistoryItem[] = [
   { component: "Player", level: 2, result: "LOSE", score: "5 - 2", date: "09/09/2024" },
   { component: "Player", level: 2, result: "LOSE", score: "5 - 2", date: "09/09/2024" },
 ];
-
 export default function Home() {
+  const router = useRouter();
   return (
     <div className="home">
       <section>
@@ -40,9 +43,15 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <LevelBar level={4} percentage={30} />
-      </section>
+        {/* <LevelBar level={4} percentage={30} /> */}
+      <button 
+          onClick={()=>{router.push('/search')}}
+          className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-lg"
+        >
+          Search Players
+        </button>
       <section>
+      </section>
         <div className="grid-container">
           <div className="item-1">1</div>
           <div className="item-2">2</div>
