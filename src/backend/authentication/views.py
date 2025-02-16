@@ -506,7 +506,6 @@ def get_all_users(request):
 def search_users(request):
     query = request.GET.get('query', '').strip()
     users_queryset = User.objects.filter(username__icontains=query).exclude(id=request.user.id)
-    # users_queryset.exclude(id=request.user.id)
 
     serializer = UserSerializer(users_queryset, many=True, context={'request': request})
     return Response({"users": serializer.data})
