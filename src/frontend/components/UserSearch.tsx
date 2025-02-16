@@ -114,7 +114,7 @@ const UserSearch: React.FC = () => {
 	  {success && <Alert className="mb-4 bg-green-700"><AlertDescription>{success}</AlertDescription></Alert>}
 
       {/* Loading State */}
-      {isLoading && <div className="text-center">Loading...</div>}
+      {isLoading && <div className="text-center text-white">Loading...</div>}
 
       {/* Users List */}
       <div className="space-y-4">
