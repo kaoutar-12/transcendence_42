@@ -92,13 +92,14 @@ const UserSearch: React.FC = () => {
 
   const handleBlock = async (userId: number, isBlocked: boolean): Promise<void> => {
     try {
-      const response = await fetch(`/api/friends/${isBlocked ? 'unblock' : 'block'}/${userId}/`, {
-        method: 'POST',
-      });
-      if (!response.ok) throw new Error(`Failed to ${isBlocked ? 'unblock' : 'block'} user`);
+      const response = await api.post(`/friends/${isBlocked ? 'unblock' : 'block'}/${userId}/`);
+      if (response.data.error) throw new Error(response.data.error);
+		  // setSuccess(`${isBlocked ? 'User unblocked successfully' : 'User blocked successfully'}`);
       await searchUsers(searchQuery);
+		  setSuccess(` User ${isBlocked ? 'unblocked' : 'Blocked' } successfully`);
+
     } catch (err) {
-      setError(`Failed to ${isBlocked ? 'unblock' : 'block'} user. Please try again.`);
+      setError(err +'');
     }
   };
 
