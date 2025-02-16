@@ -29,7 +29,7 @@ const UserSearch: React.FC = () => {
     setSuccess('');
 
       try {
-        const response = await api.get('/users/search?query=');
+        const response = await api.get('/users/search');
 
         if (response.status === 200) {
           const data: User[] = await response.data.users;
