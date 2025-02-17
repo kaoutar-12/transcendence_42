@@ -8,9 +8,6 @@ import LevelBar from "@/components/ProcessBar";
 import MatchHistory from "@/components/HistoryTable";
 import api from "@/app/utils/api";
 import Image from "next/image";
-import { FaRegMessage } from "react-icons/fa6";
-import { CgProfile } from "react-icons/cg";
-import { CgGames } from "react-icons/cg";
 
 interface MatchHistoryItem {
   component: string;
@@ -300,63 +297,27 @@ export default function Home() {
         <section></section>
         <div className="grid-container">
           <div className="item-1">
+            {/* <h1>Friend List</h1>
             <div className="friends-container">
               {allFriends?.map((friend, index) => (
                 <div key={index} className="friend-avatar">
-                  <div className="flip-card">
-                    {/* Front side */}
-                    <div className="front">
-                      <Image
-                        src={
-                          friend?.profile_image
-                            ? `http://backend:8000${friend.profile_image}`
-                            : "/prfl.png"
-                        }
-                        alt="avatar"
-                        width={150}
-                        height={150}
-                        style={{
-                          borderRadius: "50%",
-                          objectFit: "cover",
-                          border: "2px solid #f00",
-                        }}
-                      />
-                    </div>
-                    {/* Back side */}
-                    <div className="back">
-                      <div className="send">
-                        <FaRegMessage
-                          style={{
-                            color: "blue",
-                            width: "30px",
-                            height: "30px",
-                          }}
-                        />
-                      </div>
-                      <div className="profile">
-                        <CgProfile
-                          style={{
-                            color: "red",
-                            width: "30px",
-                            height: "30px",
-                          }}
-                        />
-                      </div>
-                      <div className="game">
-                        <CgGames
-                          style={{
-                            color: "purple",
-                            width: "30px",
-                            height: "30px",
-                          }}
-                        />
-                      </div>
-                    </div>
+                  <div className="img">
+                    <Image
+                      src={
+                        friend?.profile_image
+                          ? `http://backend:8000${friend.profile_image}`
+                          : "/prfl.png"
+                      }
+                      alt={`${friend.username}'s avatar`}
+                      width={60}
+                      height={60}
+                      style={{ borderRadius: "50%", objectFit: "cover" }}
+                    />
                   </div>
                   <span className="friend-name">{friend.username}</span>
                 </div>
               ))}
-            </div>
+            </div> */}
           </div>
           <div className="item-2">2</div>
           <div className="item-3">
