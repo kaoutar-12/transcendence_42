@@ -8,10 +8,10 @@ const HomePage = () => {
   const router = useRouter();
 
   const teamMembers = [
-    { id: 1, name: 'Houdaifa Znagui', src: './clarence/houdaifa.webp'},
-    { id: 2, name: 'Yahya Rhiba', src: './clarence/yahya.webp' },
-    { id: 3, name: 'Reda Ghouzraf', src: './clarence/reda.webp' },
-    { id: 4, name: 'Kaoutar Mouradi', src: './clarence/kaoutar.webp' },
+    { id: 1, name: 'Houdaifa Znagui', src: '/clarence/houdaifa.webp'},
+    { id: 2, name: 'Yahya Rhiba', src: '/clarence/yahya.webp' },
+    { id: 3, name: 'Reda Ghouzraf', src: '/clarence/reda.webp' },
+    { id: 4, name: 'Kaoutar Mouradi', src: '/clarence/kaoutar.webp' },
   ];
 
   return (
@@ -20,10 +20,12 @@ const HomePage = () => {
       <nav className="flex justify-between items-center p-8 max-w-screen-2xl mx-auto">
         <div className="flex items-center">
           <div className="h-12 w-24 relative">
-            <img
+            <Image
               src="/logo_login.svg"
               alt="Pong Logo"
               className="object-contain"
+              fill
+                style={{ objectFit: "cover", borderRadius: "50%" }}
             />
           </div>
         </div>
@@ -67,10 +69,13 @@ const HomePage = () => {
                 key={member.id}
                 className="bg-zinc-900/80 p-6 rounded-lg flex flex-col items-center"
               >
-                <img
+                <Image
                   src={`${member.src}`}
                   alt={`${member.name} avatar`}
                   className="w-16 h-16 rounded-full mb-4"
+                  width={64}
+                  height={64}
+                
                 />
                 <p className="text-gray-400 text-sm">{member.name}</p>
               </div>
