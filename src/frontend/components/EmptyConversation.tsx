@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import "@/styles/chat.css";
+import "@/styles/chat.css"; // Ensure this includes the new styles
 import { FaPlus } from "react-icons/fa";
 import axios from "axios";
 import { User } from "@/app/chat/[room_id]/page";
@@ -11,20 +11,26 @@ type Props = {};
 
 const EmptyConversation = (props: Props) => {
   const [contacts, setContacts] = React.useState<User[]>([]);
+  const [allFriends, setAllFriends] = React.useState<User[]>([]); // Store all friends
+  const [showModal, setShowModal] = React.useState(false); // Toggle modal visibility
   const router = useRouter();
 
+  // Fetch all contacts (friends)
   const fetchContacts = async () => {
     try {
       const response = await api.get(`/friends/`, {
         withCredentials: true,
       });
-      setContacts(response.data.friends.slice(0, 4));
-      console.log(response.data.friends.slice(0, 4));
+      const friends = response.data.friends;
+      setContacts(friends.slice(0, 4)); // First 4 friends
+      setAllFriends(friends); // All friends
+      console.log("Contacts:", friends);
     } catch (error) {
       console.error("Error fetching contacts:", error);
     }
   };
 
+  // Create a conversation with a user
   const createConversation = async (id: number) => {
     try {
       const response = await api.post(
@@ -36,11 +42,15 @@ const EmptyConversation = (props: Props) => {
           withCredentials: true,
         }
       );
-      console.log("Created Room Response ==> ", response);
       return response.data.room_id;
     } catch (error) {
-      console.log(error);
+      console.error(error);
     }
+  };
+
+  // Toggle the modal visibility
+  const handleShowModal = () => {
+    setShowModal((prev) => !prev);
   };
 
   useEffect(() => {
@@ -66,19 +76,57 @@ const EmptyConversation = (props: Props) => {
                   style={{ objectFit: "cover", borderRadius: "50%" }}
                   onClick={async () => {
                     const id = await createConversation(contact.id);
-                    console.log("Created Conv ==> ", id);
                     router.push(`/chat/${id}`);
                   }}
                 />
               </div>
             ))}
+            {/* Plus sign to toggle modal */}
+            <div className="contact" onClick={handleShowModal}>
+              <div className="add-contact">
+                <FaPlus />
+              </div>
+            </div>
+          </div>
 
-            {/* <div className="contact">
-          <div className="add-contact">
-            <FaPlus />
-          </div>
-        </div> */}
-          </div>
+          {/* Modal for all friends */}
+          {showModal && (
+            <div className="burl1" onClick={handleShowModal}>
+              <div
+                className="conf1"
+                onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
+              >
+                <h1>All Friends</h1>
+                <div className="all-friends">
+                  {allFriends.map((friend, index) => (
+                    <div
+                      key={index}
+                      className="friend-item"
+                      onClick={async () => {
+                        const id = await createConversation(friend.id);
+                        router.push(`/chat/${id}`);
+                        handleShowModal(); // Close modal after selecting a friend
+                      }}
+                    >
+                      <Image
+                        src={
+                          friend?.profile_image
+                            ? `http://backend:8000${friend.profile_image}`
+                            : "/prfl.png"
+                        }
+                        alt="profile pic"
+                        width={40}
+                        height={40}
+                        style={{ objectFit: "cover", borderRadius: "50%" }}
+                      />
+                      <span className="friend-name">{friend.username}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="empty-conversation">
             <div className="empty-conversation-text">
               Select a chat to start messaging
@@ -86,9 +134,7 @@ const EmptyConversation = (props: Props) => {
           </div>
         </>
       ) : (
-        <>
-          <div className="no-contacts-message">No friends found</div>
-        </>
+        <div className="no-contacts-message">No friends found</div>
       )}
     </div>
   );

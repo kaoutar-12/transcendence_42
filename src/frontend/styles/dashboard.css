@@ -123,17 +123,10 @@ section {
   grid-template-rows: repeat(5, 1fr); /* grid-rows-5 */
   gap: 30px;
   width: 90%;
-  height: 1000px;
+  height: 100%;
   /* background: lightsalmon; */
 }
 
-.item-1 {
-  grid-column: span 3;
-  grid-row: span 2;
-  background: lightblue;
-  border: solid 3px rgba(68, 71, 72, 100);
-  border-radius: 26px;
-}
 
 .item-2 {
   grid-column: 4 / span 2; /* col-span-2 col-start-4 */
@@ -141,21 +134,23 @@ section {
   background: lightgreen;
   border: solid 3px rgba(68, 71, 72, 100);
   border-radius: 26px;
+  height: 400px;
 }
 
 .item-3 {
-  grid-column: span 5; /* col-span-5 */
+  grid-column: span 5;
   grid-row: 3 / span 3;
   /* background: lightcoral; */
   border: solid 3px rgba(68, 71, 72, 100);
   border-radius: 26px;
+  margin-bottom: 80px;
 }
 
 /* MatchHistory.css */
 .match-history {
   font-family: Arial, sans-serif;
   width: 100%;
-  height: 100%;
+  /* height: 700px; */
   margin-top: 20px;
   display: flex;
   flex-direction: column;
@@ -179,7 +174,6 @@ table {
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
 }
 
-
 th,
 td {
   padding: 12px 15px;
@@ -195,12 +189,11 @@ th {
   font-size: 16px;
 }
 
- td:hover {
+td:hover {
   /* border-bottom-color: transparent; */
   /* border-top-color: transparent; */
   background-color: #4a5568;
 }
-
 
 .result-badge {
   display: inline-block;
@@ -215,7 +208,185 @@ th {
   color: white;
 }
 
-.result-badge.lose{
+.result-badge.lose {
   background-color: #4299e1;
   color: white;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  gap: 10px;
+}
+
+.pagination button {
+  background-color: #4a5568;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.pagination button:hover {
+  background-color: #314155;
+}
+
+.pagination button:disabled {
+  background-color: #6b7280;
+  cursor: not-allowed;
+}
+
+.pagination button.active {
+  background-color: #48bb78;
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.buttons button {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  color: white;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.search {
+  width: 90%;
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  gap: 20px;
+  /* border: solid 2px #bb151f; */
+}
+
+/* Send Message Button */
+.message-button {
+  background-color: #2b6cb0; /* Blue */
+}
+.message-button:hover {
+  background-color: #2c5282; /* Darker Blue on hover */
+}
+
+/* Block Button */
+.block-button {
+  background-color: #71717a; /* Gray */
+}
+.block-button:hover {
+  background-color: #4a4a52; /* Darker Gray on hover */
+}
+
+/* Invite for Game Button */
+.invite-button {
+  background-color: #38a169; /* Green */
+}
+.invite-button:hover {
+  background-color: #276749; /* Darker Green on hover */
+}
+
+/* Add Friend Button */
+.add-friend-button {
+  background-color: #6b46c1; /* Indigo */
+}
+.add-friend-button:hover {
+  background-color: #553c9a; /* Darker Indigo on hover */
+}
+
+/* Friends Container */
+
+/* Friends Container */
+.friends-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); 
+  grid-template-rows: repeat(3, 1fr);
+
+  padding-bottom: 20px;
+  border: solid 2px #bb151f;
+  padding: 20px; 
+  gap: 20px; 
+}
+
+.friend-avatar {
+  perspective: 1000px; 
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.friend-avatar .flip-card {
+  width: 200px;
+  height: 200px;
+  transition: transform 0.5s;
+  transform-style: preserve-3d;
+  position: relative;
+  
+}
+
+.friend-avatar:hover .flip-card {
+  transform: rotateY(180deg); 
+}
+
+ .front,
+ .back {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  backface-visibility: hidden; 
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  /* border: solid 2px rgba(68, 71, 72, 100); */
+}
+
+.front {
+  background-color: lightblue;
+}
+
+.back {
+  background-color: transparent;
+  transform: rotateY(180deg); /* Initially rotated to be hidden */
+  flex-direction: row;
+  color : white;
+  width: 100%;
+  height: 100%;
+  border: solid 2px rgba(68, 71, 72, 100);
+  gap: 30px;
+}
+
+
+
+.friend-name {
+  display: block;
+  text-align: center;
+  margin-top: 10px;
+  font-weight: bold;
+  color: white;
+}
+
+.item-1 {
+  grid-column: span 3;
+  grid-row: span 2;
+  /* background: lightblue; */
+  border: solid 3px rgba(68, 71, 72, 100);
+  border-radius: 26px;
+  height: 400px;
+  overflow-y: auto;
+}
+
+.item-1::-webkit-scrollbar {
+  display: none;
 }
