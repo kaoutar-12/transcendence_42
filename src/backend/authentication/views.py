@@ -196,6 +196,16 @@ def get_user(request):
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def get_user2(request,username):
+    try:
+        target = User.objects.get(username=username)
+        serializer = UserSerializer(target)
+        return Response(serializer.data)
+    except User.DoesNotExist:
+        return Response({"error":"can't find the user"})
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

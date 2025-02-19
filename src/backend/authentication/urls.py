@@ -7,6 +7,7 @@ urlpatterns = [
     path('login/', views.login, name='login'),
     path('login_otp/', views.login_otp, name='login_otp'),
     path('logout/', views.logout, name='logout'),
+    path('user/<str:username>/', views.get_user2, name='get_user2'),
     path('user/', views.get_user, name='get_user'),
     # path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('token/refresh/', views.CookieTokenRefreshView.as_view(), name='token_refresh'),
