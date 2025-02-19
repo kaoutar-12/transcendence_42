@@ -329,7 +329,7 @@ const Page = () => {
               <Image
                 src={
                   state.otherUser?.profile_image
-                    ? `http://backend:8000${state.otherUser?.profile_image}`
+                    ? `http://backend:8000/media/${state.otherUser?.profile_image}`
                     : "/prfl.png"
                 }
                 alt="profile pic"

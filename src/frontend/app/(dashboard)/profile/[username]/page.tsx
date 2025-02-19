@@ -226,7 +226,7 @@ export default function Home() {
     try {
       const response = await api.get(`/user/${params.username}/`);
       // const response = await api.get(`/user/`);
-      if (response.error)
+      if (response.data.error)
           router.push('/not-found');
 
       
@@ -270,7 +270,7 @@ export default function Home() {
             <Image
               src={
                 user?.profile_image
-                  ? `http://backend:8000${user?.profile_image}`
+                  ? `http://backend:8000/media/${user?.profile_image}`
                   : "/prfl.png"
               }
               alt="avatar"
@@ -319,7 +319,7 @@ export default function Home() {
                     <Image
                       src={
                         friend?.profile_image
-                          ? `http://backend:8000${friend.profile_image}`
+                          ? `http://backend:8000/media/${friend.profile_image}`
                           : "/prfl.png"
                       }
                       alt={`${friend.username}'s avatar`}

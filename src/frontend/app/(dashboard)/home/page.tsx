@@ -305,7 +305,7 @@ export default function Home() {
             <Image
               src={
                 user?.profile_image
-                  ? `http://backend:8000${user?.profile_image}`
+                  ? `http://backend:8000/media/${user?.profile_image}`
                   : "/prfl.png"
               }
               alt="avatar"

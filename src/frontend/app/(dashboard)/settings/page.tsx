@@ -184,7 +184,7 @@ const ProfileSettings: React.FC = () => {
               <Image
                 src={
                   userData.profile_image
-                    ? `http://backend:8000${userData.profile_image}`
+                    ? `http://backend:8000/media/${userData.profile_image}`
                     : "/prfl.png"
                 }
                 alt="Profile avatar"
