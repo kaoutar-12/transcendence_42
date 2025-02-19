@@ -15,7 +15,7 @@ export default function Callback()
                     const code =   urlParams.get('code');
                     if (!code)
                         router.push('/');
-                    const res = await fetch('http://localhost:8000/api/oauth/',
+                    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/oauth/`,
                     {
                         method:'POST',
                         credentials: "include",

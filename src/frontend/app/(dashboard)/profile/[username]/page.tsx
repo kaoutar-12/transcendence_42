@@ -1,13 +1,13 @@
 "use client";
 import React from "react";
 import "@/styles/dashboard.css";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams} from "next/navigation";
 import { User } from "@/app/chat/[room_id]/page";
 import LevelBar from "@/components/ProcessBar";
 import MatchHistory from "@/components/HistoryTable";
 import api from "@/app/utils/api";
 import Image from "next/image";
-import { useParams } from "next/navigation";
+// import {  } from "next/navigation";
 
 interface MatchHistoryItem {
   component: string;
@@ -224,7 +224,7 @@ export default function Home() {
 
   const fetchUser = async () => {
     try {
-      const response = await api.get("/user/");
+      const response = await api.get(`/user/${params.username}/`);
       setUser(response.data);
     } catch (error) {
       console.error("Error fetching user:", error);
