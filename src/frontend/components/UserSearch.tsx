@@ -1,8 +1,9 @@
-'use client';
-import React, { useEffect, useState, KeyboardEvent, ChangeEvent } from 'react';
-import { Search, UserPlus, MessageSquare, Ban, Gamepad2 } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/auth/alert';
-import api from '@/app/utils/api';
+"use client";
+import React, { useEffect, useState, KeyboardEvent, ChangeEvent } from "react";
+import { Search, UserPlus, MessageSquare, Ban, Gamepad2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/auth/alert";
+import api from "@/app/utils/api";
+import { useRouter } from "next/navigation";
 
 // Define interfaces for our data types
 interface User {
@@ -14,33 +15,35 @@ interface User {
 }
 
 const UserSearch: React.FC = () => {
-  const [searchQuery, setSearchQuery] = useState<string>('');
-  const [searchQueryTmp, setSearchQueryTmp] = useState<string>('');
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [searchQueryTmp, setSearchQueryTmp] = useState<string>("");
   const [users, setUsers] = useState<User[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [IsEmpty, setIsEmpty] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
-  const [success, setSuccess] = useState<string>('');
+  const [error, setError] = useState<string>("");
+  const [success, setSuccess] = useState<string>("");
+  const router = useRouter();
 
   useEffect(() => {
     const fetchUserData = async (): Promise<void> => {
-    setIsLoading(true);
-    setError('');
-    setSuccess('');
+      setIsLoading(true);
+      setError("");
+      setSuccess("");
 
       try {
-        const response = await api.get('/users/search');
+        const response = await api.get("/users/search");
 
         if (response.status === 200) {
           const data: User[] = await response.data.users;
           setUsers(data);
         } else {
-          throw new Error('Failed to fetch user data');
+          throw new Error("Failed to fetch user data");
         }
       } catch (error) {
-        setError(error+'');
-        
-      }finally{setIsLoading(false);}
+        setError(error + "");
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchUserData();
@@ -49,71 +52,79 @@ const UserSearch: React.FC = () => {
   const searchUsers = async (query: string): Promise<void> => {
     setIsLoading(true);
     setIsEmpty(false);
-    setError('');
-    setSuccess('');
+    setError("");
+    setSuccess("");
     try {
       const response = await api.get(`/users/search?query=${query}`);
-      if (!(response.status === 200)) throw new Error('Failed to fetch users');
+      if (!(response.status === 200)) throw new Error("Failed to fetch users");
 
       const data: User[] = await response.data.users;
-      if (!data.length)
-        {
-          setIsEmpty(true);
-          setSearchQueryTmp(query);
-        }
-      else
-        setIsEmpty(false);
-        
+      if (!data.length) {
+        setIsEmpty(true);
+        setSearchQueryTmp(query);
+      } else setIsEmpty(false);
+
       setUsers(data);
     } catch (err) {
-      setError(err + '');
+      setError(err + "");
     } finally {
       setIsLoading(false);
     }
   };
 
   // Action handlers
-  const handleAddFriend = async (userId: number, add: boolean = true): Promise<void> => {
-	setError('');
-    setSuccess('');
+  const handleAddFriend = async (
+    userId: number,
+    add: boolean = true
+  ): Promise<void> => {
+    setError("");
+    setSuccess("");
     try {
       // const response = await api.post(`/friends/add/${userId}/`);
-      const response = await api.post(`/friends/${add ? 'add' : 'remove'}/${userId}/`);
-    	if (response.data.error) 
-        	throw new Error(response.data.error);
-		await searchUsers(searchQuery);
-		// setSuccess('User added to friends');
-		setSuccess(`${add ? 'User added to your  friends' : 'User remove your  from friends'}`);
+      const response = await api.post(
+        `/friends/${add ? "add" : "remove"}/${userId}/`
+      );
+      if (response.data.error) throw new Error(response.data.error);
+      await searchUsers(searchQuery);
+      // setSuccess('User added to friends');
+      setSuccess(
+        `${
+          add ? "User added to your  friends" : "User remove your  from friends"
+        }`
+      );
     } catch (err) {
-      setError(err+'');
+      setError(err + "");
     }
   };
-  
 
-  const handleBlock = async (userId: number, is_blocked: boolean): Promise<void> => {
+  const handleBlock = async (
+    userId: number,
+    is_blocked: boolean
+  ): Promise<void> => {
     try {
-      const response = await api.post(`/friends/${is_blocked ? 'unblock' : 'block'}/${userId}/`);
+      const response = await api.post(
+        `/friends/${is_blocked ? "unblock" : "block"}/${userId}/`
+      );
       if (response.data.error) throw new Error(response.data.error);
-		  // setSuccess(`${is_blocked ? 'User unblocked successfully' : 'User blocked successfully'}`);
+      // setSuccess(`${is_blocked ? 'User unblocked successfully' : 'User blocked successfully'}`);
       await searchUsers(searchQuery);
-		  setSuccess(` User ${is_blocked ? 'unblocked' : 'Blocked' } successfully`);
-
+      setSuccess(` User ${is_blocked ? "unblocked" : "Blocked"} successfully`);
     } catch (err) {
-      setError(err +'');
+      setError(err + "");
     }
   };
 
   const handleInviteToMatch = async (userId: number): Promise<void> => {
     try {
-      const response = await fetch('/api/matches/invite', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const response = await fetch("/api/matches/invite", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId }),
       });
-      if (!response.ok) throw new Error('Failed to send match invitation');
-      setError('Match invitation sent successfully!');
+      if (!response.ok) throw new Error("Failed to send match invitation");
+      setError("Match invitation sent successfully!");
     } catch (err) {
-      setError('Failed to send match invitation. Please try again.');
+      setError("Failed to send match invitation. Please try again.");
     }
   };
 
@@ -122,8 +133,19 @@ const UserSearch: React.FC = () => {
   };
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>): void => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       searchUsers(searchQuery);
+    }
+  };
+
+  const handleCreateRoom = async (userId: number) => {
+    try {
+      const response = await api.post(`/chat/rooms/`, {
+        userId: userId,
+      });
+      router.push(`/chat/${response.data.room_id}`);
+    } catch (error) {
+      console.error("Error creating room:", error);
     }
   };
 
@@ -131,7 +153,10 @@ const UserSearch: React.FC = () => {
     <div className="w-full max-w-2xl mx-auto p-4">
       {/* Search Input */}
       <div className="relative mb-6">
-        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+        <Search
+          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+          size={20}
+        />
         <input
           type="text"
           placeholder="Search users..."
@@ -149,7 +174,11 @@ const UserSearch: React.FC = () => {
           <AlertDescription>{error}</AlertDescription>
         </Alert>
       )}
-	  {success && <Alert className="mb-4 bg-green-700"><AlertDescription>{success}</AlertDescription></Alert>}
+      {success && (
+        <Alert className="mb-4 bg-green-700">
+          <AlertDescription>{success}</AlertDescription>
+        </Alert>
+      )}
 
       {/* Loading State */}
       {isLoading && <div className="text-center text-white">Loading...</div>}
@@ -157,12 +186,17 @@ const UserSearch: React.FC = () => {
       {/* Users List */}
       <div className="space-y-4">
         {users.map((user) => (
-          <div key={user.id} className="group flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50">
+          <div
+            key={user.id}
+            className="group flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
+          >
             <div>
-              <h3 className="font-medium text-white group-hover:text-black ">{user.username}</h3>
+              <h3 className="font-medium text-white group-hover:text-black ">
+                {user.username}
+              </h3>
               <p className="text-sm text-gray-500">{user.email}</p>
             </div>
-            
+
             <div className="flex space-x-2">
               {!user.is_friend && !user.is_blocked && (
                 <button
@@ -173,25 +207,24 @@ const UserSearch: React.FC = () => {
                   <UserPlus size={20} />
                 </button>
               )}
-              
+
               {user.is_friend && !user.is_blocked && (
-                
                 <>
                   <button
-                    onClick={() => handleAddFriend(user.id,false)}
+                    onClick={() => handleAddFriend(user.id, false)}
                     className="p-2 text-red-600 hover:bg-red-50 rounded-full"
                     title="Unfriend"
                   >
                     <UserPlus size={20} className="transform rotate-45" />
                   </button>
                   <button
-                    onClick={() => window.location.href = `/messages/${user.id}`}
+                    onClick={() => handleCreateRoom(user.id)}
                     className="p-2 text-blue-600 hover:bg-blue-50 rounded-full"
                     title="Message"
                   >
                     <MessageSquare size={20} />
                   </button>
-                  
+
                   <button
                     onClick={() => handleInviteToMatch(user.id)}
                     className="p-2 text-purple-600 hover:bg-purple-50 rounded-full"
@@ -201,12 +234,14 @@ const UserSearch: React.FC = () => {
                   </button>
                 </>
               )}
-              
+
               <button
                 onClick={() => handleBlock(user.id, user.is_blocked)}
-                className={`p-2 ${user.is_blocked ? 'text-gray-600' : 'text-red-600'} 
+                className={`p-2 ${
+                  user.is_blocked ? "text-gray-600" : "text-red-600"
+                } 
                   hover:bg-red-50 rounded-full`}
-                title={user.is_blocked ? 'Unblock' : 'Block'}
+                title={user.is_blocked ? "Unblock" : "Block"}
               >
                 <Ban size={20} />
               </button>
