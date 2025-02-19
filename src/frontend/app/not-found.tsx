@@ -35,7 +35,7 @@ const NotFoundPage = () => {
           </button>
           
           <button
-            onClick={() => router.push('/')}
+            onClick={() => router.push('/home')}
             className="px-6 py-3 text-sm text-white bg-white/10 
                      hover:bg-white/20 rounded-lg transition-all duration-300
                      hover:scale-105 focus:outline-none focus:ring-2 

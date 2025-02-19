@@ -226,6 +226,10 @@ export default function Home() {
     try {
       const response = await api.get(`/user/${params.username}/`);
       // const response = await api.get(`/user/`);
+      if (response.error)
+          router.push('/not-found');
+
+      
       setUser(response.data);
     } catch (error) {
       console.error("Error fetching user:", error);
