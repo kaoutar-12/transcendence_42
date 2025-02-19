@@ -5,10 +5,13 @@ from chat.models import Message, Room
 import json
 from asgiref.sync import async_to_sync
 from django.db.models import Count, Q, Max
+from threading import Lock
 
 User = get_user_model()
 
 class GlobalConsumer(AsyncWebsocketConsumer):
+    online_users = set()
+    users_lock = Lock()
     async def connect(self):
         self.user = self.scope['user']
 
@@ -16,12 +19,34 @@ class GlobalConsumer(AsyncWebsocketConsumer):
         if self.user.is_anonymous:
             await self.close()
             return
+        
+        with GlobalConsumer.users_lock:
+            GlobalConsumer.online_users.add(self.user.id)
 
         # Add the user to the room's WebSocket group
         self.room_group_name = f'global_{self.user.id}'
         await self.channel_layer.group_add(f'global_{self.user.id}', self.channel_name)
+
+        self.presence_group = "presence_updates"
+        await self.channel_layer.group_add(self.presence_group, self.channel_name)
+
         await self.accept()
-        
+
+        with GlobalConsumer.users_lock:
+            current_users = list(GlobalConsumer.online_users)
+        await self.send(json.dumps({
+            "type": "online_users",
+            "users": current_users
+        }))
+
+        await self.channel_layer.group_send(
+            self.presence_group,
+            {
+                "type": "user_online",
+                "user_id": self.user.id,
+                "online": True
+            }
+        )
         # Send unread messages to the user
         await self.send_user_unread_messages()
 
@@ -54,10 +79,32 @@ class GlobalConsumer(AsyncWebsocketConsumer):
         }))
 
     async def disconnect(self, close_code):
+        with GlobalConsumer.users_lock:
+            GlobalConsumer.online_users.discard(self.user.id)
+
+        await self.channel_layer.group_discard(
+                self.presence_group,
+                self.channel_name
+            )
         await self.channel_layer.group_discard(
             f'global_{self.user.id}',
             self.channel_name
         )
+        await self.channel_layer.group_send(
+                self.presence_group,
+                {
+                    "type": "user_online",
+                    "user_id": self.user.id,
+                    "online": False
+                }
+            )
+
+    async def user_online(self, event):
+        await self.send(text_data=json.dumps({
+            'type': 'user_online',
+            'user_id': event['user_id'],
+            'online': event['online']
+        }))
 
     async def room_update(self, event):
         # Handle room creation/update notifications
