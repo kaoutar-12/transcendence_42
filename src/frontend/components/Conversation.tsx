@@ -186,7 +186,7 @@ const Conversation = () => {
                               <Image
                                 src={
                                   conversation.user.profile_image
-                                    ? `http://backend:8000${conversation.user.profile_image}`
+                                    ? `http://backend:8000/media/${conversation.user.profile_image}`
                                     : "/prfl.png"
                                 }
                                 // src={"/prfl.png"}

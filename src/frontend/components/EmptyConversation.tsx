@@ -68,7 +68,7 @@ const EmptyConversation = (props: Props) => {
                 <Image
                   src={
                     contact?.profile_image
-                      ? `http://backend:8000${contact.profile_image}`
+                      ? `http://backend:8000/media/${contact.profile_image}`
                       : "/prfl.png"
                   }
                   alt="profile pic"
@@ -111,7 +111,7 @@ const EmptyConversation = (props: Props) => {
                       <Image
                         src={
                           friend?.profile_image
-                            ? `http://backend:8000${friend.profile_image}`
+                            ? `http://backend:8000/media/${friend.profile_image}`
                             : "/prfl.png"
                         }
                         alt="profile pic"

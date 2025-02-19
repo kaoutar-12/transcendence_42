@@ -109,7 +109,7 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ matches }) => {
                   <Image
                     src={
                       match.image
-                      // ? `http://backend:8000${contact.profile_image}`
+                      // ? `http://backend:8000/media/${contact.profile_image}`
                       // : "/prfl.png"
                     }
                     alt="profile pic"

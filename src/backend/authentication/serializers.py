@@ -17,6 +17,7 @@ class UserSerializer(serializers.ModelSerializer):
     image_url = serializers.URLField(write_only=True, required=False)
     is_friend = serializers.SerializerMethodField()
     is_blocked = serializers.SerializerMethodField()
+    profile_image = serializers.ImageField(use_url=False)
 
 
 
