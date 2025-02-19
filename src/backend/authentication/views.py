@@ -201,7 +201,7 @@ def get_user(request):
 def get_user2(request,username):
     try:
         target = User.objects.get(username=username)
-        serializer = UserSerializer(target)
+        serializer = UserSerializer(target,context={'request': request})
         return Response(serializer.data)
     except User.DoesNotExist:
         return Response({"error":"can't find the user"})

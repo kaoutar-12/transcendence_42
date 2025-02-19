@@ -390,7 +390,7 @@ export default function Home() {
                             height: "20px",
                           }}
                           onClick={() => {
-                            handleProfileClick(friend.nickname);
+                            handleProfileClick(friend.username);
                           }}
                         />
                       </div>
