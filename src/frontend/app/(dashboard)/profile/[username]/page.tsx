@@ -225,6 +225,7 @@ export default function Home() {
   const fetchUser = async () => {
     try {
       const response = await api.get(`/user/${params.username}/`);
+      // const response = await api.get(`/user/`);
       setUser(response.data);
     } catch (error) {
       console.error("Error fetching user:", error);
