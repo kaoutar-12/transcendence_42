@@ -3,11 +3,11 @@ import React from "react";
 import "@/styles/dashboard.css";
 import { useRouter } from "next/navigation";
 import { User } from "@/app/chat/[room_id]/page";
-
 import LevelBar from "@/components/ProcessBar";
 import MatchHistory from "@/components/HistoryTable";
 import api from "@/app/utils/api";
 import Image from "next/image";
+import { useParams } from "next/navigation";
 
 interface MatchHistoryItem {
   component: string;
@@ -202,6 +202,7 @@ const sampleMatches: MatchHistoryItem[] = [
   },
 ];
 export default function Home() {
+  const params = useParams<{ username: string }>();
   const router = useRouter();
   const [user, setUser] = React.useState<User | null>(null);
   const [contacts, setContacts] = React.useState<User[]>([]);
@@ -237,6 +238,14 @@ export default function Home() {
   React.useEffect(() => {
     fetchUser();
   }, []);
+
+  const handleMessageClick = () => {};
+
+  const handleBlockClick = () => {};
+
+  const handleInviteClick = () => {};
+
+  const handleAddFriendClick = () => {};
 
   return (
     <div className="home">
@@ -278,19 +287,19 @@ export default function Home() {
         </div>
         {/* <LevelBar level={4} percentage={30} /> */}
         <div className="buttons">
-          <button class="message-button" onclick="handleSendMessageClick()">
+          <button class="message-button" onClick={handleMessageClick}>
             Send Message
           </button>
 
-          <button class="block-button" onclick="handleBlockClick()">
+          <button class="block-button" onClick={handleBlockClick}>
             Block
           </button>
 
-          <button class="invite-button" onclick="handleInviteClick()">
+          <button class="invite-button" onClick={handleInviteClick}>
             Invite for Game
           </button>
 
-          <button class="add-friend-button" onclick="handleAddFriendClick()">
+          <button class="add-friend-button" onClick={handleAddFriendClick}>
             Add Friend
           </button>
         </div>
