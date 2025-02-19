@@ -17,6 +17,7 @@ import { RiProfileFill } from "react-icons/ri";
 import Conversation from "@/components/Conversation";
 import { useWebSocket } from "@/components/context/useWebsocket";
 import api from "@/app/utils/api";
+import { toast } from "react-toastify";
 
 type Message = {
   id: number;
@@ -103,9 +104,8 @@ const Page = () => {
           withCredentials: true,
         }
       );
-      console.log(response);
     } catch (error) {
-      console.log("error block user", error);
+      toast.error("Error blocking user");
     }
   };
 

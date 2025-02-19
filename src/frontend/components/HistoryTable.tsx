@@ -55,6 +55,7 @@
 
 import React, { useState } from "react";
 import "@/styles/dashboard.css";
+import Image from "next/image";
 
 interface MatchHistoryItem {
   component: string;
@@ -103,7 +104,25 @@ const MatchHistory: React.FC<MatchHistoryProps> = ({ matches }) => {
         <tbody>
           {displayedMatches.map((match, index) => (
             <tr key={index}>
-              <td>{match.component}</td>
+              <td className="flex gap-[20px] items-center">
+                <div className="w-[50px] h-[50px] relative">
+                  <Image
+                    src={
+                      match.image
+                      // ? `http://backend:8000${contact.profile_image}`
+                      // : "/prfl.png"
+                    }
+                    alt="profile pic"
+                    fill
+                    style={{ objectFit: "cover", borderRadius: "50%" }}
+                    onClick={async () => {
+                      // const id = await createConversation(contact.id);
+                      // router.push(`/chat/${id}`);
+                    }}
+                  />
+                </div>
+                {match.component}
+              </td>
               <td>{match.level}</td>
               <td>
                 <span className={`result-badge ${match.result.toLowerCase()}`}>

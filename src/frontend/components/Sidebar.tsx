@@ -32,6 +32,7 @@ const Sidebar = (props: Props) => {
     "/settings",
     "/leaderboard",
     "/search",
+    "/profile",
   ];
 
   const shouldHideSidebar = !excludedPaths.some(
@@ -83,7 +84,7 @@ const Sidebar = (props: Props) => {
   ];
 
   return (
-    <Fragment>
+    <div className="h-full fixed z-50 w-[120px] border border-red-800">
       <div className="sidebar">
         <div className="icons">
           <div
@@ -121,7 +122,7 @@ const Sidebar = (props: Props) => {
           <LogoutButton />
         </div>
       </div>
-    </Fragment>
+    </div>
   );
 };
 

@@ -13,6 +13,7 @@ import { CgProfile } from "react-icons/cg";
 import { CgGames } from "react-icons/cg";
 
 interface MatchHistoryItem {
+  image: string;
   component: string;
   level: number;
   result: string;
@@ -22,6 +23,7 @@ interface MatchHistoryItem {
 
 const sampleMatches: MatchHistoryItem[] = [
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "WIN",
@@ -29,6 +31,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -36,6 +39,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -43,6 +47,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -50,6 +55,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -57,6 +63,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -64,6 +71,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -71,6 +79,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -78,6 +87,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -85,6 +95,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -92,6 +103,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -99,6 +111,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -106,6 +119,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -113,6 +127,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -120,6 +135,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -127,6 +143,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -134,6 +151,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -141,6 +159,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -148,6 +167,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -155,6 +175,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -162,6 +183,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -169,6 +191,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -176,6 +199,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -183,6 +207,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -190,6 +215,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -197,6 +223,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -241,6 +268,25 @@ export default function Home() {
     fetchUser();
   }, []);
 
+  const handleCreateRoom = async (userId: number) => {
+    try {
+      const response = await api.post(`/chat/rooms/`, {
+        userId: userId,
+      });
+      router.push(`/chat/${response.data.room_id}`);
+    } catch (error) {
+      console.error("Error creating room:", error);
+    }
+  };
+
+  const handleInviteClick = (userId: number) => {
+    // TODO: Implement invite functionality
+  };
+
+  const handleProfileClick = (username: string) => {
+    router.push(`/profile/${username}`);
+  };
+
   return (
     <div className="home">
       <div className="search">
@@ -280,7 +326,7 @@ export default function Home() {
           </div>
         </div>
         {/* <LevelBar level={4} percentage={30} /> */}
-        <div className="buttons">
+        {/* <div className="buttons">
           <button class="message-button" onclick="handleSendMessageClick()">
             Send Message
           </button>
@@ -296,7 +342,7 @@ export default function Home() {
           <button class="add-friend-button" onclick="handleAddFriendClick()">
             Add Friend
           </button>
-        </div>
+        </div> */}
         <section></section>
         <div className="grid-container">
           <div className="item-1">
@@ -324,31 +370,38 @@ export default function Home() {
                     </div>
                     {/* Back side */}
                     <div className="back">
-                      <div className="send">
+                      <div className="friend-button">
                         <FaRegMessage
                           style={{
                             color: "blue",
-                            width: "30px",
-                            height: "30px",
+                            width: "20px",
+                            height: "20px",
+                          }}
+                          onClick={() => {
+                            handleCreateRoom(friend.id);
                           }}
                         />
                       </div>
-                      <div className="profile">
+                      <div className="friend-button">
                         <CgProfile
                           style={{
                             color: "red",
-                            width: "30px",
-                            height: "30px",
+                            width: "20px",
+                            height: "20px",
+                          }}
+                          onClick={() => {
+                            handleProfileClick(friend.nickname);
                           }}
                         />
                       </div>
-                      <div className="game">
+                      <div className="friend-button">
                         <CgGames
                           style={{
                             color: "purple",
-                            width: "30px",
-                            height: "30px",
+                            width: "20px",
+                            height: "20px",
                           }}
+                          onClick={() => {}}
                         />
                       </div>
                     </div>
