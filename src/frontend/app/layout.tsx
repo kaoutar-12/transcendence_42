@@ -6,6 +6,7 @@ import Sidebar from "@/components/Sidebar";
 import { WebSocketProvider } from "@/components/context/useWebsocket";
 import { usePathname } from "next/navigation";
 import ProtectedRoute from "@/components/auth/ProtectedRoute";
+import { ToastContainer } from "react-toastify";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,7 +29,12 @@ export default function RootLayout({
         <ProtectedRoute isAuthPage={isAuthPage}>
           <WebSocketProvider>
             <Sidebar />
-            {children}
+            <main className="ml-[120px] flex">{children}</main>
+
+            <ToastContainer
+              position="top-center"
+              className="fixed top-5 right-5 z-50"
+            />
           </WebSocketProvider>
         </ProtectedRoute>
       </body>
