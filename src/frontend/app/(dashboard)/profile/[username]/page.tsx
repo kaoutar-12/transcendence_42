@@ -292,19 +292,19 @@ export default function Home() {
         </div>
         {/* <LevelBar level={4} percentage={30} /> */}
         <div className="buttons">
-          <button class="message-button" onClick={handleMessageClick}>
+          <button className="message-button" onClick={handleMessageClick}>
             Send Message
           </button>
 
-          <button class="block-button" onClick={handleBlockClick}>
+          <button className="block-button" onClick={handleBlockClick}>
             Block
           </button>
 
-          <button class="invite-button" onClick={handleInviteClick}>
+          <button className="invite-button" onClick={handleInviteClick}>
             Invite for Game
           </button>
 
-          <button class="add-friend-button" onClick={handleAddFriendClick}>
+          <button className="add-friend-button" onClick={handleAddFriendClick}>
             Add Friend
           </button>
         </div>
