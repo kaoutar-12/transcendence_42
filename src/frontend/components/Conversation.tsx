@@ -3,7 +3,7 @@
 
 import React, { useEffect, useState } from "react";
 import "@/styles/conversation.css";
-import "@/styles/pageId.css";
+import "@/styles/chat.css";
 import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
@@ -232,8 +232,8 @@ const Conversation = () => {
                             </div>
                           </div>
                           {isDeleteOpen && (
-                            <div className="burl1">
-                              <div className="conf1">
+                            <div className="burl-del">
+                              <div className="conf-del">
                                 <h1>
                                   Are you sure you want to{" "}
                                   <b style={{ color: "#bb151f" }}>delete</b>{" "}

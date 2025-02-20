@@ -97,13 +97,7 @@ const Page = () => {
 
   const blockUser = async (user_id: number, type: string) => {
     try {
-      const response = await api.post(
-        `/friends/${type}/${user_id}/`,
-        {},
-        {
-          withCredentials: true,
-        }
-      );
+      const response = await api.post(`/friends/${type}/${user_id}/`, {});
     } catch (error) {
       toast.error("Error blocking user");
     }
@@ -323,7 +317,7 @@ const Page = () => {
   return (
     <>
       <div className="messages-wrraper ">
-        <div className="header">
+        <div className="header-chat">
           <div className="info">
             <div className="profile-pic">
               <Image
