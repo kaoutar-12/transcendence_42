@@ -1,13 +1,18 @@
 "use client";
 import React from "react";
 import "@/styles/dashboard.css";
-import { useRouter, useParams} from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import { User } from "@/app/chat/[room_id]/page";
 import LevelBar from "@/components/ProcessBar";
 import MatchHistory from "@/components/HistoryTable";
 import api from "@/app/utils/api";
 import Image from "next/image";
 // import {  } from "next/navigation";
+import { FaRegMessage } from "react-icons/fa6";
+import { CgProfile } from "react-icons/cg";
+import { CgGames } from "react-icons/cg";
+import { toast } from "react-toastify";
+import { useWebSocket } from "@/components/context/useWebsocket";
 
 interface MatchHistoryItem {
   component: string;
@@ -15,6 +20,27 @@ interface MatchHistoryItem {
   result: string;
   score: string;
   date: string;
+}
+
+interface Friends {
+  id: number;
+  username: string;
+  nickname: string;
+  profile_image: string;
+}
+
+interface UserData {
+  id: number;
+  username: string;
+  email: string;
+  nickname: string;
+  profile_image: string;
+  twoFactorEnabled: boolean;
+  is_42: boolean;
+  friends: Friends[];
+  blocked_users: any[];
+  is_friend: boolean;
+  is_blocked: boolean;
 }
 
 const sampleMatches: MatchHistoryItem[] = [
@@ -204,32 +230,32 @@ const sampleMatches: MatchHistoryItem[] = [
 export default function Home() {
   const params = useParams<{ username: string }>();
   const router = useRouter();
-  const [user, setUser] = React.useState<User | null>(null);
-  const [contacts, setContacts] = React.useState<User[]>([]);
-  const [allFriends, setAllFriends] = React.useState<User[]>([]); // Store all friends
+  const [user, setUser] = React.useState<UserData | null>(null);
+  const { on, off } = useWebSocket();
 
-  const fetchContacts = async () => {
-    try {
-      const response = await api.get(`/friends/`, {
-        withCredentials: true,
-      });
-      const friends = response.data.friends;
-      setContacts(friends.slice(0, 4)); // First 4 friends
-      setAllFriends(friends); // All friends
-      console.log("Contacts:", friends);
-    } catch (error) {
-      console.error("Error fetching contacts:", error);
-    }
-  };
+  React.useEffect(() => {
+    const handleBlockUpdate = (data: any) => {
+      console.log("SCKET DATA ==> ", data);
+      setUser((prev) => ({
+        ...prev,
+        is_blocked: data.block_status,
+      }));
+    };
+
+    on("block_update", handleBlockUpdate);
+
+    return () => {
+      off("block_update");
+    };
+  }, [on, off]);
 
   const fetchUser = async () => {
     try {
       const response = await api.get(`/user/${params.username}/`);
       // const response = await api.get(`/user/`);
-      if (response.data.error)
-          router.push('/not-found');
+      if (response.data.error) router.push("/not-found");
 
-      
+      console.log(response.data);
       setUser(response.data);
     } catch (error) {
       console.error("Error fetching user:", error);
@@ -237,24 +263,54 @@ export default function Home() {
   };
 
   React.useEffect(() => {
-    fetchContacts();
-  }, []);
-
-  React.useEffect(() => {
     fetchUser();
   }, []);
 
-  const handleMessageClick = () => {};
-
-  const handleBlockClick = () => {};
-
-  const handleInviteClick = () => {};
+  const handleBlockClick = async (userId: number, block: boolean) => {
+    try {
+      const response = await api.post(
+        `/friends/${block ? "block" : "unblock"}/${userId}/`,
+        {}
+      );
+    } catch (error) {
+      toast.error("Error blocking user");
+    }
+  };
 
   const handleAddFriendClick = () => {};
 
+  const handleCreateRoom = async (userId: number) => {
+    try {
+      const response = await api.post(`/chat/rooms/`, {
+        userId: userId,
+      });
+      router.push(`/chat/${response.data.room_id}`);
+    } catch (error) {
+      console.error("Error creating room:", error);
+    }
+  };
+
+  const handleAddfriend = async (userId: number, add: boolean) => {
+    try {
+      const response = await api.post(
+        `/friends/${add ? "add" : "remove"}/${userId}/`
+      );
+    } catch (error) {
+      toast.error("Error adding friend");
+    }
+  };
+
+  const handleInviteClick = (userId: number) => {
+    // TODO: Implement invite functionality
+  };
+
+  const handleProfileClick = (username: string) => {
+    router.push(`/profile/${username}`);
+  };
+
   return (
     <div className="home">
-      <div className="search">
+      <div className="search-dash">
         <button
           onClick={() => {
             router.push("/search");
@@ -278,7 +334,7 @@ export default function Home() {
               style={{ objectFit: "cover", borderRadius: "33px" }}
             />
           </div>
-          <div className="info">
+          <div className="info-dash">
             <div className="friends-list">
               <div className="friends">Friends</div>
               <div>{user?.friends.length}</div>
@@ -292,46 +348,142 @@ export default function Home() {
         </div>
         {/* <LevelBar level={4} percentage={30} /> */}
         <div className="buttons">
-          <button class="message-button" onClick={handleMessageClick}>
+          <button
+            className="message-button"
+            onClick={() => handleCreateRoom(user?.id)}
+            disabled={user?.is_blocked}
+          >
             Send Message
           </button>
 
-          <button class="block-button" onClick={handleBlockClick}>
-            Block
-          </button>
+          {user?.is_blocked ? (
+            <>
+              {" "}
+              <button
+                className="bg-[#bb151f] hover:bg-[#4a4a52]"
+                onClick={() => {
+                  handleBlockClick(user?.id, false);
+                }}
+              >
+                Unblock
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                className="block-button"
+                onClick={() => {
+                  handleBlockClick(user?.id, true);
+                }}
+              >
+                Block
+              </button>
+            </>
+          )}
 
-          <button class="invite-button" onClick={handleInviteClick}>
+          <button
+            className="invite-button"
+            disabled={user?.is_blocked}
+            onClick={handleInviteClick}
+          >
             Invite for Game
           </button>
 
-          <button class="add-friend-button" onClick={handleAddFriendClick}>
-            Add Friend
-          </button>
+          {user?.is_friend ? (
+            <>
+              {" "}
+              <button
+                className="add-friend-button"
+                onClick={() => {
+                  handleAddfriend(user.id, false);
+                }}
+                disabled={user?.is_blocked}
+              >
+                Remove Friend
+              </button>
+            </>
+          ) : (
+            <>
+              {" "}
+              <button
+                className="add-friend-button"
+                onClick={() => {
+                  handleAddfriend(user.id, true);
+                }}
+                disabled={user?.is_blocked}
+              >
+                Add Friend
+              </button>
+            </>
+          )}
         </div>
         <section></section>
         <div className="grid-container">
           <div className="item-1">
-            {/* <h1>Friend List</h1>
             <div className="friends-container">
-              {allFriends?.map((friend, index) => (
+              {user?.friends?.map((friend, index) => (
                 <div key={index} className="friend-avatar">
-                  <div className="img">
-                    <Image
-                      src={
-                        friend?.profile_image
-                          ? `http://backend:8000/media/${friend.profile_image}`
-                          : "/prfl.png"
-                      }
-                      alt={`${friend.username}'s avatar`}
-                      width={60}
-                      height={60}
-                      style={{ borderRadius: "50%", objectFit: "cover" }}
-                    />
+                  <div className="flip-card">
+                    {/* Front side */}
+                    <div className="front">
+                      <Image
+                        src={
+                          friend?.profile_image
+                            ? `http://backend:8000${friend.profile_image}`
+                            : "/prfl.png"
+                        }
+                        alt="avatar"
+                        width={150}
+                        height={150}
+                        style={{
+                          borderRadius: "50%",
+                          objectFit: "cover",
+                          border: "2px solid #f00",
+                        }}
+                      />
+                    </div>
+                    {/* Back side */}
+                    <div className="back">
+                      <div className="friend-button">
+                        <FaRegMessage
+                          style={{
+                            color: "blue",
+                            width: "20px",
+                            height: "20px",
+                          }}
+                          onClick={() => {
+                            handleCreateRoom(friend.id);
+                          }}
+                        />
+                      </div>
+                      <div className="friend-button">
+                        <CgProfile
+                          style={{
+                            color: "red",
+                            width: "20px",
+                            height: "20px",
+                          }}
+                          onClick={() => {
+                            handleProfileClick(friend.username);
+                          }}
+                        />
+                      </div>
+                      <div className="friend-button">
+                        <CgGames
+                          style={{
+                            color: "purple",
+                            width: "20px",
+                            height: "20px",
+                          }}
+                          onClick={() => {}}
+                        />
+                      </div>
+                    </div>
                   </div>
                   <span className="friend-name">{friend.username}</span>
                 </div>
               ))}
-            </div> */}
+            </div>
           </div>
           <div className="item-2">2</div>
           <div className="item-3">
