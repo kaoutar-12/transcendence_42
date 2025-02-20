@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from "react";
 import { Check, X, KeyRound } from "lucide-react";
 import { Alert, AlertDescription } from "./alert";
+import Image from "next/image";
+
 import api from "@/app/utils/api";
 
 interface TwoFactorAuthProps {

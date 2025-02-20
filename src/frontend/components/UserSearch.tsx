@@ -253,7 +253,7 @@ const UserSearch: React.FC = () => {
       {/* No Results */}
       {!isLoading && users.length === 0 && searchQueryTmp && IsEmpty && (
         <div className="text-center text-gray-500 mt-4">
-          No users found matching "{searchQueryTmp}"
+        {`No users found matching "${searchQueryTmp}"`}
         </div>
       )}
     </div>
