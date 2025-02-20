@@ -38,7 +38,7 @@ export default function Callback()
                 }
             fetchData();
 
-        },[])
+        },[router])
 
         return <LandingAnimation />;
 } 
