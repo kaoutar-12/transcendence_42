@@ -11,6 +11,7 @@ import Image from "next/image";
 import { FaRegMessage } from "react-icons/fa6";
 import { CgProfile } from "react-icons/cg";
 import { CgGames } from "react-icons/cg";
+import WinLossCircle from "@/components/WinRateCircle";
 
 interface MatchHistoryItem {
   image: string;
@@ -289,7 +290,7 @@ export default function Home() {
 
   return (
     <div className="home">
-      <div className="search">
+      <div className="search-dash">
         <button
           onClick={() => {
             router.push("/search");
@@ -313,7 +314,7 @@ export default function Home() {
               style={{ objectFit: "cover", borderRadius: "33px" }}
             />
           </div>
-          <div className="info">
+          <div className="info-dash">
             <div className="friends-list">
               <div className="friends">Friends</div>
               <div>{user?.friends.length}</div>
@@ -411,7 +412,9 @@ export default function Home() {
               ))}
             </div>
           </div>
-          <div className="item-2">2</div>
+          <div className="item-2">
+            <WinLossCircle wins={73} losses={10} />
+          </div>
           <div className="item-3">
             <MatchHistory matches={sampleMatches} />
           </div>

@@ -91,9 +91,9 @@ const EmptyConversation = (props: Props) => {
 
           {/* Modal for all friends */}
           {showModal && (
-            <div className="burl1" onClick={handleShowModal}>
+            <div className="burl" onClick={handleShowModal}>
               <div
-                className="conf1"
+                className="conf"
                 onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
               >
                 <h1>All Friends</h1>
