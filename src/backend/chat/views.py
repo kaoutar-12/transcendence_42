@@ -118,23 +118,32 @@ class RoomsView(APIView):
         except Room.DoesNotExist:
             return Response({'error': 'Room not found'}, status=status.HTTP_404_NOT_FOUND)
 
-        # Get users before deletion
-        users_in_room = list(room.users.all())
+        
+        other_user = room.users.exclude(id=request.user.id).first()
         room.delete()
 
         # Send deletion notification via WebSocket
         channel_layer = get_channel_layer()
-        for user in users_in_room:
-            async_to_sync(channel_layer.group_send)(
-                f"global_{user.id}",
-                {
-                    'type': 'room_deleted',
-                    'data': {
-                        'room_id': str(room_id),
-                        'deleted_by': str(request.user.id)
-                    }
+        async_to_sync(channel_layer.group_send)(
+            f"global_{request.user.id}",
+            {
+                'type': 'room_deleted',
+                'data': {
+                    'room_id': str(room_id),
+                    'deleted_by': str(request.user.id)
                 }
-            )
+            }
+        )
+        async_to_sync(channel_layer.group_send)(
+            f"global_{other_user.id}",
+            {
+                'type': 'room_deleted',
+                'data': {
+                    'room_id': str(room_id),
+                    'deleted_by': str(request.user.id)
+                }
+            }
+        )
 
         return Response(status=status.HTTP_204_NO_CONTENT)
 

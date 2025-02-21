@@ -65,9 +65,11 @@ const Conversation = () => {
     };
 
     const handleDeleteRoom = (data: any) => {
+      console.log("Deleted room:", data.room_id);
       setConversations((prev) => {
         return prev.filter((conv) => conv.room_id !== data.room_id);
       });
+      router.push("/chat");
     };
 
     // Register handler
@@ -241,10 +243,9 @@ const Conversation = () => {
                                 </h1>
                                 <div className="buttons1">
                                   <button
-                                    onClick={() => {
-                                      deleteRoom(conversation.room_id);
+                                    onClick={async () => {
+                                      await deleteRoom(conversation.room_id);
                                       setIsDeleteOpen(false);
-                                      router.push("/chat/");
                                     }}
                                   >
                                     Yes

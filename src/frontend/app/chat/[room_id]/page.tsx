@@ -81,10 +81,9 @@ const Page = () => {
       setState((prev) => ({
         ...prev,
         block_status: data.block_status,
-        otherUser: {
-          ...prev.otherUser,
-          i_blocked_them: data.i_blocked_them,
-        },
+        otherUser: prev.otherUser
+          ? { ...prev.otherUser, i_blocked_them: data.i_blocked_them }
+          : null,
       }));
     };
 
@@ -296,7 +295,7 @@ const Page = () => {
     // const type = isBlocked ? "block" : "unblock"
     console.log("STATUS ==> ", state.otherUser?.i_blocked_them);
     blockUser(
-      state.otherUser?.id,
+      state.otherUser!.id,
       state.otherUser?.i_blocked_them ? "unblock" : "block"
     );
 
@@ -328,6 +327,7 @@ const Page = () => {
                 }
                 alt="profile pic"
                 fill
+                sizes={"70px, 70px"}
                 style={{ objectFit: "cover", borderRadius: "50%" }}
               />
             </div>
