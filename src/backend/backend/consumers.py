@@ -13,21 +13,18 @@ class GlobalConsumer(AsyncWebsocketConsumer):
     online_users = set()
     users_lock = Lock()
     async def connect(self):
+        self.presence_group = "presence_updates"
         self.user = self.scope['user']
-
         # Reject connection if user is not authenticated
         if self.user.is_anonymous:
             await self.close()
             return
-        
+        self.room_group_name = f'global_{self.user.id}'
         with GlobalConsumer.users_lock:
             GlobalConsumer.online_users.add(self.user.id)
 
-        # Add the user to the room's WebSocket group
-        self.room_group_name = f'global_{self.user.id}'
         await self.channel_layer.group_add(f'global_{self.user.id}', self.channel_name)
 
-        self.presence_group = "presence_updates"
         await self.channel_layer.group_add(self.presence_group, self.channel_name)
 
         await self.accept()
@@ -87,11 +84,7 @@ class GlobalConsumer(AsyncWebsocketConsumer):
                 self.presence_group,
                 self.channel_name
             )
-        await self.channel_layer.group_discard(
-            f'global_{self.user.id}',
-            self.channel_name
-        )
-        await self.channel_layer.group_send(
+            await self.channel_layer.group_send(
                 self.presence_group,
                 {
                     "type": "user_online",
@@ -99,6 +92,10 @@ class GlobalConsumer(AsyncWebsocketConsumer):
                     "online": False
                 }
             )
+        await self.channel_layer.group_discard(
+            f'global_{self.user.id}',
+            self.channel_name
+        )
 
     async def user_online(self, event):
         await self.send(text_data=json.dumps({
