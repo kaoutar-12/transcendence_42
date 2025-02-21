@@ -13,7 +13,7 @@ import { CgProfile } from "react-icons/cg";
 import { CgGames } from "react-icons/cg";
 import WinLossCircle from "@/components/WinRateCircle";
 
-interface MatchHistoryItem {
+export interface MatchHistoryItem {
   image: string;
   component: string;
   level: number;
@@ -262,11 +262,8 @@ export default function Home() {
   };
 
   React.useEffect(() => {
-    fetchContacts();
-  }, []);
-
-  React.useEffect(() => {
     fetchUser();
+    fetchContacts();
   }, []);
 
   const handleCreateRoom = async (userId: number) => {
@@ -317,7 +314,7 @@ export default function Home() {
           <div className="info-dash">
             <div className="friends-list">
               <div className="friends">Friends</div>
-              <div>{user?.friends.length}</div>
+              <div>{allFriends?.length}</div>
             </div>
             <div className="username">{user?.username}</div>
             <div className="online">

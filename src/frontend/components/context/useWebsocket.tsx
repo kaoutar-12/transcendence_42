@@ -56,6 +56,8 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
 
         switch (message.type) {
           case "message_update":
+            console.log("Current Pathname: ", pathname);
+            console.log("Room ID: ", message.data.room_id);
             const isCurrentRoom = pathname.includes(message.data.room_id);
             if (!isCurrentRoom) {
               console.log("Not in the current room, Showing message update");
@@ -70,6 +72,9 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
           case "messages_unread":
             handleReadCount(message.data);
             break;
+          case "room_deleted":
+            console.log("Room deleted:", message.data.room_id);
+            break;
           default:
             console.log("Unknown message type:", message.type);
             break;
@@ -82,7 +87,7 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
     };
 
     return () => socket.close();
-  }, []);
+  }, [pathname]);
 
   const send = (message: string) => {
     socketRef.current?.send(message);
