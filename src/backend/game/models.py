@@ -26,4 +26,14 @@ class MatchHistory(models.Model):
             return 0
         wins = cls.objects.filter(winner_id=user_id).count()
         return round((wins / total_matches) * 100, 2)
+    
+    @classmethod
+    def get_total_matches_wins(cls, user_id):
+        wins = cls.objects.filter(winner_id=user_id).count()
+        return wins
+
+    @classmethod
+    def get_total_matches_losses(cls, user_id):
+        losses = cls.objects.filter(models.Q(player1_id=user_id) | models.Q(player2_id=user_id)).exclude(winner_id=user_id).count()
+        return losses
 
