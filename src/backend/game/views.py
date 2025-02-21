@@ -12,7 +12,21 @@ def get_match_history(request, user_id):
         matches = MatchHistory.objects.filter(
             models.Q(player1=user_id) | models.Q(player2=user_id)
         )
-        return Response(matches)
+        return Response({
+			'matches': [
+				{
+					'game_id': match.game_id,
+					'player1': match.player1.username,
+					'player2': match.player2.username,
+					'winner': match.winner.username,
+					'player1_score': match.player1_score,
+					'player2_score': match.player2_score,
+					'game_type': match.game_type,
+					'played_at': match.played_at,
+					'duration': match.duration
+				} for match in matches
+			]
+		})
     return Response({'error': 'User ID is required'}, status=400)
 
 @api_view(['GET'])
