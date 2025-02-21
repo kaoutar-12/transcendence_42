@@ -82,7 +82,8 @@ class GlobalConsumer(AsyncWebsocketConsumer):
         with GlobalConsumer.users_lock:
             GlobalConsumer.online_users.discard(self.user.id)
 
-        await self.channel_layer.group_discard(
+        if hasattr(self, 'presence_group'):
+            await self.channel_layer.group_discard(
                 self.presence_group,
                 self.channel_name
             )
