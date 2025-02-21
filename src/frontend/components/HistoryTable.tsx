@@ -56,14 +56,7 @@
 import React, { useState } from "react";
 import "@/styles/dashboard.css";
 import Image from "next/image";
-
-interface MatchHistoryItem {
-  component: string;
-  level: number;
-  result: string;
-  score: string;
-  date: string;
-}
+import { MatchHistoryItem } from "@/app/(dashboard)/home/page";
 
 interface MatchHistoryProps {
   matches: MatchHistoryItem[];
