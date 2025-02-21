@@ -13,14 +13,7 @@ import { CgProfile } from "react-icons/cg";
 import { CgGames } from "react-icons/cg";
 import { toast } from "react-toastify";
 import { useWebSocket } from "@/components/context/useWebsocket";
-
-interface MatchHistoryItem {
-  component: string;
-  level: number;
-  result: string;
-  score: string;
-  date: string;
-}
+import { MatchHistoryItem } from "../../home/page";
 
 interface Friends {
   id: number;
@@ -45,6 +38,7 @@ interface UserData {
 
 const sampleMatches: MatchHistoryItem[] = [
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "WIN",
@@ -52,6 +46,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -59,6 +54,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -66,6 +62,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -73,6 +70,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -80,6 +78,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -87,6 +86,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -94,6 +94,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -101,6 +102,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -108,6 +110,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -115,6 +118,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -122,6 +126,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -129,6 +134,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -136,6 +142,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -143,6 +150,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -150,6 +158,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -157,6 +166,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -164,6 +174,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -171,6 +182,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -178,6 +190,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -185,6 +198,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -192,6 +206,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -199,6 +214,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -206,6 +222,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -213,6 +230,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -220,6 +238,7 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
   {
+    image: "/prfl.png",
     component: "Player",
     level: 2,
     result: "LOSE",
@@ -236,10 +255,9 @@ export default function Home() {
   React.useEffect(() => {
     const handleBlockUpdate = (data: any) => {
       console.log("SCKET DATA ==> ", data);
-      setUser((prev) => ({
-        ...prev,
-        is_blocked: data.block_status,
-      }));
+      setUser((prev) =>
+        prev !== null ? { ...prev, is_blocked: data.block_status } : prev
+      );
     };
 
     on("block_update", handleBlockUpdate);
@@ -350,7 +368,7 @@ export default function Home() {
         <div className="buttons">
           <button
             className="message-button"
-            onClick={() => handleCreateRoom(user?.id)}
+            onClick={() => handleCreateRoom(user!.id)}
             disabled={user?.is_blocked}
           >
             Send Message
@@ -373,7 +391,7 @@ export default function Home() {
               <button
                 className="block-button"
                 onClick={() => {
-                  handleBlockClick(user?.id, true);
+                  handleBlockClick(user!.id, true);
                 }}
               >
                 Block
@@ -384,7 +402,7 @@ export default function Home() {
           <button
             className="invite-button"
             disabled={user?.is_blocked}
-            onClick={handleInviteClick}
+            // onClick={handleInviteClick}
           >
             Invite for Game
           </button>
@@ -408,7 +426,7 @@ export default function Home() {
               <button
                 className="add-friend-button"
                 onClick={() => {
-                  handleAddfriend(user.id, true);
+                  handleAddfriend(user!.id, true);
                 }}
                 disabled={user?.is_blocked}
               >

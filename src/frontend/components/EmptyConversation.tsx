@@ -42,7 +42,7 @@ const EmptyConversation = (props: Props) => {
           withCredentials: true,
         }
       );
-      return response.data.room_id;
+      router.push(`/chat/${response.data.room_id}`);
     } catch (error) {
       console.error(error);
     }
@@ -68,15 +68,15 @@ const EmptyConversation = (props: Props) => {
                 <Image
                   src={
                     contact?.profile_image
-                      ? `http://backend:8000/media/${contact.profile_image}`
+                      ? `http://backend:8000${contact.profile_image}`
                       : "/prfl.png"
                   }
                   alt="profile pic"
                   fill
+                  sizes={"70px, 70px"}
                   style={{ objectFit: "cover", borderRadius: "50%" }}
                   onClick={async () => {
-                    const id = await createConversation(contact.id);
-                    router.push(`/chat/${id}`);
+                    await createConversation(contact.id);
                   }}
                 />
               </div>
@@ -103,8 +103,7 @@ const EmptyConversation = (props: Props) => {
                       key={index}
                       className="friend-item"
                       onClick={async () => {
-                        const id = await createConversation(friend.id);
-                        router.push(`/chat/${id}`);
+                        await createConversation(friend.id);
                         handleShowModal(); // Close modal after selecting a friend
                       }}
                     >
