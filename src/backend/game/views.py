@@ -34,5 +34,7 @@ def get_match_history(request, user_id):
 def get_winrate(request, user_id):
     if user_id:
         winrate = MatchHistory.get_winrate(user_id)
-        return Response({'winrate': winrate})
+        loss = MatchHistory.get_total_matches_losses(user_id)
+        wins = MatchHistory.get_total_matches_wins(user_id)
+        return Response({'winrate': winrate , 'wins': wins, 'losses': loss})
     return Response({'error': 'User ID is required'}, status=400)
