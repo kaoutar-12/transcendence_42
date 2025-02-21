@@ -18,4 +18,12 @@ class MatchHistory(models.Model):
     duration = models.IntegerField(help_text='Duration of the game in seconds')
     class Meta:
         ordering = ['-played_at']
+    
+    @classmethod
+    def get_winrate(cls, user_id):
+        total_matches = cls.objects.filter(models.Q(player1_id=user_id) | models.Q(player2_id=user_id)).count()
+        if total_matches == 0:
+            return 0
+        wins = cls.objects.filter(winner_id=user_id).count()
+        return round((wins / total_matches) * 100, 2)
 
