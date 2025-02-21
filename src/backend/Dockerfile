@@ -1,21 +1,32 @@
 FROM python:3.12
 
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    DJANGO_SETTINGS_MODULE=backend.settings \
+    PYTHONPATH=/app \
+    DEBUG=1
+
+
 WORKDIR /app
-COPY . /app/
 
-ENV DJANGO_SETTINGS_MODULE=backend.settings
-ENV PYTHONPATH=/app
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
-ENV debug=1
-RUN pip3 install -r requirements.txt \
-    && pip3 install channels channels-redis
+RUN mkdir -p /app/static /app/media && \
+    chmod 755 /app/static /app/media
 
-EXPOSE 8000
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    postgresql-client && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+
+RUN pip3 install --no-cache-dir -r requirements.txt
 
 COPY ./docker-conf/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
-RUN mkdir -p /app/static /app/media
+
+COPY . .
+
+EXPOSE 8000
 
 ENTRYPOINT ["/entrypoint.sh"]
 
