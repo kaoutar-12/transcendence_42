@@ -73,6 +73,7 @@ const Sidebar = (props: Props) => {
           onDecline={() => handleDecline(invite_id)}
         />,
         {
+          className: "w-[600px]",
           autoClose: false, // Prevents the toast from closing automatically
           closeOnClick: false, // Prevents closing the toast when clicking on it
         }
@@ -154,14 +155,10 @@ const Sidebar = (props: Props) => {
       href: "/settings",
       icon: <IoSettingsSharp className="icon" />,
     },
-    {
-      href: "/leaderboard",
-      icon: <MdOutlineEqualizer className="icon" />,
-    },
   ];
 
   return (
-    <div className="h-full fixed z-50 w-[120px] border border-red-800">
+    <div className="h-full fixed z-50 w-[120px]">
       <div className="sidebar">
         <div className="icons">
           <div

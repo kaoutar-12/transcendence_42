@@ -34,9 +34,9 @@ section {
   display: flex;
   align-self: end;
   border-radius: 34px;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0 120px;
+  justify-content: space-between; /* Distribute space between children */
+  align-items: center; /* Vertically center-align items */
+  padding: 0 20px; /* Adjust padding as needed */
   color: white;
   font-size: 20px;
   font-weight: 600;
@@ -79,16 +79,25 @@ section {
 
 .friends-list {
   display: flex;
-  gap: 40px;
+  gap: 10px; /* Reduce spacing between "Friends" and count */
   align-items: center;
 }
 
 .friends {
-  padding-right: 40px;
+  padding-right: 10px; /* Adjust padding for spacing */
   height: 40px;
   border-right: solid 2px gray;
   display: flex;
   align-items: center;
+}
+
+.username-container {
+  flex-grow: 1; /* Allow this container to take up remaining space */
+  text-align: center; /* Center the username horizontally */
+}
+
+.username {
+  display: inline-block; /* Ensure proper alignment */
 }
 
 .online {
@@ -105,7 +114,8 @@ section {
 }
 
 .username {
-  padding-right: 70px;
+  /* padding-right: 70px; */
+  justify-self: center;
 }
 
 .level-bar {
