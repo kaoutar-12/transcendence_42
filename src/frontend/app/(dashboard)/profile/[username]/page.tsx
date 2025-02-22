@@ -34,6 +34,7 @@ interface UserData {
   blocked_users: any[];
   is_friend: boolean;
   is_blocked: boolean;
+  is_online: boolean;
 }
 
 const sampleMatches: MatchHistoryItem[] = [
@@ -368,10 +369,16 @@ export default function Home() {
               <div>{user?.friends?.length}</div>
             </div>
             <div className="username">{user?.username}</div>
+            {user?.is_online &&
             <div className="online">
               <span>Online</span>
               <div className="online-col"></div>
-            </div>
+            </div>}
+            {!user?.is_online &&
+            <div className="online">
+              <span>Offline</span>
+              <div className="online-col"></div>
+            </div>}
           </div>
         </div>
         {/* <LevelBar level={4} percentage={30} /> */}
