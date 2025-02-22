@@ -36,9 +36,7 @@ class GlobalConsumer(AsyncWebsocketConsumer):
         print(f"Notify invite received by {self.user.id}: {event}")
         await self.send(text_data=json.dumps({
             'type': 'invite_received',
-            'invite_id': event['invite_id'],
-            'from_user_id': event['from_user_id'],
-            'from_username': event['from_username']
+            'data': event['data']
         }))
 
     async def receive(self, text_data):
@@ -61,9 +59,11 @@ class GlobalConsumer(AsyncWebsocketConsumer):
                     f'global_{target_user_id}',
                     {
                         'type': 'notify_invite',
-                        'invite_id': invite_id,
-                        'from_user_id': self.user.id,
-                        'from_username': self.user.username
+                        'data':{
+                            'invite_id': invite_id,
+                            'from_user_id': self.user.id,
+                            'from_username': self.user.username
+                        }
                     }
                 )
             except Exception as e:
@@ -82,7 +82,9 @@ class GlobalConsumer(AsyncWebsocketConsumer):
                         f'global_{player_id}',
                         {
                             'type': 'notify_game_created',
-                            'game_id': game_id
+                            'data': {
+                                'game_id': game_id,
+                            }
                         }
                     )
                 
@@ -232,7 +234,7 @@ class GlobalConsumer(AsyncWebsocketConsumer):
     async def notify_game_created(self, event):
         await self.send(text_data=json.dumps({
             'type': 'game_created',
-            'game_id': event['game_id']
+            'data': event['data']
         }))
 
     async def notify_invite_declined(self, event):

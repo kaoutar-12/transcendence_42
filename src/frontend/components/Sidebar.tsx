@@ -18,12 +18,14 @@ import "@/styles/sidebar.css";
 import { usePathname, useRouter } from "next/navigation";
 import LogoutButton from "@/components/auth/LogoutButton";
 import { useWebSocket } from "./context/useWebsocket";
+import InviteToast from "./InviteToast";
+import { toast } from "react-toastify";
 
 type Props = {};
 
 const Sidebar = (props: Props) => {
   const pathname = usePathname();
-  const { unreadCounts, on, off } = useWebSocket();
+  const { unreadCounts, on, off,send } = useWebSocket();
   const router = useRouter();
   const excludedPaths = [
     "/home",
@@ -49,15 +51,61 @@ const Sidebar = (props: Props) => {
     0
   );
 
+  const handleAccept = (inviteId: number) => {
+    console.log("Invite accepted:", inviteId);
+    send(JSON.stringify({ type: "accept_invite", invite_id: inviteId }));
+    toast.dismiss(); // Close the toast after accepting
+    // Add your logic here for accepting the invite
+  };
+
+  const handleDecline = (inviteId: number) => {
+    console.log("Invite declined:", inviteId);
+    toast.dismiss(); // Close the toast after declining
+    // Add your logic here for declining the invite
+  };
+
   useEffect(() => {
     const handleInvite = (data: any) => {
-      console.log(data);
+      const {from_username, invite_id} = data;
+      toast(
+        <InviteToast
+          from_username={from_username}
+          onAccept={() => handleAccept(invite_id)}
+          onDecline={() => handleDecline(invite_id)}
+        />,
+        {
+          autoClose: false, // Prevents the toast from closing automatically
+          closeOnClick: false, // Prevents closing the toast when clicking on it
+        }
+      );
+
     };
 
-    on("notify_invite", handleInvite);
+    const handleCreateGame = (data: any) => {
+      const {game_id} = data;
+      // const toastId = toast.info(
+      //   <div>
+      //     <strong>Game Created!</strong><br />
+      //     Redirecting to Game ID: {game_id} in a few seconds...
+      //   </div>,
+      //   {
+      //     autoClose: 1000, // Timer duration (in milliseconds)
+      //     onClose: () => {
+      //       router.push(`/games/pingpong/1-vs-1/${game_id}`); // Redirect when the toast closes
+      //     }, // Redirect when the toast closes
+      //   }
+      // );
+    
+      // // Optional: Show a progress bar for the countdown
+      // toast.update(toastId, { isLoading: true });
+      router.push(`/games/pingpong/1-vs-1/${game_id}`);
+    };
 
+    on("invite_received", handleInvite);
+    on("game_created", handleCreateGame);
     return () => {
-      off("notify_invite");
+      off("invite_received");
+      off("game_created");
     };
   }, [on, off]);
 
