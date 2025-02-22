@@ -99,8 +99,10 @@ class GlobalConsumer(AsyncWebsocketConsumer):
                     f'global_{invite["from_user_id"]}',
                     {
                         'type': 'notify_invite_declined',
-                        'invite_id': invite_id,
-                        'by_username': self.user.username
+                        'data': {
+                            'invite_id': invite_id,
+                            'by_username': self.user.username
+                        }
                     }
                 )
                 MemoryStorage.remove_invite(invite_id)
@@ -240,8 +242,7 @@ class GlobalConsumer(AsyncWebsocketConsumer):
     async def notify_invite_declined(self, event):
         await self.send(text_data=json.dumps({
             'type': 'invite_declined',
-            'invite_id': event['invite_id'],
-            'by_username': event['by_username']
+            'data': event['data']
         }))
 
     

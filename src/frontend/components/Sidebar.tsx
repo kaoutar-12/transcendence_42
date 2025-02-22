@@ -25,7 +25,7 @@ type Props = {};
 
 const Sidebar = (props: Props) => {
   const pathname = usePathname();
-  const { unreadCounts, on, off,send } = useWebSocket();
+  const { unreadCounts, on, off, send } = useWebSocket();
   const router = useRouter();
   const excludedPaths = [
     "/home",
@@ -59,14 +59,13 @@ const Sidebar = (props: Props) => {
   };
 
   const handleDecline = (inviteId: number) => {
-    console.log("Invite declined:", inviteId);
-    toast.dismiss(); // Close the toast after declining
-    // Add your logic here for declining the invite
+    send(JSON.stringify({ type: "decline_invite", invite_id: inviteId }));
+    toast.dismiss();
   };
 
   useEffect(() => {
     const handleInvite = (data: any) => {
-      const {from_username, invite_id} = data;
+      const { from_username, invite_id } = data;
       toast(
         <InviteToast
           from_username={from_username}
@@ -78,34 +77,52 @@ const Sidebar = (props: Props) => {
           closeOnClick: false, // Prevents closing the toast when clicking on it
         }
       );
-
     };
 
     const handleCreateGame = (data: any) => {
-      const {game_id} = data;
-      // const toastId = toast.info(
-      //   <div>
-      //     <strong>Game Created!</strong><br />
-      //     Redirecting to Game ID: {game_id} in a few seconds...
-      //   </div>,
-      //   {
-      //     autoClose: 1000, // Timer duration (in milliseconds)
-      //     onClose: () => {
-      //       router.push(`/games/pingpong/1-vs-1/${game_id}`); // Redirect when the toast closes
-      //     }, // Redirect when the toast closes
-      //   }
-      // );
-    
-      // // Optional: Show a progress bar for the countdown
-      // toast.update(toastId, { isLoading: true });
-      router.push(`/games/pingpong/1-vs-1/${game_id}`);
+      const { game_id } = data;
+      const toastId = toast.info(
+        <div>
+          <strong>Game Created!</strong>
+          <br />
+          Redirecting to Game ID: {game_id}...
+        </div>,
+        {
+          theme: "colored",
+          hideProgressBar: true,
+          onClose: () => {
+            setTimeout(() => {
+              router.push(`/games/pingpong/1-vs-1/${game_id}`);
+            }, 100);
+          },
+        }
+      );
+
+      setTimeout(() => toast.dismiss(toastId), 3500);
+    };
+
+    const handleGameDeclined = (data: any) => {
+      const { by_username, invite_id } = data;
+      const toastId = toast.error(
+        <div>
+          <strong>Game Declined by {by_username}</strong>
+        </div>,
+        {
+          hideProgressBar: true,
+        }
+      );
+
+      setTimeout(() => toast.dismiss(toastId), 2500);
     };
 
     on("invite_received", handleInvite);
     on("game_created", handleCreateGame);
+    on("invite_declined", handleGameDeclined);
+
     return () => {
       off("invite_received");
       off("game_created");
+      off("invite_declined");
     };
   }, [on, off]);
 

@@ -12,6 +12,7 @@ import { FaRegMessage } from "react-icons/fa6";
 import { CgProfile } from "react-icons/cg";
 import { CgGames } from "react-icons/cg";
 import WinLossCircle from "@/components/WinRateCircle";
+import { useWebSocket } from "@/components/context/useWebsocket";
 
 export interface MatchHistoryItem {
   game_id: number;
@@ -253,6 +254,7 @@ export default function Home() {
     winrate: 0,
     wins: 0,
   });
+  const { send } = useWebSocket();
 
   const fetchContacts = async () => {
     try {
@@ -435,7 +437,14 @@ export default function Home() {
                                 width: "20px",
                                 height: "20px",
                               }}
-                              onClick={() => {}}
+                              onClick={() => {
+                                send(
+                                  JSON.stringify({
+                                    type: "send_invite",
+                                    target_user_id: friend.id,
+                                  })
+                                );
+                              }}
                             />
                           </div>
                         </div>
