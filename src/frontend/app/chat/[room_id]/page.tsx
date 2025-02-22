@@ -280,17 +280,7 @@ const Page = () => {
     );
     connectSocket();
 
-    const conversations = document.querySelector("div .left");
-    const sidebar = document.querySelector(".sidebar");
-    conversations?.classList.add("isOpen");
-    sidebar?.classList.add("isOpen");
-
     scrollToBottom();
-
-    return () => {
-      conversations?.classList.remove("isOpen");
-      sidebar?.classList.remove("isOpen");
-    };
   }, [params.room_id]);
 
   useEffect(() => {

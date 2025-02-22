@@ -53,6 +53,7 @@ export default function Home() {
     winrate: 0,
     wins: 0,
   });
+  const { send } = useWebSocket();
 
   React.useEffect(() => {
     const handleBlockUpdate = (data: any) => {
@@ -126,11 +127,12 @@ export default function Home() {
   };
 
   const handleInviteClick = (userId: number) => {
-    // TODO: Implement invite functionality
-  };
-
-  const handleProfileClick = (username: string) => {
-    router.push(`/profile/${username}`);
+    send(
+      JSON.stringify({
+        type: "send_invite",
+        target_user_id: userId,
+      })
+    );
   };
 
   if (!userOk) {
@@ -221,7 +223,7 @@ export default function Home() {
           <button
             className="invite-button"
             disabled={user?.is_blocked}
-            // onClick={handleInviteClick}
+            onClick={() => handleInviteClick(user!.id)}
           >
             Invite for Game
           </button>
