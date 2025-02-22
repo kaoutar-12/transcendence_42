@@ -13,6 +13,7 @@ class User(AbstractUser):
     blocked_users = models.ManyToManyField('self', symmetrical=False, related_name='blocked_by' ,blank=True)
     is_42 = models.BooleanField(default=False)
     is_online = models.BooleanField(default=False)
+    online_count = models.IntegerField(default=0)
     def add_friend(self, user):
         if user not in self.friends.all() and user not in self.blocked_users.all() and user not in self.blocked_by.all():
             self.friends.add(user)
