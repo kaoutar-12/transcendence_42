@@ -18,12 +18,14 @@ import "@/styles/sidebar.css";
 import { usePathname, useRouter } from "next/navigation";
 import LogoutButton from "@/components/auth/LogoutButton";
 import { useWebSocket } from "./context/useWebsocket";
+import InviteToast from "./InviteToast";
+import { toast } from "react-toastify";
 
 type Props = {};
 
 const Sidebar = (props: Props) => {
   const pathname = usePathname();
-  const { unreadCounts } = useWebSocket();
+  const { unreadCounts, on, off, send } = useWebSocket();
   const router = useRouter();
   const excludedPaths = [
     "/home",
@@ -48,6 +50,81 @@ const Sidebar = (props: Props) => {
     },
     0
   );
+
+  const handleAccept = (inviteId: number) => {
+    console.log("Invite accepted:", inviteId);
+    send(JSON.stringify({ type: "accept_invite", invite_id: inviteId }));
+    toast.dismiss(); // Close the toast after accepting
+    // Add your logic here for accepting the invite
+  };
+
+  const handleDecline = (inviteId: number) => {
+    send(JSON.stringify({ type: "decline_invite", invite_id: inviteId }));
+    toast.dismiss();
+  };
+
+  useEffect(() => {
+    const handleInvite = (data: any) => {
+      const { from_username, invite_id } = data;
+      toast(
+        <InviteToast
+          from_username={from_username}
+          onAccept={() => handleAccept(invite_id)}
+          onDecline={() => handleDecline(invite_id)}
+        />,
+        {
+          autoClose: false, // Prevents the toast from closing automatically
+          closeOnClick: false, // Prevents closing the toast when clicking on it
+        }
+      );
+    };
+
+    const handleCreateGame = (data: any) => {
+      const { game_id } = data;
+      const toastId = toast.info(
+        <div>
+          <strong>Game Created!</strong>
+          <br />
+          Redirecting to Game ID: {game_id}...
+        </div>,
+        {
+          theme: "colored",
+          hideProgressBar: true,
+          onClose: () => {
+            setTimeout(() => {
+              router.push(`/games/pingpong/1-vs-1/${game_id}`);
+            }, 100);
+          },
+        }
+      );
+
+      setTimeout(() => toast.dismiss(toastId), 3500);
+    };
+
+    const handleGameDeclined = (data: any) => {
+      const { by_username, invite_id } = data;
+      const toastId = toast.error(
+        <div>
+          <strong>Game Declined by {by_username}</strong>
+        </div>,
+        {
+          hideProgressBar: true,
+        }
+      );
+
+      setTimeout(() => toast.dismiss(toastId), 2500);
+    };
+
+    on("invite_received", handleInvite);
+    on("game_created", handleCreateGame);
+    on("invite_declined", handleGameDeclined);
+
+    return () => {
+      off("invite_received");
+      off("game_created");
+      off("invite_declined");
+    };
+  }, [on, off]);
 
   if (shouldHideSidebar) {
     return null;

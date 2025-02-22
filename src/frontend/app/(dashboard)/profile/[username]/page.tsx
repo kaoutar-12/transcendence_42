@@ -13,7 +13,9 @@ import { CgProfile } from "react-icons/cg";
 import { CgGames } from "react-icons/cg";
 import { toast } from "react-toastify";
 import { useWebSocket } from "@/components/context/useWebsocket";
-import { MatchHistoryItem } from "../../home/page";
+import { MatchHistoryItem, Winrate } from "../../home/page";
+import Link from "next/link";
+import NotFoundPage from "@/app/not-found";
 
 interface Friends {
   id: number;
@@ -37,223 +39,21 @@ interface UserData {
   is_online: boolean;
 }
 
-const sampleMatches: MatchHistoryItem[] = [
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "WIN",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-  {
-    image: "/prfl.png",
-    component: "Player",
-    level: 2,
-    result: "LOSE",
-    score: "5 - 2",
-    date: "09/09/2024",
-  },
-];
-
 export default function Home() {
   const params = useParams<{ username: string }>();
   const router = useRouter();
   const [user, setUser] = React.useState<UserData | null>(null);
   const [userOk, setUserOk] = React.useState<boolean>(false);
   const { on, off } = useWebSocket();
+  const [matchHistory, setMatchHistory] = React.useState<MatchHistoryItem[]>(
+    []
+  );
+  const [winRate, setWinRate] = React.useState<Winrate>({
+    losses: 0,
+    winrate: 0,
+    wins: 0,
+  });
+  const { send } = useWebSocket();
 
   React.useEffect(() => {
     const handleBlockUpdate = (data: any) => {
@@ -271,13 +71,15 @@ export default function Home() {
   }, [on, off]);
 
   const fetchUser = async () => {
-    
     try {
       const response = await api.get(`/user/${params.username}/`);
 
-      setUserOk(true)
+      setUserOk(true);
 
-      if (response.data.error) return;
+      if (response.data.error) {
+        setUserOk(false);
+        return;
+      }
 
       console.log(response.data);
       setUser(response.data);
@@ -325,16 +127,16 @@ export default function Home() {
   };
 
   const handleInviteClick = (userId: number) => {
-    // TODO: Implement invite functionality
+    send(
+      JSON.stringify({
+        type: "send_invite",
+        target_user_id: userId,
+      })
+    );
   };
 
-  const handleProfileClick = (username: string) => {
-    router.push(`/profile/${username}`);
-  };
-
-
-  if (userOk && user === null) {
-    return <div>"User Not Found"</div>
+  if (!userOk) {
+    return <NotFoundPage />;
   }
 
   return (
@@ -369,16 +171,18 @@ export default function Home() {
               <div>{user?.friends?.length}</div>
             </div>
             <div className="username">{user?.username}</div>
-            {user?.is_online &&
-            <div className="online">
-              <span>Online</span>
-              <div className="online-col"></div>
-            </div>}
-            {!user?.is_online &&
-            <div className="online">
-              <span>Offline</span>
-              <div className="online-col"></div>
-            </div>}
+            {user?.is_online && (
+              <div className="online">
+                <span>Online</span>
+                <div className="online-col"></div>
+              </div>
+            )}
+            {!user?.is_online && (
+              <div className="online">
+                <span>Offline</span>
+                <div className="online-col"></div>
+              </div>
+            )}
           </div>
         </div>
         {/* <LevelBar level={4} percentage={30} /> */}
@@ -419,7 +223,7 @@ export default function Home() {
           <button
             className="invite-button"
             disabled={user?.is_blocked}
-            // onClick={handleInviteClick}
+            onClick={() => handleInviteClick(user!.id)}
           >
             Invite for Game
           </button>
@@ -457,72 +261,48 @@ export default function Home() {
           <div className="item-1">
             <div className="friends-container">
               {user?.friends?.map((friend, index) => (
-                <div key={index} className="friend-avatar">
-                  <div className="flip-card">
-                    {/* Front side */}
-                    <div className="front">
-                      <Image
-                        src={
-                          friend?.profile_image
-                            ? `http://backend:8000${friend.profile_image}`
-                            : "/prfl.png"
-                        }
-                        alt="avatar"
-                        width={150}
-                        height={150}
-                        style={{
-                          borderRadius: "50%",
-                          objectFit: "cover",
-                          border: "2px solid #f00",
-                        }}
-                      />
-                    </div>
-                    {/* Back side */}
-                    <div className="back">
-                      <div className="friend-button">
-                        <FaRegMessage
+                <Link href={`/profile/${friend.username}`}>
+                  <div key={index} className="friend-avatar">
+                    <div className="card">
+                      {/* Front side */}
+                      <div className="front">
+                        <Image
+                          src={
+                            friend?.profile_image
+                              ? `http://backend:8000${friend.profile_image}`
+                              : "/prfl.png"
+                          }
+                          alt="avatar"
+                          width={150}
+                          height={150}
                           style={{
-                            color: "blue",
-                            width: "20px",
-                            height: "20px",
+                            borderRadius: "50%",
+                            objectFit: "cover",
+                            border: "2px solid #f00",
                           }}
-                          onClick={() => {
-                            handleCreateRoom(friend.id);
-                          }}
-                        />
-                      </div>
-                      <div className="friend-button">
-                        <CgProfile
-                          style={{
-                            color: "red",
-                            width: "20px",
-                            height: "20px",
-                          }}
-                          onClick={() => {
-                            handleProfileClick(friend.username);
-                          }}
-                        />
-                      </div>
-                      <div className="friend-button">
-                        <CgGames
-                          style={{
-                            color: "purple",
-                            width: "20px",
-                            height: "20px",
-                          }}
-                          onClick={() => {}}
                         />
                       </div>
                     </div>
+                    <span className="friend-name">{friend.username}</span>
                   </div>
-                  <span className="friend-name">{friend.username}</span>
-                </div>
+                </Link>
               ))}
             </div>
           </div>
           <div className="item-2">2</div>
           <div className="item-3">
-            <MatchHistory matches={sampleMatches} />
+            {matchHistory.length > 0 ? (
+              <>
+                <MatchHistory matches={matchHistory} user={user} />
+              </>
+            ) : (
+              <>
+                <div className="no-matches">
+                  <h2>No Matches Found</h2>
+                  <p>Start playing to see your match history here!</p>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>

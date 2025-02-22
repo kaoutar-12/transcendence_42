@@ -75,6 +75,9 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
           case "room_deleted":
             console.log("Room deleted:", message.data.room_id);
             break;
+          case "invite_received":
+            console.log("Invite received:", message.data);
+            break;
           default:
             console.log("Unknown message type:", message.type);
             break;

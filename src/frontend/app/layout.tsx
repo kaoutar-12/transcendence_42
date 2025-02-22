@@ -33,6 +33,7 @@ export default function RootLayout({
 
             <ToastContainer
               position="top-center"
+              autoClose={5000}
               className="fixed top-5 right-5 z-50"
             />
           </WebSocketProvider>
