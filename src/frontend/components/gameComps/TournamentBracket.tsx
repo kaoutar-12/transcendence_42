@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import styles from '@/styles/modules/TournamentBracket.module.css';
 
 interface TournamentBracketProps {
@@ -16,15 +15,13 @@ export default function TournamentBracket({
     winner2, 
     winner3 
 }: TournamentBracketProps) {
-    // Function to determine if a match can be played based on tournament progress
     const canPlayMatch = (matchIndex: number): boolean => {
         switch (matchIndex) {
-            case 0: // First semi-final
+            case 0:
                 return winner1 === null;
-            case 1: // Second semi-final
+            case 1:
                 return winner2 === null;
-            case 2: // Final match
-                // Can only play final if both semi-finals have winners
+            case 2:
                 return winner1 !== null && winner2 !== null && winner3 === null;
             default:
                 return false;
