@@ -9,24 +9,16 @@ export default function PlayerEntry({ onStart }: PlayerEntryProps) {
   const [players, setPlayers] = useState(["", "", "", ""])
   const [errors, setErrors] = useState<string[]>(["", "", "", ""])
 
-  // Validation function to check for duplicates and format
   const validateInput = (value: string, index: number): string => {
-    // Check for empty value
     if (!value.trim()) {
       return "Name is required"
     }
-    
-    // Check for spaces
     if (value.includes(' ')) {
       return "Spaces are not allowed"
     }
-    
-    // Check length
     if (value.length > 15) {
       return "Maximum 15 characters allowed"
     }
-    
-    // Check for duplicates
     const isDuplicate = players.some(
       (player, idx) => idx !== index && 
       player.toLowerCase() === value.toLowerCase()
@@ -34,7 +26,6 @@ export default function PlayerEntry({ onStart }: PlayerEntryProps) {
     if (isDuplicate) {
       return "Name must be unique"
     }
-    
     return ""
   }
 
@@ -42,8 +33,6 @@ export default function PlayerEntry({ onStart }: PlayerEntryProps) {
     const newPlayers = [...players]
     newPlayers[index] = value
     setPlayers(newPlayers)
-    
-    // Validate and set error for this input
     const newErrors = [...errors]
     newErrors[index] = validateInput(value, index)
     setErrors(newErrors)
@@ -51,14 +40,10 @@ export default function PlayerEntry({ onStart }: PlayerEntryProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    
-    // Validate all inputs
     const newErrors = players.map((player, index) => 
       validateInput(player, index)
     )
     setErrors(newErrors)
-    
-    // Check if there are any errors
     if (newErrors.every(error => error === "")) {
       onStart(players)
     }
