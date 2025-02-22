@@ -317,10 +317,14 @@ export default function Home() {
               <div>{allFriends?.length}</div>
             </div>
             <div className="username">{user?.username}</div>
-            <div className="online">
+            {user?.is_online && <div className="online">
               <span>Online</span>
               <div className="online-col"></div>
-            </div>
+            </div>}
+            {!user?.is_online && <div className="online">
+              <span>Offline</span>
+              <div className="online-col"></div>
+            </div>}
           </div>
         </div>
         {/* <LevelBar level={4} percentage={30} /> */}

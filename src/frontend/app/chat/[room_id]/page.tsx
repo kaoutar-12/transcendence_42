@@ -37,6 +37,7 @@ export type User = {
   nickname: string;
   i_blocked_them?: boolean;
   block_status?: boolean;
+  is_online: boolean;
 };
 
 type ChatRoomState = {
