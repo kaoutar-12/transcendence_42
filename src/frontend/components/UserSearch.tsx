@@ -12,6 +12,7 @@ interface User {
   email: string;
   is_friend: boolean;
   is_blocked: boolean;
+  is_online: boolean;
 }
 
 const UserSearch: React.FC = () => {
@@ -191,9 +192,16 @@ const UserSearch: React.FC = () => {
             className="group flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
           >
             <div>
-              <h3 className="font-medium text-white group-hover:text-black ">
-                {user.username}
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-medium text-white group-hover:text-black">
+                  {user.username}
+                </h3>
+                {user.is_online ?(
+
+                  <div className="w-2 h-2 bg-green-500 rounded-full" />
+                ):
+                <></>}
+              </div>
               <p className="text-sm text-gray-500">{user.email}</p>
             </div>
 
