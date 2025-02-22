@@ -18,6 +18,7 @@ import Conversation from "@/components/Conversation";
 import { useWebSocket } from "@/components/context/useWebsocket";
 import api from "@/app/utils/api";
 import { toast } from "react-toastify";
+import NotFoundPage from "@/app/not-found";
 
 type Message = {
   id: number;
@@ -74,7 +75,8 @@ const Page = () => {
     messagesCount: 0,
     block_status: false,
   });
-  const { on, off } = useWebSocket();
+  const { on, off, send } = useWebSocket();
+  const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
     const handleBlockUpdate = (data: any) => {
@@ -125,7 +127,7 @@ const Page = () => {
       const response = await api.get(`/chat/rooms/${params.room_id}/`, {
         withCredentials: true,
       });
-      console.log("other user data", response.data);
+      console.log("Other User Data:", response.data.other_user);
 
       setState((prev) => ({
         ...prev,
@@ -134,6 +136,7 @@ const Page = () => {
         block_status: response.data.other_user.block_status,
       }));
     } catch (error) {
+      setNotFound(true);
       console.error("Error fetching user data:", error);
     }
   };
@@ -188,6 +191,15 @@ const Page = () => {
         isConnected: false,
       }));
     };
+  };
+
+  const handleSendInvite = () => {
+    send(
+      JSON.stringify({
+        type: "send_invite",
+        target_user_id: state.otherUser?.id,
+      })
+    );
   };
 
   // sending message
@@ -314,6 +326,10 @@ const Page = () => {
     }));
   };
 
+  if (notFound) {
+    return <NotFoundPage />;
+  }
+
   return (
     <>
       <div className="messages-wrraper ">
@@ -334,12 +350,14 @@ const Page = () => {
             </div>
             <div className="name-online">
               <div className="name-chat">{state.otherUser?.username}</div>
-              <div className="online">Online</div>
+              <div className="online">
+                {state.otherUser?.is_online ? "Online" : "Offline"}
+              </div>
             </div>
           </div>
           <div className="chat-icons">
             <button>
-              <FaGamepad className="chat-icon" />
+              <FaGamepad className="chat-icon" onClick={handleSendInvite} />
             </button>
 
             <button onClick={openBlockMenu}>

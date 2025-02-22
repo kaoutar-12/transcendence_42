@@ -23,7 +23,7 @@ type Props = {};
 
 const Sidebar = (props: Props) => {
   const pathname = usePathname();
-  const { unreadCounts } = useWebSocket();
+  const { unreadCounts, on, off } = useWebSocket();
   const router = useRouter();
   const excludedPaths = [
     "/home",
@@ -48,6 +48,18 @@ const Sidebar = (props: Props) => {
     },
     0
   );
+
+  useEffect(() => {
+    const handleInvite = (data: any) => {
+      console.log(data);
+    };
+
+    on("notify_invite", handleInvite);
+
+    return () => {
+      off("notify_invite");
+    };
+  }, [on, off]);
 
   if (shouldHideSidebar) {
     return null;
