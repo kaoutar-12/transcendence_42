@@ -10,8 +10,8 @@ class MemoryStorage:
     @classmethod
     def create_invite(cls, from_user_id, to_user_id):
         with cls._lock:
-            invite_id = cls._invite_counter
-            cls._invite_counter += 1
+            invite_id = cls._invites_counter
+            cls._invites_counter += 1
             cls._invites[invite_id] = {
                 'from_user_id': from_user_id,
                 'to_user_id': to_user_id,

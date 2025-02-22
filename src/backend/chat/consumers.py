@@ -108,6 +108,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.send(text_data=json.dumps({'error': 'Room not found'}))
 
     async def chat_message(self, event):
+        print(f"Received chat message: {event['content']}")
         await self.send(text_data=json.dumps({
             'content': event['content'],
             'sender_id': event['sender_id'],
