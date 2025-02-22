@@ -20,7 +20,7 @@ COPY . .
 # ENV NODE_ENV=development
 ENV NODE_ENV=production
 
-# RUN npm run build 
+RUN npm run build 
 
 EXPOSE 3000
 # CMD ["npm", "run", "dev"]
