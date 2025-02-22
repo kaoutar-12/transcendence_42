@@ -31,216 +31,6 @@ export interface Winrate {
   wins: number;
 }
 
-// const sampleMatches: MatchHistoryItem[] = [
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "WIN",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-//   {
-//     image: "/prfl.png",
-//     component: "Player",
-//     level: 2,
-//     result: "LOSE",
-//     score: "5 - 2",
-//     date: "09/09/2024",
-//   },
-// ];
 export default function Home() {
   const router = useRouter();
   const [user, setUser] = React.useState<User | null>(null);
@@ -262,8 +52,8 @@ export default function Home() {
         withCredentials: true,
       });
       const friends = response.data.friends;
-      setContacts(friends.slice(0, 4)); // First 4 friends
-      setAllFriends(friends); // All friends
+      setContacts(friends.slice(0, 4)); 
+      setAllFriends(friends);
       console.log("Contacts:", friends);
     } catch (error) {
       console.error("Error fetching contacts:", error);
@@ -358,22 +148,15 @@ export default function Home() {
             />
           </div>
           <div className="info-dash">
-            <div className="friends-list">
+            <div className="friends-list pl-[25px]">
               <div className="friends">Friends</div>
               <div>{allFriends?.length}</div>
             </div>
-            <div className="username">{user?.username}</div>
-            {user?.is_online && <div className="online">
-              <span>Online</span>
-              <div className="online-col"></div>
-            </div>}
-            {!user?.is_online && <div className="online">
-              <span>Offline</span>
-              <div className="online-col"></div>
-            </div>}
+            <div className="username-container pr-[120px]">
+               <div className="username">{user?.username}</div>
+            </div>
           </div>
         </div>
-        <section></section>
         <div className="grid-container">
           <div className="item-1">
             {allFriends.length > 0 ? (

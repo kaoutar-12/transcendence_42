@@ -4,6 +4,7 @@ import { Search, UserPlus, MessageSquare, Ban, Gamepad2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/auth/alert";
 import api from "@/app/utils/api";
 import { useRouter } from "next/navigation";
+import { useWebSocket } from "./context/useWebsocket";
 
 // Define interfaces for our data types
 interface User {
@@ -24,6 +25,8 @@ const UserSearch: React.FC = () => {
   const [error, setError] = useState<string>("");
   const [success, setSuccess] = useState<string>("");
   const router = useRouter();
+  const { send } = useWebSocket();
+
 
   useEffect(() => {
     const fetchUserData = async (): Promise<void> => {
@@ -116,17 +119,12 @@ const UserSearch: React.FC = () => {
   };
 
   const handleInviteToMatch = async (userId: number): Promise<void> => {
-    try {
-      const response = await fetch("/api/matches/invite", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId }),
-      });
-      if (!response.ok) throw new Error("Failed to send match invitation");
-      setError("Match invitation sent successfully!");
-    } catch (err) {
-      setError("Failed to send match invitation. Please try again.");
-    }
+    send(
+      JSON.stringify({
+        type: "send_invite",
+        target_user_id: userId,
+      })
+    );
   };
 
   const handleInputChange = (e: ChangeEvent<HTMLInputElement>): void => {
