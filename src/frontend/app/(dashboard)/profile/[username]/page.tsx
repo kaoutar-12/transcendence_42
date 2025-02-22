@@ -124,7 +124,7 @@ export default function Home() {
   React.useEffect(() => {
     fetchUser();
     fetchLogginedUser();
-  });
+  },[]);
 
   const handleBlockClick = async (userId: number, block: boolean) => {
     try {
