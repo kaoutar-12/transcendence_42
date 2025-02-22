@@ -203,6 +203,9 @@ def get_user2(request,username):
         target = User.objects.get(username=username)
         if request.user in  target.blocked_users.all():
             return Response({"error":"can't find the user"})
+        if  request.user == target:
+            return Response({"error":"can't search your self"})
+            
         serializer = UserSerializer(target,context={'request': request})
         return Response(serializer.data)
     except User.DoesNotExist:
