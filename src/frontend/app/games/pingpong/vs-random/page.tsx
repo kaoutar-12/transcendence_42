@@ -1,8 +1,7 @@
-// app/games/pingpong/vs-random/page.tsx
-'use client'; // Mark this as a Client Component
+'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation'; // Note: using 'next/navigation' instead of 'next/router'
+import { useRouter } from 'next/navigation';
 import styles from '@/styles/modules/MatchmakingQueue.module.css';
 
 const MatchmakingQueue = () => {
@@ -12,31 +11,23 @@ const MatchmakingQueue = () => {
     const router = useRouter();
 
     useEffect(() => {
-        // Initialize WebSocket connection
+        // TO_UPDATE
         const ws = new WebSocket('ws://localhost:8000/api/ws/queue/');
         
-        // Handle WebSocket events
         ws.onopen = () => {
-            console.log('Connected to matchmaking server');
             ws.send(JSON.stringify({ type: 'join_queue' }));
-            console.log('Sent join_queue message');
         };
 
         ws.onmessage = (event) => {
             try {
                 const data = JSON.parse(event.data);
-                console.log('WebSocket message:', data);
-
                 if (data.type === 'match_created') {
                     setMatchStatus('match_created');
                     setGameData(data);
-                    
-                    // Start countdown
                     let count = 3;
                     const countdownInterval = setInterval(() => {
                         count--;
                         setCountdown(count);
-                        
                         if (count === 0) {
                             clearInterval(countdownInterval);
                             router.push(`/games/pingpong/1-vs-1/${data.game_id}`);
@@ -54,16 +45,15 @@ const MatchmakingQueue = () => {
         };
 
         ws.onclose = () => {
-            console.log('Disconnected from matchmaking server');
+            // console.log('Disconnected from matchmaking server');
         };
 
-        // Cleanup function
         return () => {
             ws.close();
         };
     }, [router]);
 
-    /* Matchmaking Queue UI */
+
     if (matchStatus === 'match_created') {
         return (
             <div className={styles.container}>
@@ -109,4 +99,4 @@ const MatchmakingQueue = () => {
     );
 };
 
-export default MatchmakingQueue;
+export default MatchmakingQueue

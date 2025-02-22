@@ -48,11 +48,9 @@ const PingPongGame = () => {
     const [isLoading, setIsLoading] = useState(true)
 
     useEffect(() => {
-        // Simulate loading time
         const timer = setTimeout(() => {
             setIsLoading(false)
-        }, 3000) // 3 seconds loading time
-
+        }, 3000)
         return () => clearTimeout(timer)
     }, [])
 
@@ -64,27 +62,20 @@ const PingPongGame = () => {
         if (!context) return
 
         const drawGame = () => {
-        // Clear canvas
-        context.fillStyle = "#1a1a1a"
-        context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
-
-        // Draw paddles
-        context.fillStyle = "#ffffff"
-        context.fillRect(0, gameState.leftPaddleY, PADDLE_WIDTH, PADDLE_HEIGHT)
-        context.fillRect(CANVAS_WIDTH - PADDLE_WIDTH, gameState.rightPaddleY, PADDLE_WIDTH, PADDLE_HEIGHT)
-
-        // Draw ball
-        context.beginPath()
-        context.arc(gameState.ballX, gameState.ballY, BALL_SIZE / 2, 0, Math.PI * 2)
-        context.fill()
-
-        // Draw center line
-        context.setLineDash([5, 15])
-        context.beginPath()
-        context.moveTo(CANVAS_WIDTH / 2, 0)
-        context.lineTo(CANVAS_WIDTH / 2, CANVAS_HEIGHT)
-        context.strokeStyle = "#ffffff"
-        context.stroke()
+          context.fillStyle = "#1a1a1a"
+          context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT)
+          context.fillStyle = "#ffffff"
+          context.fillRect(0, gameState.leftPaddleY, PADDLE_WIDTH, PADDLE_HEIGHT)
+          context.fillRect(CANVAS_WIDTH - PADDLE_WIDTH, gameState.rightPaddleY, PADDLE_WIDTH, PADDLE_HEIGHT)
+          context.beginPath()
+          context.arc(gameState.ballX, gameState.ballY, BALL_SIZE / 2, 0, Math.PI * 2)
+          context.fill()
+          context.setLineDash([5, 15])
+          context.beginPath()
+          context.moveTo(CANVAS_WIDTH / 2, 0)
+          context.lineTo(CANVAS_WIDTH / 2, CANVAS_HEIGHT)
+          context.strokeStyle = "#ffffff"
+          context.stroke()
         }
 
         drawGame()
@@ -95,33 +86,33 @@ const PingPongGame = () => {
         const keysPressed = new Set<string>()
 
         const handleKeyDown = (e: KeyboardEvent) => {
-        keysPressed.add(e.key)
+          keysPressed.add(e.key)
         }
 
         const handleKeyUp = (e: KeyboardEvent) => {
-        keysPressed.delete(e.key)
+          keysPressed.delete(e.key)
         }
 
         const updatePaddles = () => {
 
         setGameState((prev) => {
-            const newState = { ...prev }
+              const newState = { ...prev }
 
-            if (keysPressed.has("w") && newState.leftPaddleY > 0) {
-            newState.leftPaddleY = Math.max(0, newState.leftPaddleY - PADDLE_SPEED)
-            }
-            if (keysPressed.has("s") && newState.leftPaddleY < CANVAS_HEIGHT - PADDLE_HEIGHT) {
-            newState.leftPaddleY = Math.min(CANVAS_HEIGHT - PADDLE_HEIGHT, newState.leftPaddleY + PADDLE_SPEED)
-            }
-            if (keysPressed.has("ArrowUp") && newState.rightPaddleY > 0) {
-            newState.rightPaddleY = Math.max(0, newState.rightPaddleY - PADDLE_SPEED)
-            }
-            if (keysPressed.has("ArrowDown") && newState.rightPaddleY < CANVAS_HEIGHT - PADDLE_HEIGHT) {
-            newState.rightPaddleY = Math.min(CANVAS_HEIGHT - PADDLE_HEIGHT, newState.rightPaddleY + PADDLE_SPEED)
-            }
+              if (keysPressed.has("w") && newState.leftPaddleY > 0) {
+                newState.leftPaddleY = Math.max(0, newState.leftPaddleY - PADDLE_SPEED)
+              }
+              if (keysPressed.has("s") && newState.leftPaddleY < CANVAS_HEIGHT - PADDLE_HEIGHT) {
+                newState.leftPaddleY = Math.min(CANVAS_HEIGHT - PADDLE_HEIGHT, newState.leftPaddleY + PADDLE_SPEED)
+              }
+              if (keysPressed.has("ArrowUp") && newState.rightPaddleY > 0) {
+                newState.rightPaddleY = Math.max(0, newState.rightPaddleY - PADDLE_SPEED)
+              }
+              if (keysPressed.has("ArrowDown") && newState.rightPaddleY < CANVAS_HEIGHT - PADDLE_HEIGHT) {
+                newState.rightPaddleY = Math.min(CANVAS_HEIGHT - PADDLE_HEIGHT, newState.rightPaddleY + PADDLE_SPEED)
+              }
 
-            return newState
-        })
+              return newState
+          })
         }
 
         window.addEventListener("keydown", handleKeyDown)
@@ -130,9 +121,9 @@ const PingPongGame = () => {
         const paddleInterval = setInterval(updatePaddles, 1000 / 40) // 40 FPS
 
         return () => {
-        window.removeEventListener("keydown", handleKeyDown)
-        window.removeEventListener("keyup", handleKeyUp)
-        clearInterval(paddleInterval)
+          window.removeEventListener("keydown", handleKeyDown)
+          window.removeEventListener("keyup", handleKeyUp)
+          clearInterval(paddleInterval)
         }
     }, [])
 
@@ -146,7 +137,6 @@ const PingPongGame = () => {
 
     const updateGame = () => {
         setGameState((prev) => {
-          // First check if someone has already won
           if (prev.leftScore >= WIN_SCORE || prev.rightScore >= WIN_SCORE) {
             setGameOver(true);
             setWinner(prev.leftScore >= WIN_SCORE ? player1 : player2);
@@ -155,21 +145,17 @@ const PingPongGame = () => {
               setGameLoop(null);
             }
             setIsRunning(false);
-            return prev; // Return previous state without updates
+            return prev;
           }
       
           let newState = { ...prev };
-      
-          // Move ball
+    
           newState.ballX += newState.ballSpeedX;
           newState.ballY += newState.ballSpeedY;
-      
-          // Ball collision with top and bottom walls
           if (newState.ballY <= 0 || newState.ballY >= CANVAS_HEIGHT) {
             newState.ballSpeedY = -newState.ballSpeedY;
           }
-      
-          // Ball collision with paddles
+
           if (
             (newState.ballX <= PADDLE_WIDTH &&
               newState.ballY >= newState.leftPaddleY &&
@@ -181,8 +167,7 @@ const PingPongGame = () => {
             newState.ballSpeedX = -newState.ballSpeedX * 1.10;
             newState.ballSpeedY *= 1.10;
           }
-      
-          // Score points
+    
           if (newState.ballX <= 0) {
             newState.rightScore++;
             newState = resetBall(newState);
@@ -208,7 +193,7 @@ const PingPongGame = () => {
   const startGame = () => {
     if (!isRunning && !gameOver) {
       setIsRunning(true);
-      const loop = window.setInterval(updateGame, 1000 / 60); // 60 FPS
+      const loop = window.setInterval(updateGame, 1000 / 60);
       setGameLoop(loop);
     }
   };
@@ -256,7 +241,7 @@ const PingPongGame = () => {
       rightScore: 0,
     })
     setIsLoading(true)
-    const timer = setTimeout(() => {
+    setTimeout(() => {
         setIsLoading(false)
     }, 2000);
   }
