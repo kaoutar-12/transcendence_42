@@ -1,4 +1,3 @@
-import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Particles from "@/components/LandingAnimation/Particles";
 
 export default function GameLayout({
