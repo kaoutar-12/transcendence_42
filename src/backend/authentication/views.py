@@ -390,7 +390,7 @@ def add_friend(request,user_id):
             return Response({
                 'error': 'User is blocked'
             })
-        if request.user.is_blocked_by(friend):
+        if friend in request.user.blocked_by.all() :
             return Response({
                 'error': 'User has blocked you'
             })
@@ -435,6 +435,10 @@ def block_user(request,user_id):
             return Response({
                 'error': 'User is already blocked'
             })
+        if request.user in user.blocked_users.all():
+             return Response({
+                'error': 'User is already blocked you'
+            })
         if user in request.user.friends.all():
             request.user.friends.remove(user)
             user.friends.remove(request.user)
@@ -474,10 +478,20 @@ def block_user(request,user_id):
 def unblock_user(request,user_id):
     try:
         user = User.objects.get(id=user_id)
+        if user == request.user:
+            return Response({
+                'error': 'You can not block yourself'
+            })
         if user not in request.user.blocked_users.all():
             return Response({
                 'error': 'User is not blocked'
             })
+            
+        if request.user in user.blocked_users.all():
+            return Response({
+                'error': 'User is  blocked you'
+            })
+        
         request.user.blocked_users.remove(user)
 
         channel_layer = get_channel_layer()
@@ -519,7 +533,8 @@ def get_all_users(request):
 @permission_classes([IsAuthenticated])
 def search_users(request):
     query = request.GET.get('query', '').strip()
-    users_queryset = User.objects.filter(username__icontains=query).exclude(id=request.user.id)
+    users_queryset = User.objects.filter(username__icontains=query).exclude(id=request.user.id).exclude(blocked_users=request.user)
+    # users_queryset = User.objects.filter(username__icontains=query).exclude(id=request.user.id)
 
     serializer = UserSerializer(users_queryset, many=True, context={'request': request})
     return Response({"users": serializer.data})
