@@ -155,9 +155,6 @@ export default function Home() {
             <div className="username-container pr-[120px]">
                <div className="username">{user?.username}</div>
             </div>
-           
-          
-            
           </div>
         </div>
         <div className="grid-container">

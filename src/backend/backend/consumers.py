@@ -22,6 +22,7 @@ class GlobalConsumer(AsyncWebsocketConsumer):
             return
         self.room_group_name = f'global_{self.user.id}'
         await self.channel_layer.group_add(f'global_{self.user.id}', self.channel_name)
+        await self.change_count()
         await self.set_user_online(True)
         await self.accept()
         # Send unread messages to the user
@@ -30,7 +31,27 @@ class GlobalConsumer(AsyncWebsocketConsumer):
     @database_sync_to_async
     def set_user_online(self, is_online):
         # Update the user's online status in the database
-        User.objects.filter(id=self.user.id).update(is_online=is_online)
+        try:
+            user= User.objects.get(id=self.user.id)
+            if is_online or user.online_count <=  0 :
+                user.is_online = is_online
+                user.save()
+        except User.DoesNotExist:
+            return
+            
+
+    @database_sync_to_async
+    def change_count(self, increase=True):
+        try:
+            user = User.objects.get(id=self.user.id)
+            print(user.online_count)
+            if increase:
+                user.online_count += 1
+            else:
+                user.online_count -= 1
+            user.save()
+        except User.DoesNotExist:
+            return
 
     async def notify_invite(self, event):
         print(f"Notify invite received by {self.user.id}: {event}")
@@ -133,6 +154,8 @@ class GlobalConsumer(AsyncWebsocketConsumer):
             f'global_{self.user.id}',
             self.channel_name
         )
+        await self.change_count(False)
+        
         await self.set_user_online(False)
 
 
