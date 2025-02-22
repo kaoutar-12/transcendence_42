@@ -44,7 +44,6 @@ export default function GamePage() {
   const [gameOver, setGameOver] = useState(false);
   const [winner, setWinner] = useState("");
 
-  // Canvas drawing effect
   useEffect(() => {
     if (!gameState) return;
     
@@ -55,21 +54,14 @@ export default function GamePage() {
     if (!context) return;
 
     const drawGame = () => {
-      // Clear canvas
       context.fillStyle = "#1a1a1a";
       context.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-
-      // Draw paddles
       context.fillStyle = "#ffffff";
       context.fillRect(0, gameState.paddles.left.y, PADDLE_WIDTH, PADDLE_HEIGHT);
       context.fillRect(CANVAS_WIDTH - PADDLE_WIDTH, gameState.paddles.right.y, PADDLE_WIDTH, PADDLE_HEIGHT);
-
-      // Draw ball
       context.beginPath();
       context.arc(gameState.ball.x, gameState.ball.y, BALL_SIZE / 2, 0, Math.PI * 2);
       context.fill();
-
-      // Draw center line
       context.setLineDash([5, 15]);
       context.beginPath();
       context.moveTo(CANVAS_WIDTH / 2, 0);
@@ -81,7 +73,6 @@ export default function GamePage() {
     drawGame();
   }, [gameState]);
 
-  // WebSocket connection effect
   useEffect(() => {
     const ws = new WebSocket(`ws://localhost:8000/api/ws/game/${gameId}/`);
     let isMounted = true;
@@ -103,7 +94,6 @@ export default function GamePage() {
         switch (data.type) {
           case 'game_state':
             setGameState(data.state);
-            // Check for game over condition
             if (data.state.paddles.left.score >= 1 || data.state.paddles.right.score >= 1) {
               setGameOver(true);
               setWinner(data.state.paddles.left.score >= 1 ? 'Left Player' : 'Right Player');
