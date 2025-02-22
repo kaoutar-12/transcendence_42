@@ -18,12 +18,13 @@ class UserSerializer(serializers.ModelSerializer):
     is_friend = serializers.SerializerMethodField()
     is_blocked = serializers.SerializerMethodField()
     profile_image = serializers.ImageField(use_url=False,required=False)
+    is_online = serializers.BooleanField(required=False, default=False)
 
 
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'password','nickname','profile_image','twoFactorEnabled', 'image_url', 'is_42'
+        fields = ('id', 'username', 'email', 'password','nickname','profile_image','twoFactorEnabled', 'image_url', 'is_42','is_online'
                   ,'friends','blocked_users','is_friend','is_blocked')
         extra_kwargs = {'password': {'write_only': True},
                         'nickname': {'required': False},

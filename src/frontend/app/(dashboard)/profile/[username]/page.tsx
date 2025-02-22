@@ -246,10 +246,12 @@ const sampleMatches: MatchHistoryItem[] = [
     date: "09/09/2024",
   },
 ];
+
 export default function Home() {
   const params = useParams<{ username: string }>();
   const router = useRouter();
   const [user, setUser] = React.useState<UserData | null>(null);
+  const [userOk, setUserOk] = React.useState<boolean>(false);
   const { on, off } = useWebSocket();
 
   React.useEffect(() => {
@@ -268,9 +270,13 @@ export default function Home() {
   }, [on, off]);
 
   const fetchUser = async () => {
+    
     try {
       const response = await api.get(`/user/${params.username}/`);
-      if (response.data.error) router.push("/1");
+
+      setUserOk(true)
+
+      if (response.data.error) return;
 
       console.log(response.data);
       setUser(response.data);
@@ -325,6 +331,11 @@ export default function Home() {
     router.push(`/profile/${username}`);
   };
 
+
+  if (userOk && user === null) {
+    return <div>"User Not Found"</div>
+  }
+
   return (
     <div className="home">
       <div className="search-dash">
@@ -354,7 +365,7 @@ export default function Home() {
           <div className="info-dash">
             <div className="friends-list">
               <div className="friends">Friends</div>
-              <div>{user?.friends.length}</div>
+              <div>{user?.friends?.length}</div>
             </div>
             <div className="username">{user?.username}</div>
             <div className="online">

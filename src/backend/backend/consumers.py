@@ -10,42 +10,28 @@ from threading import Lock
 User = get_user_model()
 
 class GlobalConsumer(AsyncWebsocketConsumer):
-    online_users = set()
     users_lock = Lock()
     async def connect(self):
-        self.presence_group = "presence_updates"
         self.user = self.scope['user']
         # Reject connection if user is not authenticated
         if self.user.is_anonymous:
             await self.close()
             return
         self.room_group_name = f'global_{self.user.id}'
-        with GlobalConsumer.users_lock:
-            GlobalConsumer.online_users.add(self.user.id)
-
         await self.channel_layer.group_add(f'global_{self.user.id}', self.channel_name)
+        await self.set_user_online(True)
 
-        await self.channel_layer.group_add(self.presence_group, self.channel_name)
 
         await self.accept()
 
-        with GlobalConsumer.users_lock:
-            current_users = list(GlobalConsumer.online_users)
-        await self.send(json.dumps({
-            "type": "online_users",
-            "users": current_users
-        }))
-
-        await self.channel_layer.group_send(
-            self.presence_group,
-            {
-                "type": "user_online",
-                "user_id": self.user.id,
-                "online": True
-            }
-        )
         # Send unread messages to the user
         await self.send_user_unread_messages()
+        
+    @database_sync_to_async
+    def set_user_online(self, is_online):
+        # Update the user's online status in the database
+        User.objects.filter(id=self.user.id).update(is_online=is_online)
+
 
     async def receive(self, text_data):
         data = json.loads(text_data)
@@ -76,33 +62,12 @@ class GlobalConsumer(AsyncWebsocketConsumer):
         }))
 
     async def disconnect(self, close_code):
-        with GlobalConsumer.users_lock:
-            GlobalConsumer.online_users.discard(self.user.id)
-
-        if hasattr(self, 'presence_group'):
-            await self.channel_layer.group_discard(
-                self.presence_group,
-                self.channel_name
-            )
-            await self.channel_layer.group_send(
-                self.presence_group,
-                {
-                    "type": "user_online",
-                    "user_id": self.user.id,
-                    "online": False
-                }
-            )
         await self.channel_layer.group_discard(
             f'global_{self.user.id}',
             self.channel_name
         )
+        await self.set_user_online(False)
 
-    async def user_online(self, event):
-        await self.send(text_data=json.dumps({
-            'type': 'user_online',
-            'user_id': event['user_id'],
-            'online': event['online']
-        }))
 
     async def room_update(self, event):
         # Handle room creation/update notifications

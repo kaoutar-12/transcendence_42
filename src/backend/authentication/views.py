@@ -201,6 +201,8 @@ def get_user(request):
 def get_user2(request,username):
     try:
         target = User.objects.get(username=username)
+        if request.user in  target.blocked_users.all():
+            return Response({"error":"can't find the user"})
         serializer = UserSerializer(target,context={'request': request})
         return Response(serializer.data)
     except User.DoesNotExist:
@@ -525,7 +527,7 @@ def unblock_user(request,user_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def get_all_users(request):
-    users=User.objects.exclude(id=request.user.id)
+    users=User.objects.exclude(id=request.user.id).exclude(blocked_users=request.user)
     serializer = UserSerializer(users, many=True, context={'request': request})
     return Response({"users": serializer.data})
 
