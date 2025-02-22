@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import React from "react";
 import "@/styles/dashboard.css";
@@ -123,7 +124,7 @@ export default function Home() {
   React.useEffect(() => {
     fetchUser();
     fetchLogginedUser();
-  }, []);
+  });
 
   const handleBlockClick = async (userId: number, block: boolean) => {
     try {
@@ -301,8 +302,8 @@ export default function Home() {
           <div className="item-1">
             <div className="friends-container">
               {user?.friends?.map((friend, index) => (
-                <Link href={`/profile/${friend.username}`}>
-                  <div key={index} className="friend-avatar">
+                <Link href={`/profile/${friend.username}`} key={index}>
+                  <div  className="friend-avatar">
                     <div className="card">
                       {/* Front side */}
                       <div className="front">
@@ -338,7 +339,7 @@ export default function Home() {
           <div className="item-3">
             {matchHistory.length > 0 ? (
               <>
-                <MatchHistory matches={matchHistory} user={user} />
+                <MatchHistory matches={matchHistory} user={user!} />
               </>
             ) : (
               <>
