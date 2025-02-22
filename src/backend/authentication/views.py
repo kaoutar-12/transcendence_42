@@ -390,6 +390,10 @@ def add_friend(request,user_id):
             return Response({
                 'error': 'User is blocked'
             })
+        if request.user.is_blocked_by(friend):
+            return Response({
+                'error': 'User has blocked you'
+            })
         request.user.friends.add(friend)
         friend.friends.add(request.user)
         return Response({
