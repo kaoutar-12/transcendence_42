@@ -346,8 +346,8 @@ const Page = () => {
             </div>
           </div>
           <div className="chat-icons">
-            <button>
-              <FaGamepad className="chat-icon" onClick={handleSendInvite} />
+            <button className="chat-icon"  disabled={state.block_status} onClick={handleSendInvite}>
+              <FaGamepad className="w-[32px] h-[32px]" />
             </button>
 
             <button onClick={openBlockMenu}>

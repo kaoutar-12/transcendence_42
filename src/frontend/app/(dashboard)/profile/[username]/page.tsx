@@ -16,6 +16,7 @@ import { useWebSocket } from "@/components/context/useWebsocket";
 import { MatchHistoryItem, Winrate } from "../../home/page";
 import Link from "next/link";
 import NotFoundPage from "@/app/not-found";
+import WinLossCircle from "@/components/WinRateCircle";
 
 interface Friends {
   id: number;
@@ -54,6 +55,7 @@ export default function Home() {
     wins: 0,
   });
   const { send } = useWebSocket();
+  const [loggedUser, setLoggedUser] = React.useState<User | null>(null);
 
   React.useEffect(() => {
     const handleBlockUpdate = (data: any) => {
@@ -69,6 +71,36 @@ export default function Home() {
       off("block_update");
     };
   }, [on, off]);
+
+  const fetchLogginedUser = async () => {
+    try {
+      const response = await api.get("/user/");
+      setLoggedUser(response.data);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+    }
+  }
+
+  const fetchMatchHistory = async () => {
+    try {
+      console.log("Fetching match history...");
+      const response = await api.get(`game/history/${user?.id}/`);
+      const winRateResponse = await api.get(
+        `game/history/${user?.id}/winrate/`
+      );
+      console.log("Match History:", response.data);
+      setMatchHistory(response.data.matches);
+      console.log("Win Rate:", winRateResponse.data);
+      setWinRate((prev) => ({
+        ...prev,
+        losses: winRateResponse.data.losses,
+        winrate: winRateResponse.data.winrate,
+        wins: winRateResponse.data.wins,
+      }));
+    } catch (error) {
+      console.error("Error fetching match history:", error);
+    }
+  };
 
   const fetchUser = async () => {
     try {
@@ -90,6 +122,7 @@ export default function Home() {
 
   React.useEffect(() => {
     fetchUser();
+    fetchLogginedUser();
   }, []);
 
   const handleBlockClick = async (userId: number, block: boolean) => {
@@ -102,8 +135,6 @@ export default function Home() {
       toast.error("Error blocking user");
     }
   };
-
-  const handleAddFriendClick = () => {};
 
   const handleCreateRoom = async (userId: number) => {
     try {
@@ -134,6 +165,12 @@ export default function Home() {
       })
     );
   };
+  
+  React.useEffect(() => {
+    if (user) {
+      fetchMatchHistory();
+    }
+  }, [user]);
 
   if (!userOk) {
     return <NotFoundPage />;
@@ -165,8 +202,8 @@ export default function Home() {
               style={{ objectFit: "cover", borderRadius: "33px" }}
             />
           </div>
-          <div className="info-dash">
-            <div className="friends-list">
+          <div className="w-full flex justify-between items-center h-[30%] rounded-[34px] bg-black text-white self-end px-[120px] text-[20px]">
+            <div className="flex gap-[40px] items-center justify-center">
               <div className="friends">Friends</div>
               <div>{user?.friends?.length}</div>
             </div>
@@ -186,7 +223,8 @@ export default function Home() {
           </div>
         </div>
         {/* <LevelBar level={4} percentage={30} /> */}
-        <div className="buttons">
+        {loggedUser?.username !== params.username && (<>
+          <div className="buttons">
           <button
             className="message-button"
             onClick={() => handleCreateRoom(user!.id)}
@@ -256,6 +294,8 @@ export default function Home() {
             </>
           )}
         </div>
+        </>)}
+
         <section></section>
         <div className="grid-container">
           <div className="item-1">
@@ -289,7 +329,12 @@ export default function Home() {
               ))}
             </div>
           </div>
-          <div className="item-2">2</div>
+          <div className="item-2">
+            <WinLossCircle
+              wins={winRate.wins}
+              losses={winRate.losses}
+              winRate={winRate.winrate}
+            /></div>
           <div className="item-3">
             {matchHistory.length > 0 ? (
               <>
