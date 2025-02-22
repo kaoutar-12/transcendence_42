@@ -20,7 +20,7 @@ export default function LoginForm() {
     setIsLoading(true);
     try {
       	
-          const res = await fetch("http://localhost:8000/api/login/", {
+          const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login/`, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
