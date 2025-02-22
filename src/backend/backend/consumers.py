@@ -20,10 +20,7 @@ class GlobalConsumer(AsyncWebsocketConsumer):
         self.room_group_name = f'global_{self.user.id}'
         await self.channel_layer.group_add(f'global_{self.user.id}', self.channel_name)
         await self.set_user_online(True)
-
-
         await self.accept()
-
         # Send unread messages to the user
         await self.send_user_unread_messages()
         
