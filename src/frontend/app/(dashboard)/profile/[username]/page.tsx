@@ -270,8 +270,7 @@ export default function Home() {
   const fetchUser = async () => {
     try {
       const response = await api.get(`/user/${params.username}/`);
-      // const response = await api.get(`/user/`);
-      if (response.data.error) router.push("/not-found");
+      if (response.data.error) router.push("/1");
 
       console.log(response.data);
       setUser(response.data);
