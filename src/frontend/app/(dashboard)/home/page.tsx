@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 "use client";
 import React from "react";
 import "@/styles/dashboard.css";
@@ -253,7 +254,7 @@ export default function Home() {
           <div className="item-3">
             {matchHistory.length > 0 ? (
               <>
-                <MatchHistory matches={matchHistory} user={user} />
+                <MatchHistory matches={matchHistory} user={user!} />
               </>
             ) : (
               <>
