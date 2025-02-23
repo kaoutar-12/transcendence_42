@@ -19,7 +19,7 @@ export default function OTPForm() {
     setIsLoading(true);
     try {
       	
-			const res = await fetch("http://localhost:8000/api/login_otp/", {
+			const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/login_otp/`, {
             method: "POST",
             credentials: "include",
             headers: { "Content-Type": "application/json" },
