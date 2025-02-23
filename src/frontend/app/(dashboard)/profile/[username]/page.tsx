@@ -56,7 +56,6 @@ export default function Home() {
     wins: 0,
   });
   const { send } = useWebSocket();
-  const [loggedUser, setLoggedUser] = React.useState<User | null>(null);
 
   React.useEffect(() => {
     const handleBlockUpdate = (data: any) => {
@@ -73,14 +72,6 @@ export default function Home() {
     };
   }, [on, off]);
 
-  const fetchLogginedUser = async () => {
-    try {
-      const response = await api.get("/user/");
-      setLoggedUser(response.data);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-    }
-  }
 
   const fetchMatchHistory = async () => {
     try {
@@ -109,7 +100,10 @@ export default function Home() {
 
       setUserOk(true);
 
-      if (response.data.error) {
+      if (response.data.error === "can't search your self") {
+        router.push('/home');
+      }
+      else if (response.data.error) {
         setUserOk(false);
         return;
       }
@@ -123,7 +117,6 @@ export default function Home() {
 
   React.useEffect(() => {
     fetchUser();
-    fetchLogginedUser();
   }, []);
 
   const handleBlockClick = async (userId: number, block: boolean) => {
@@ -195,7 +188,7 @@ export default function Home() {
             <Image
               src={
                 user?.profile_image
-                  ? `http://backend:8000/media/${user?.profile_image}`
+                  ? `${process.env.NEXT_PUBLIC_MEDIA_URL}/${user?.profile_image}`
                   : "/prfl.png"
               }
               alt="avatar"
@@ -224,7 +217,7 @@ export default function Home() {
           </div>
         </div>
         {/* <LevelBar level={4} percentage={30} /> */}
-        {loggedUser?.username !== params.username && (<>
+       
           <div className="buttons">
           <button
             className="message-button"
@@ -295,9 +288,7 @@ export default function Home() {
             </>
           )}
         </div>
-        </>)}
 
-        <section></section>
         <div className="grid-container">
           <div className="item-1">
             <div className="friends-container">
@@ -310,7 +301,7 @@ export default function Home() {
                         <Image
                           src={
                             friend?.profile_image
-                              ? `http://backend:8000${friend.profile_image}`
+                              ? `${process.env.NEXT_PUBLIC_URL}${friend.profile_image}`
                               : "/prfl.png"
                           }
                           alt="avatar"
