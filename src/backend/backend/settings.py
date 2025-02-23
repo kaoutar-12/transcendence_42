@@ -149,9 +149,14 @@ STATICFILES_DIRS = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
+    "https://*",
+    "http://*",
 ]
+
+
+
     # "http://localhost:3001",
     # "http://localhost:8000",
 	# "http://localhost:5500",
@@ -164,6 +169,15 @@ CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
 
 CORS_EXPPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
+
+CORS_ALLOW_METHODS = [
+    'DELETE',
+    'GET',
+    'OPTIONS',
+    'PATCH',
+    'POST',
+    'PUT',
+]
 
 CORS_ALLOW_HEADERS = [
     "accept",
