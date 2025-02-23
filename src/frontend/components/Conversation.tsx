@@ -30,16 +30,9 @@ const Conversation = () => {
     null
   );
   const [isLoading, setIsLoading] = useState(false);
-  const { on, off, unreadCounts, markAsRead, send } = useWebSocket();
+  const { on, off, send } = useWebSocket();
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const pathname = usePathname();
-
-  useEffect(() => {
-    const roomId = pathname.split("/")[2];
-    if (roomId) {
-      markAsRead(roomId);
-    }
-  }, [pathname]);
 
   useEffect(() => {
     const handleChatMessage = (data: any) => {
@@ -167,8 +160,6 @@ const Conversation = () => {
                 <>
                   <div className="conv-wrraper">
                     {filteredConversations.map((conversation, i) => {
-                      const unread_count =
-                        unreadCounts[conversation.room_id] || 0;
                       const isSelected =
                         selectConversation === conversation.room_id;
 
@@ -188,7 +179,7 @@ const Conversation = () => {
                               <Image
                                 src={
                                   conversation.user.profile_image
-                                    ? `http://backend:8000/media/${conversation.user.profile_image}`
+                                    ? `${process.env.NEXT_PUBLIC_MEDIA_URL}/${conversation.user.profile_image}`
                                     : "/prfl.png"
                                 }
                                 // src={"/prfl.png"}
@@ -217,11 +208,6 @@ const Conversation = () => {
                                   ? conversation.last_message.slice(0, 30) +
                                     "..."
                                   : conversation.last_message}
-                                {!isSelected && unread_count > 0 && (
-                                  <span className="message-badge">
-                                    {unread_count}
-                                  </span>
-                                )}
                               </div>
                             </div>
                             <div
