@@ -19,7 +19,7 @@ def get_user(token_key):
 
 class JWTAuthMiddleware(BaseMiddleware):
     async def __call__(self, scope, receive, send):
-        if scope["type"] not in ["websocket", "http"]:
+        if scope["type"] not in ["websocket", "https"]:
             return await super().__call__(scope, receive, send)
 
         query_string = scope.get('query_string', b'').decode()
