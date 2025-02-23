@@ -162,7 +162,7 @@ const Page = () => {
   // connect socket
   const connectSocket = () => {
     const socket = new WebSocket(
-      `ws://localhost:8000/ws/chat/${params.room_id}/`
+      `${process.env.NEXT_PUBLIC_SOCKET_URL}ws/chat/${params.room_id}/`
     );
 
     socket.onopen = () => {
@@ -329,7 +329,7 @@ const Page = () => {
               <Image
                 src={
                   state.otherUser?.profile_image
-                    ? `http://backend:8000/media/${state.otherUser?.profile_image}`
+                    ? `${process.env.NEXT_PUBLIC_MEDIA_URL}/${state.otherUser?.profile_image}`
                     : "/prfl.png"
                 }
                 alt="profile pic"

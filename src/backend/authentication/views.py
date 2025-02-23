@@ -229,9 +229,11 @@ def update_profile_image(request):
     
     if serializer.is_valid():
         serializer.save()
+        image_url = request.user.profile_image.url.replace('/media/', '/', 1)
+
         return Response({
             'message': 'Profile image updated successfully',
-            'image_url': request.user.profile_image.url
+            'image_url': image_url
         })
     return Response(serializer.errors)
 
