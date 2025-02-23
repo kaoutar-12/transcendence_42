@@ -32,6 +32,8 @@ ALLOWED_HOSTS = ['*']
 
 
 
+
+
 # Application definition
 
 INSTALLED_APPS = [
@@ -154,6 +156,7 @@ CORS_ALLOWED_ORIGINS = [
     "https://*",
     "http://*",
 ]
+    # "http://localhost",
 
 
 
@@ -162,7 +165,6 @@ CORS_ALLOWED_ORIGINS = [
 	# "http://localhost:5500",
     # "http://localhost:8001",
     # "http://localhost:80",
-    # "http://localhost",
 	# "null",
 
 CORS_ALLOW_ALL_ORIGINS = True
@@ -215,7 +217,10 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     ]
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+# MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = '/app/media'
+
+
 APPEND_SLASH = False
 
 CHANNEL_LAYERS = {

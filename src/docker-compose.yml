@@ -29,6 +29,7 @@ services:
       - "8000:8000"
     volumes:
       - ./backend:/app
+      - media_volume:/app/media
     depends_on:
       db:
         condition: service_healthy
@@ -36,6 +37,7 @@ services:
         condition: service_started
     env_file:
       - .env
+    
 
   frontend:
     build:
@@ -49,9 +51,13 @@ services:
     env_file:
       - .env
     
+    
   nginx:
     build:
       context: ./nginx
+    volumes:
+      - media_volume:/app/media
+
     ports:
       - "80:80"
       - "443:443"
@@ -59,9 +65,12 @@ services:
       - backend
       - frontend
     
+    
 volumes:
   postgres_data:
+  media_volume:
 
-networks:
-  default:
-    name: mynetwork
+# networks:
+#   mynetwork:
+#     driver: bridge
+
