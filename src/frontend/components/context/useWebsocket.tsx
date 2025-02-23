@@ -18,8 +18,6 @@ interface WebSocketContextProps {
   send: (message: string) => void;
   on: (type: string, handler: MessageHandler) => void;
   off: (type: string) => void;
-  unreadCounts: Record<string, number>;
-  markAsRead: (roomId: string) => void;
 }
 
 const WebSocketContext = createContext<WebSocketContextProps | null>(null);
@@ -54,35 +52,6 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
         const message = JSON.parse(event.data);
         const handler = handlers.current[message.type];
 
-        switch (message.type) {
-          case "message_update":
-            console.log("Current Pathname: ", pathname);
-            console.log("Room ID: ", message.data.room_id);
-            const isCurrentRoom = pathname.includes(message.data.room_id);
-            if (!isCurrentRoom) {
-              console.log("Not in the current room, Showing message update");
-              setUnreadCounts((prev) => ({
-                ...prev,
-                [message.data.room_id]: (prev[message.data.room_id] || 0) + 1,
-              }));
-            } else {
-              console.log("In the current room, Not showing message update");
-            }
-            break;
-          case "messages_unread":
-            handleReadCount(message.data);
-            break;
-          case "room_deleted":
-            console.log("Room deleted:", message.data.room_id);
-            break;
-          case "invite_received":
-            console.log("Invite received:", message.data);
-            break;
-          default:
-            console.log("Unknown message type:", message.type);
-            break;
-        }
-
         if (handler) handler(message.data);
       } catch (error) {
         console.error("Message handling error:", error);
@@ -104,14 +73,6 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
     delete handlers.current[type];
   };
 
-  const handleReadCount = (data: any) => {
-    console.log("handleReadCount", data);
-    setUnreadCounts((prev) => ({
-      ...prev,
-      ...data,
-    }));
-  };
-
   const markAsRead = (roomId: string) => {
     setUnreadCounts((prev) => ({
       ...prev,
@@ -127,8 +88,6 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
         send,
         on,
         off,
-        unreadCounts,
-        markAsRead,
       }}
     >
       {children}

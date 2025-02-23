@@ -305,8 +305,8 @@ export default function Home() {
                               : "/prfl.png"
                           }
                           alt="avatar"
-                          width={150}
-                          height={150}
+                          fill
+                          sizes="100px, 100px"
                           style={{
                             borderRadius: "50%",
                             objectFit: "cover",
