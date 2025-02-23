@@ -26,7 +26,7 @@ type Props = {};
 
 const Sidebar = (props: Props) => {
   const pathname = usePathname();
-  const { unreadCounts, on, off, send } = useWebSocket();
+  const {on, off, send } = useWebSocket();
   const router = useRouter();
   const excludedPaths = [
     "/home",
@@ -42,14 +42,6 @@ const Sidebar = (props: Props) => {
     (path) =>
       pathname.startsWith(path) &&
       (pathname.length === path.length || pathname[path.length] === "/")
-  );
-
-  const totalUnread = Object.entries(unreadCounts).reduce(
-    (total, [roomId, count]) => {
-      const isCurrentRoom = pathname.includes(roomId);
-      return isCurrentRoom ? total : total + count;
-    },
-    0
   );
 
   const handleAccept = (inviteId: number) => {
@@ -142,9 +134,6 @@ const Sidebar = (props: Props) => {
       icon: (
         <div className="badge-container">
           <IoChatbubbleEllipses className="icon" />
-          {totalUnread > 0 && (
-            <span className="notification-badge">{totalUnread}</span>
-          )}
         </div>
       ),
     },
