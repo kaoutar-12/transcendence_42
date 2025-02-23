@@ -33,7 +33,7 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
 
   useEffect(() => {
-    const socket = new WebSocket("ws://localhost:8000/ws/global/");
+    const socket = new WebSocket(`${process.env.NEXT_PUBLIC_SOCKET_URL}ws/global/`);
     socketRef.current = socket;
 
     socket.onopen = () => {

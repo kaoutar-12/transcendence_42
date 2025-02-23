@@ -140,7 +140,7 @@ export default function Home() {
             <Image
               src={
                 user?.profile_image
-                  ? `http://backend:8000/media/${user?.profile_image}`
+                  ? `${process.env.NEXT_PUBLIC_MEDIA_URL}/${user?.profile_image}`
                   : "/prfl.png"
               }
               alt="avatar"
@@ -172,7 +172,7 @@ export default function Home() {
                           <Image
                             src={
                               friend?.profile_image
-                                ? `http://backend:8000${friend.profile_image}`
+                                ? `${process.env.NEXT_PUBLIC_URL}${friend.profile_image}`
                                 : "/prfl.png"
                             }
                             alt="avatar"

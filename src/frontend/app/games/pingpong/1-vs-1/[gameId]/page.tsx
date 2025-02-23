@@ -74,7 +74,7 @@ export default function GamePage() {
   }, [gameState]);
 
   useEffect(() => {
-    const ws = new WebSocket(`ws://localhost:8000/api/ws/game/${gameId}/`);
+    const ws = new WebSocket(`${process.env.NEXT_PUBLIC_SOCKET_URL}api/ws/game/${gameId}/`);
     let isMounted = true;
 
     ws.onopen = () => {
