@@ -9,6 +9,7 @@ from asgiref.sync import async_to_sync
 from django.db.models import Count, Q, Max
 from threading import Lock
 from game.memory_storage import MemoryStorage
+from game.consumers import PongGameConsumer
 
 User = get_user_model()
 
@@ -98,6 +99,9 @@ class GlobalConsumer(AsyncWebsocketConsumer):
                 game_state = serverPongGame().create_initial_state()
                 game_state['start_time'] = time.time()
                 MemoryStorage.save_game_state(game_id, game_state)
+                player1 = invite['from_user_id']
+                player2 = invite['to_user_id']
+                PongGameConsumer.register_authorized_players(game_id, player1, player2)
                 for player_id in [invite['from_user_id'], invite['to_user_id']]:
                     await self.channel_layer.group_send(
                         f'global_{player_id}',
