@@ -153,9 +153,11 @@ const TwoFactorAuth: React.FC<TwoFactorAuthProps> = ({
             <Image
               src={qrCodeUrl}
               alt="2FA QR Code"
-              className="w-48 h-48"
-              fill
-              style={{ objectFit: "cover", borderRadius: "50%" }}
+              // className="w-48 h-48"
+              width={192}
+              height={192}
+              // fill
+              // style={{ objectFit: "cover", borderRadius: "50%" }}
             />
           </div>
           <div className="space-y-2">
