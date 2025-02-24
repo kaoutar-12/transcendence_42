@@ -152,10 +152,10 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-CORS_ALLOWED_ORIGINS = [
-    "https://*",
-    "http://*",
-]
+# CORS_ALLOWED_ORIGINS = [
+#     "https://*",
+#     "http://*",
+# ]
     # "http://localhost",
 
 
@@ -167,32 +167,10 @@ CORS_ALLOWED_ORIGINS = [
     # "http://localhost:80",
 	# "null",
 
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
+# CORS_ALLOW_ALL_ORIGINS = True
+# CORS_ALLOW_CREDENTIALS = True
 
 CORS_EXPPOSE_HEADERS = ['Content-Type', 'X-CSRFToken']
-
-CORS_ALLOW_METHODS = [
-    'DELETE',
-    'GET',
-    'OPTIONS',
-    'PATCH',
-    'POST',
-    'PUT',
-]
-
-CORS_ALLOW_HEADERS = [
-    "accept",
-    "accept-encoding",
-    "authorization",
-    "content-type",
-    "dnt",
-    "origin",
-    "user-agent",
-    "x-csrftoken",
-    "x-requested-with",
-    "cookie",
-]
 
 ALLOWED_HOSTS = ["*"]
         # 'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -231,3 +209,13 @@ CHANNEL_LAYERS = {
         },
     },
 }
+
+
+CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOWED_ORIGINS = [
+    "https://*",
+    "http://*",
+]
+CORS_ALLOW_METHODS = ['*']
+CORS_ALLOW_HEADERS = ['*']

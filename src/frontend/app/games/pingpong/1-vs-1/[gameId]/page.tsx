@@ -77,7 +77,7 @@ export default function GamePage() {
         
 
 
-    const ws = new WebSocket(`${process.env.NEXT_PUBLIC_SOCKET_URL}api/ws/game/${gameId}/`);
+    const ws = new WebSocket(`${process.env.NEXT_PUBLIC_SOCKET_URL}/ws/game/${gameId}/`);
 
     let isMounted = true;
 

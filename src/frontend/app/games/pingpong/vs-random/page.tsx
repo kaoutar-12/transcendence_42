@@ -12,10 +12,7 @@ const MatchmakingQueue = () => {
 
     useEffect(() => {
         
-        // const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        // const wsUrl = `${wsProtocol}//${window.location.host}${process.env.NEXT_PUBLIC_WS_URL}`;
-
-        const ws = new WebSocket(`${process.env.NEXT_PUBLIC_SOCKET_URL}api/ws/queue/`);
+        const ws = new WebSocket(`${process.env.NEXT_PUBLIC_SOCKET_URL}/ws/queue/`);
         
         ws.onopen = () => {
             ws.send(JSON.stringify({ type: 'join_queue' }));
