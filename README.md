@@ -75,3 +75,8 @@ graph TD
     GameHistory --> duration[duration]
     GameHistory --> completed[completed]
 ```
+
+
+## NOTE
+
+- make sure that every app in tha backend have migrations folder with __init__.py file.
