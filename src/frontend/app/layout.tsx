@@ -17,7 +17,7 @@ export default function RootLayout({
 }) {
   const pathname = usePathname();
 
-  const authPages = ["/login", "/register", "/", "/call"];
+  const authPages = ["/login", "/register", "/", "/call","/OTP"];
   const isAuthPage = authPages.includes(pathname);
 
   return (
