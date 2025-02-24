@@ -4,6 +4,8 @@ services:
     image: redis:latest
     ports:
       - "6379:6379"
+    networks:
+      - mynetwork
 
   db:
     build: 
@@ -21,12 +23,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - mynetwork
 
   backend:
     build:
       context: ./backend
     ports:
-      - "8000:8000"
+      - "8000"
     volumes:
       - ./backend:/app
       - media_volume:/app/media
@@ -37,19 +41,24 @@ services:
         condition: service_started
     env_file:
       - .env
+    networks:
+      - mynetwork
+
     
 
   frontend:
     build:
       context: ./frontend
     ports:
-      - "3000:3000"
+      - "3000"
     volumes:
       - ./frontend:/app
       - /app/node_modules
       - /app/.next
     env_file:
       - .env
+    networks:
+      - mynetwork
     
     
   nginx:
@@ -64,13 +73,15 @@ services:
     depends_on:
       - backend
       - frontend
+    networks:
+      - mynetwork
     
     
 volumes:
   postgres_data:
   media_volume:
 
-# networks:
-#   mynetwork:
-#     driver: bridge
+networks:
+  mynetwork:
+    driver: bridge
 
