@@ -439,6 +439,27 @@ def block_user(request,user_id):
             user.friends.remove(request.user)
         request.user.blocked_users.add(user)
 
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+                f"global_{request.user.id}",
+                    {
+                        'type': 'block_update',
+                        'data': {
+                            'block_status': True,
+                            'i_blocked_them': True
+                        }
+                    }
+            )
+        async_to_sync(channel_layer.group_send)(
+                f"global_{user.id}",  
+                    {
+                        'type': 'block_update',
+                        'data': {
+                            'block_status': True,
+                        }
+                    }
+            )
+        
         return Response({
             'message': 'User blocked'
         })
@@ -468,6 +489,26 @@ def unblock_user(request,user_id):
         
         request.user.blocked_users.remove(user)
 
+        channel_layer = get_channel_layer()
+        async_to_sync(channel_layer.group_send)(
+                f"global_{request.user.id}",  
+                    {
+                        'type': 'block_update',
+                        'data': {
+                            'block_status': False,
+                            'i_blocked_them': False
+                        }
+                    }
+            )
+        async_to_sync(channel_layer.group_send)(
+                f"global_{user.id}",  
+                    {
+                        'type': 'block_update',
+                        'data': {
+                            'block_status': False,
+                        }
+                    }
+            )
         return Response({
             'message': 'User unblocked'
         })

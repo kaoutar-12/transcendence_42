@@ -138,10 +138,14 @@ class serverPongGame:
 
 class PongGameConsumer(AsyncWebsocketConsumer):
     sides = {}
+    authorized_players = {}
+    @classmethod
+    def register_authorized_players(cls, game_id, player1_id, player2_id):
+        cls.authorized_players[str(game_id)] = {str(player1_id), str(player2_id)}
     async def connect(self):
-        await self.accept()
         self.user = self.scope['user']
         if self.user.is_anonymous:
+            await self.accept()
             await self.send(text_data=json.dumps({
                 'type': 'error',
                 'message': 'Authentication required'
@@ -150,12 +154,22 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             return
         self.game_id = self.scope['url_route']['kwargs']['game_id']
         if await self.is_game_finished():
+            await self.accept()
             await self.send(text_data=json.dumps({
                 'type': 'error',
                 'message': 'Game already finished'
             }))
             await self.close()
             return
+        if not self.is_user_authorized():
+            await self.accept()
+            await self.send(text_data=json.dumps({
+                'type': 'error',
+                'message': 'You are not authorized to play this game'
+            }))
+            await self.close()
+            return
+
         self.game = serverPongGame()
         self.room_group_name = f'game_{self.game_id}'
         # handle reconnection
@@ -186,14 +200,18 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         elif game_state.get('game_status') == 'playing':
             if not any(task.get_name() == f'game_loop_{self.game_id}' for task in asyncio.all_tasks()):
                 asyncio.create_task(self.game_loop(), name=f'game_loop_{self.game_id}')
-
+        await self.accept()
         await self.channel_layer.group_add(self.room_group_name, self.channel_name)
         await self.send(text_data=json.dumps({
             'type': 'game_state',
             'state': game_state,
             'side': self.get_user_side()
         }))
-
+    def is_user_authorized(self):
+        if str(self.game_id) not in self.authorized_players:
+            return False
+        return str(self.user.id) in {str(player_id) for player_id in self.authorized_players[str(self.game_id)]}
+    
     @database_sync_to_async
     def is_game_finished(self):
         return MatchHistory.objects.filter(game_id=self.game_id).exists()
@@ -365,6 +383,8 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             MemoryStorage.delete_game(self.game_id)
             if self.game_id in self.sides:
                 del PongGameConsumer.sides[self.game_id]
+            if self.game_id in self.authorized_players:
+                del PongGameConsumer.authorized_players[self.game_id]
     async def save_match_history(self):
         game_state = MemoryStorage.get_game_state(self.game_id)
         if not game_state or game_state.get('game_status') != 'finished':
@@ -461,6 +481,8 @@ class QueueConsumer(AsyncWebsocketConsumer):
         game_state = serverPongGame().create_initial_state()
         MemoryStorage.save_game_state(game_id, game_state)
 
+
+        PongGameConsumer.register_authorized_players(game_id, players[0], players[1])
         for player_id in players:
             await self.channel_layer.group_send(
                 f'queue_{player_id}',
