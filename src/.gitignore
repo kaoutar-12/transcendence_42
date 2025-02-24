@@ -10,5 +10,4 @@ tests/
 *.log
 *.swp
 # add ignore migrations
-migrations/
-!migrations/__init__.py 
+
