@@ -63,17 +63,13 @@ def Oauth(request):
                         'access_token',
                         refresh.access_token,
                         httponly=True,
-                        # secure=True,
-                        samesite='Strict',
-                        max_age=settings.SIMPLE_JWT.get('ACCESS_TOKEN_LIFETIME').total_seconds()
+                        secure=True,
                         )
                     response.set_cookie(
                         'refresh_token',
                         refresh,
                         httponly=True,
-                        # secure=True,
-                        samesite='Strict',
-                        max_age=settings.SIMPLE_JWT.get('REFRESH_TOKEN_LIFETIME').total_seconds()
+                        secure=True,
                         )
                     return response
                 except User.DoesNotExist:
@@ -94,17 +90,13 @@ def Oauth(request):
                             'access_token',
                             refresh.access_token,
                             httponly=True,
-                            # secure=True,
-                            samesite='Strict',
-                            max_age=settings.SIMPLE_JWT.get('ACCESS_TOKEN_LIFETIME').total_seconds()
+                            secure=True,
                             )
                         response.set_cookie(
                             'refresh_token',
                             refresh,
                             httponly=True,
-                            # secure=True,
-                            samesite='Strict',
-                            max_age=settings.SIMPLE_JWT.get('REFRESH_TOKEN_LIFETIME').total_seconds()
+                            secure=True,
                             )
                         return response
                     return Response(serializer.errors)
