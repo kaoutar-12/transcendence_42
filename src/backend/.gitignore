@@ -6,3 +6,5 @@ media/
 /static/admin/
 /static/rest_framework/
 *.css
+migrations/*
+!migrations/__init__.py
