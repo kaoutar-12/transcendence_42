@@ -210,7 +210,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
     def is_user_authorized(self):
         if self.game_id not in self.authorized_players:
             return False
-        return self.user.id in self.authorized_players[self.game_id]
+        return str(self.user.id) in {str(player_id) for player_id in self.authorized_players[self.game_id]}
     
     @database_sync_to_async
     def is_game_finished(self):
