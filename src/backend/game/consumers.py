@@ -141,7 +141,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
     authorized_players = {}
     @classmethod
     def register_authorized_players(cls, game_id, player1_id, player2_id):
-        cls.authorized_players[game_id] = {player1_id, player2_id}
+        cls.authorized_players[str(game_id)] = {str(player1_id), str(player2_id)}
     async def connect(self):
         self.user = self.scope['user']
         if self.user.is_anonymous:
@@ -208,9 +208,9 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             'side': self.get_user_side()
         }))
     def is_user_authorized(self):
-        if self.game_id not in self.authorized_players:
+        if str(self.game_id) not in self.authorized_players:
             return False
-        return str(self.user.id) in {str(player_id) for player_id in self.authorized_players[self.game_id]}
+        return str(self.user.id) in {str(player_id) for player_id in self.authorized_players[str(self.game_id)]}
     
     @database_sync_to_async
     def is_game_finished(self):
