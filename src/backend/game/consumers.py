@@ -264,7 +264,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                 self.channel_name
             )
     async def handle_disconnect_timeout(self, disconnect_side, winner_side):
-        await asyncio.sleep(5)
+        await asyncio.sleep(15)
         game_state = MemoryStorage.get_game_state(self.game_id)
         if game_state and game_state.get('game_status') == 'playing':
             game_state['game_status'] = 'finished'
