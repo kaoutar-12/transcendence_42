@@ -19,13 +19,14 @@ from django.urls import path,include
 from django.conf.urls.static import static
 from django.conf import settings
 from . import consumers
-
+from .views import health_check
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('authentication.urls')),
     path('api/game/', include('game.urls')),
     path('api/chat/', include('chat.urls')),
+    path('api/health/', health_check, name='health_check'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 global_websocket_urlpatterns = [

@@ -44,7 +44,7 @@ services:
     networks:
       - mynetwork
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "8000"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/health/"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -66,11 +66,11 @@ services:
     networks:
       - mynetwork
     healthcheck:
-      test: ["CMD", "nc", "-z", "localhost", "3000"]
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/localhost/3000 || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 5
-      start_period: 30s
+      start_period: 120s
     
   nginx:
     build:
