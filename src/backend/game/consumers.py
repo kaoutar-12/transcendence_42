@@ -196,7 +196,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         if not game_state:
             game_state = self.game.create_initial_state()
             MemoryStorage.save_game_state(self.game_id, game_state)
-            asyncio.create_task(self.game_loop())
+            asyncio.create_task(self.game_loop(), name=f'game_loop_{self.game_id}')
         elif game_state.get('game_status') == 'playing':
             if not any(task.get_name() == f'game_loop_{self.game_id}' for task in asyncio.all_tasks()):
                 asyncio.create_task(self.game_loop(), name=f'game_loop_{self.game_id}')
