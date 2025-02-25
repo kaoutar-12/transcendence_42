@@ -82,6 +82,7 @@ const Sidebar = (props: Props) => {
         {
           theme: "colored",
           hideProgressBar: true,
+          closeButton: false,
           onClose: () => {
             setTimeout(() => {
               router.push(`/games/pingpong/1-vs-1/${game_id}`);

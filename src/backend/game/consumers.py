@@ -175,12 +175,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         # handle reconnection
         game_state = MemoryStorage.get_game_state(self.game_id)
         is_reconnect = False
-        if self.game_id in self.sides:
-            for side, user_id in self.sides[self.game_id].items():
-                if user_id == self.user.id:
-                    is_reconnect = True
-                    break
-        # handle new connection
         if not is_reconnect:
             if self.game_id not in self.sides:
                 self.sides[self.game_id] = {}
@@ -238,6 +232,11 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         elif game_state['paddles']['left']['score'] < game_state['paddles']['right']['score']:
             return 'right'
         return None
+    @classmethod
+    def clear_authorized_players(cls, game_id):
+        print("cleasr authorization")
+        cls.authorized_players.pop(game_id)
+        
     async def disconnect(self, close_code):
         is_authorized_players = False
         if not self.is_user_authorized():
@@ -256,32 +255,30 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             if is_authorized_players:
                 game_state = MemoryStorage.get_game_state(self.game_id)
                 if game_state and game_state.get('game_status') == 'playing':
-                    asyncio.create_task(self.handle_disconnect_timeout(disconnect_side, winner_side))
+                    game_state['game_status'] = 'finished'
+                    game_state['timestamp'] = time.time()
+                    game_state['paddles'][winner_side]['score'] = 1
+                    game_state['winner'] = winner_side
+                    MemoryStorage.save_game_state(self.game_id, game_state)
+                    await self.save_match_history()
+                    await self.channel_layer.group_send(
+                        self.room_group_name,
+                        {
+                            'type': 'game_over',
+                            'winner': winner_side,
+                            'reason': 'player_disconnected',
+                            'side': disconnect_side
+                        }
+                    )
+                    MemoryStorage.delete_game(self.game_id)
+                    self.clear_authorized_players(self.game_id)
+                    # asyncio.create_task(self.handle_disconnect_timeout(disconnect_side, winner_side))
 
         if hasattr(self, 'room_group_name'):
             await self.channel_layer.group_discard(
                 self.room_group_name,
                 self.channel_name
             )
-    async def handle_disconnect_timeout(self, disconnect_side, winner_side):
-        await asyncio.sleep(15)
-        game_state = MemoryStorage.get_game_state(self.game_id)
-        if game_state and game_state.get('game_status') == 'playing':
-            game_state['game_status'] = 'finished'
-            game_state['timestamp'] = time.time()
-            game_state['paddles'][winner_side]['score'] = 1
-            game_state['winner'] = winner_side
-            MemoryStorage.save_game_state(self.game_id, game_state)
-            await self.channel_layer.group_send(
-                self.room_group_name,
-                {
-                    'type': 'game_over',
-                    'winner': winner_side,
-                    'reason': 'player_disconnected',
-                    'side': disconnect_side
-                }
-            )
-            MemoryStorage.delete_game(self.game_id)
 
     async def receive(self, text_data):
         try:
