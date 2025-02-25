@@ -240,6 +240,8 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         return None
     async def disconnect(self, close_code):
         is_authorized_players = False
+        if not self.is_user_authorized():
+            return
         if hasattr(self, 'game_id'):
             if self.game_id in self.sides:
                 disconnect_side = None
