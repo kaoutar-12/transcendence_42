@@ -15,7 +15,15 @@ const GameLinkItem = (props: Props) => {
     <div className='game-item'>
         <Link className="link" href={props.href}>
         <div className='title'>{props.title}</div>
-        <Image src={props.image} alt={props.title} width={100} height={100} />
+        <div className="image-container">
+          <Image 
+                src={props.image} 
+                alt={props.title} 
+                width={100} 
+                height={100} 
+                style={{ objectFit: 'contain' }}
+              />
+        </div>
         </Link>
         <div className='status'>{props.status || "new"}</div>
     </div>

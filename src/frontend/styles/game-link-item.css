@@ -45,3 +45,11 @@
     border-top-left-radius: 10px;
     background-color: rgb(27, 99, 75);
 }
+
+.image-container {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    overflow: hidden;
+}
+
