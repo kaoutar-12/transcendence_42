@@ -14,6 +14,7 @@ import { useWebSocket } from "./context/useWebsocket";
 import { formatToLocalTime } from "@/app/utils/time";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import api from "@/app/utils/api";
+import { toast } from "react-toastify";
 
 type ConversationProps = {
   last_message: string;
@@ -58,7 +59,6 @@ const Conversation = () => {
     };
 
     const handleDeleteRoom = (data: any) => {
-      console.log("Deleted room:", data.room_id);
       setConversations((prev) => {
         return prev.filter((conv) => conv.room_id !== data.room_id);
       });
@@ -101,7 +101,7 @@ const Conversation = () => {
         withCredentials: true,
       });
     } catch (error) {
-      console.log(error);
+      toast.error("Error deleting room");
     }
   };
 
@@ -115,23 +115,16 @@ const Conversation = () => {
         setConversations(response.data);
       })
       .catch((error) => {
-        console.log(error);
+        toast.error("Error fetching conversations");
       })
       .finally(() => {
         setIsLoading(false);
       });
-    // console.log("response", response.data);
-    // setConversations(response.data);
-    // setIsLoading(false);
   };
 
   useEffect(() => {
     fetchConversations();
   }, []);
-
-  // if (conversations.length === 0) {
-  //   return <EmptyConversation />;
-  // }
 
   return (
     <>

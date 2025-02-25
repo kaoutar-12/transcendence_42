@@ -26,7 +26,7 @@ type Props = {};
 
 const Sidebar = (props: Props) => {
   const pathname = usePathname();
-  const {on, off, send } = useWebSocket();
+  const { on, off, send } = useWebSocket();
   const router = useRouter();
   const excludedPaths = [
     "/home",
@@ -45,10 +45,8 @@ const Sidebar = (props: Props) => {
   );
 
   const handleAccept = (inviteId: number) => {
-    console.log("Invite accepted:", inviteId);
     send(JSON.stringify({ type: "accept_invite", invite_id: inviteId }));
-    toast.dismiss(); // Close the toast after accepting
-    // Add your logic here for accepting the invite
+    toast.dismiss();
   };
 
   const handleDecline = (inviteId: number) => {

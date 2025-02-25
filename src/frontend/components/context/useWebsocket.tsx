@@ -31,19 +31,18 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
   const pathname = usePathname();
 
   useEffect(() => {
-    const socket = new WebSocket(`${process.env.NEXT_PUBLIC_SOCKET_URL}ws/global/`);
+    const socket = new WebSocket(
+      `${process.env.NEXT_PUBLIC_SOCKET_URL}ws/global/`
+    );
     socketRef.current = socket;
 
     socket.onopen = () => {
-      console.log("Global socket connected");
       setStatus("open");
     };
     socket.onclose = () => {
-      console.log("Global socket disconnected");
       setStatus("closed");
     };
     socket.onerror = () => {
-      console.log("Global socket error");
       setStatus("error");
     };
 
@@ -53,9 +52,7 @@ export const WebSocketProvider = ({ children }: { children: ReactNode }) => {
         const handler = handlers.current[message.type];
 
         if (handler) handler(message.data);
-      } catch (error) {
-        console.error("Message handling error:", error);
-      }
+      } catch (error) {}
     };
 
     return () => socket.close();

@@ -26,8 +26,6 @@ class GlobalConsumer(AsyncWebsocketConsumer):
         await self.change_count()
         await self.set_user_online(True)
         await self.accept()
-        # Send unread messages to the user
-        await self.send_user_unread_messages()
         
     @database_sync_to_async
     def set_user_online(self, is_online):
@@ -201,45 +199,6 @@ class GlobalConsumer(AsyncWebsocketConsumer):
             'type': 'messages_unread',
             'data': event['data']
         }))
-
-    @database_sync_to_async
-    def send_user_unread_messages(self):
-        print(f"Sending unread messages for user {self.user}")
-        # Get all rooms for the user with unread message counts
-        rooms = (
-            Room.objects.filter(
-                Q(users=self.user) & 
-                (Q(messages__read_by__isnull=True) | ~Q(messages__read_by=self.user)) &  # Include messages that are unread
-                ~Q(messages__sender=self.user)  # Exclude messages sent by the user
-            ).annotate(
-                unread_count=Count(
-                    'messages',
-                    filter=(Q(messages__read_by__isnull=True) | ~Q(messages__read_by=self.user)) & ~Q(messages__sender=self.user)
-                ),
-                last_message_time=Max('messages__time')
-            ).filter(
-                unread_count__gt=0  # Ensure rooms have unread messages
-            ).distinct()
-        )
-        
-        print(f"Rooms with unread messages for {self.user}: {rooms}")
-
-        # Prepare unread counts for each room
-        unread_data = {}
-        for room in rooms:
-            print(f"Room ID: {room.id}, Unread Count: {room.unread_count}")
-            unread_data[str(room.id)] = room.unread_count if room.unread_count > 0 else 0
-        
-        print(f"Unread data for {self.user}: {unread_data}")
-
-        # Send the unread counts through WebSocket
-        async_to_sync(self.channel_layer.group_send)(
-            f'global_{self.scope['user'].id}',
-            {
-                'type': 'unread_counts_update',
-                'data': unread_data,
-            }
-        )
 
     @database_sync_to_async
     def mark_messages_as_read(self, room_id):

@@ -14,6 +14,7 @@ import { CgProfile } from "react-icons/cg";
 import { CgGames } from "react-icons/cg";
 import WinLossCircle from "@/components/WinRateCircle";
 import { useWebSocket } from "@/components/context/useWebsocket";
+import { toast } from "react-toastify";
 
 export interface MatchHistoryItem {
   game_id: number;
@@ -53,34 +54,29 @@ export default function Home() {
         withCredentials: true,
       });
       const friends = response.data.friends;
-      setContacts(friends.slice(0, 4)); 
+      setContacts(friends.slice(0, 4));
       setAllFriends(friends);
-      console.log("Contacts:", friends);
     } catch (error) {
-      console.error("Error fetching contacts:", error);
+      toast.error("Error fetching contacts");
     }
   };
 
   const fetchUser = async () => {
     try {
       const response = await api.get("/user/");
-      console.log("User:", response.data);
       setUser(response.data);
     } catch (error) {
-      console.error("Error fetching user:", error);
+      toast.error("Error fetching user");
     }
   };
 
   const fetchMatchHistory = async () => {
     try {
-      console.log("Fetching match history...");
       const response = await api.get(`game/history/${user?.id}/`);
       const winRateResponse = await api.get(
         `game/history/${user?.id}/winrate/`
       );
-      console.log("Match History:", response.data);
       setMatchHistory(response.data.matches);
-      console.log("Win Rate:", winRateResponse.data);
       setWinRate((prev) => ({
         ...prev,
         losses: winRateResponse.data.losses,
@@ -88,7 +84,7 @@ export default function Home() {
         wins: winRateResponse.data.wins,
       }));
     } catch (error) {
-      console.error("Error fetching match history:", error);
+      toast.error("Error fetching match history");
     }
   };
 
@@ -110,7 +106,7 @@ export default function Home() {
       });
       router.push(`/chat/${response.data.room_id}`);
     } catch (error) {
-      console.error("Error creating room:", error);
+      toast.error("Error creating room");
     }
   };
 
@@ -136,7 +132,19 @@ export default function Home() {
       </div>
       <section>
         <div className="profile-info">
-          <div className="avatar">
+          <div className="overflow-hidden">
+            <Image
+              src="/background.png"
+              alt="Profile banner"
+              // className="w-full h-full object-cover"
+              // width={1920}
+              // height={1080}
+              priority
+              fill
+              style={{ objectFit: "cover", borderRadius: "34px" }}
+            />
+          </div>
+          <div className="avatar z-[55]">
             <Image
               src={
                 user?.profile_image
@@ -148,13 +156,13 @@ export default function Home() {
               style={{ objectFit: "cover", borderRadius: "33px" }}
             />
           </div>
-          <div className="info-dash">
+          <div className="info-dash z-50">
             <div className="friends-list pl-[25px]">
               <div className="friends">Friends</div>
               <div>{allFriends?.length}</div>
             </div>
             <div className="username-container pr-[120px]">
-               <div className="username">{user?.username}</div>
+              <div className="username">{user?.username}</div>
             </div>
           </div>
         </div>

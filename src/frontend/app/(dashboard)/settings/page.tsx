@@ -167,11 +167,12 @@ const ProfileSettings: React.FC = () => {
     <div className="w-full min-h-screen bg-black text-white">
       <div className="w-full h-48 overflow-hidden">
         <Image
-          src="/background.jpeg"
+          src="/background.png"
           alt="Profile banner"
           className="w-full h-full object-cover"
           width={1920}
           height={1080}
+          priority
           // fill
           // style={{ objectFit: "cover", borderRadius: "50%" }}
         />
