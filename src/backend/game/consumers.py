@@ -196,7 +196,7 @@ class PongGameConsumer(AsyncWebsocketConsumer):
         if not game_state:
             game_state = self.game.create_initial_state()
             MemoryStorage.save_game_state(self.game_id, game_state)
-            asyncio.create_task(self.game_loop())
+            asyncio.create_task(self.game_loop(), name=f'game_loop_{self.game_id}')
         elif game_state.get('game_status') == 'playing':
             if not any(task.get_name() == f'game_loop_{self.game_id}' for task in asyncio.all_tasks()):
                 asyncio.create_task(self.game_loop(), name=f'game_loop_{self.game_id}')
@@ -239,6 +239,9 @@ class PongGameConsumer(AsyncWebsocketConsumer):
             return 'right'
         return None
     async def disconnect(self, close_code):
+        is_authorized_players = False
+        if not self.is_user_authorized():
+            return
         if hasattr(self, 'game_id'):
             if self.game_id in self.sides:
                 disconnect_side = None
@@ -246,12 +249,14 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                 for side, user_id in self.sides[self.game_id].items():
                     if user_id == self.user.id:
                         disconnect_side = side
+                        is_authorized_players =True
                         winner_side = 'left' if side == 'right' else 'right'
                         break
             # check if its a real disconnection
-            game_state = MemoryStorage.get_game_state(self.game_id)
-            if game_state and game_state.get('game_status') == 'playing':
-                asyncio.create_task(self.handle_disconnect_timeout(disconnect_side, winner_side))
+            if is_authorized_players:
+                game_state = MemoryStorage.get_game_state(self.game_id)
+                if game_state and game_state.get('game_status') == 'playing':
+                    asyncio.create_task(self.handle_disconnect_timeout(disconnect_side, winner_side))
 
         if hasattr(self, 'room_group_name'):
             await self.channel_layer.group_discard(

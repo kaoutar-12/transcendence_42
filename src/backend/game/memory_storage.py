@@ -29,11 +29,11 @@ class MemoryStorage:
 
     @classmethod
     def get_user_invites(cls, user_id):
-        return {
-            invite_id: invite 
-            for invite_id, invite in cls._invites.items() 
-            if invite['to_user_id'] == user_id
-        }
+        result = {}
+        for invite_id, invite in cls._invites.items():
+            if invite['to_user_id'] == user_id:
+                result[invite_id] = invite
+        return result
 
     @classmethod
     def save_game_state(cls, game_id, state):
