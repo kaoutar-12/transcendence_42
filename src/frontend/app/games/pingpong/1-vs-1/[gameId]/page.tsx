@@ -4,6 +4,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import LoadingAnimation from "@/components/LandingAnimation/LoadingAnimation";
 import { useParams } from 'next/navigation';
 import styles from '@/styles/modules/PingPongGame.module.css';
+import NotFoundPage from '@/app/not-found';
 
 const CANVAS_WIDTH = 1300;
 const CANVAS_HEIGHT = 600;
@@ -91,7 +92,7 @@ export default function GamePage() {
 
     ws.onmessage = (event) => {
       if (!isMounted) return;
-
+      
       try {
         const data = JSON.parse(event.data);
         
@@ -103,6 +104,10 @@ export default function GamePage() {
               setWinner(data.state.paddles.left.score >= 1 ? 'Left Player' : 'Right Player');
             }
             break;
+          case 'game_over':
+            setGameOver(true);
+            setWinner(data.side == "left" ? "Right Player" : "Left player")
+            break ;
           case 'error':
             setError(data.message);
             break;
@@ -168,6 +173,10 @@ export default function GamePage() {
         <LoadingAnimation />
       </div>
     );
+  }
+
+  if (error) {
+    return <NotFoundPage />
   }
 
   return (

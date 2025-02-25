@@ -27,7 +27,7 @@ const nextConfig = {
     return [
       {
         source: '/oauth1',
-        destination: `https://api.intra.42.fr/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_UID}&redirect_uri=https%3A%2F%2Flocalhost%2Fcall%2F&response_type=code`,
+        destination: `https://api.intra.42.fr/oauth/authorize?client_id=${process.env.NEXT_PUBLIC_UID}&redirect_uri=https%3A%2F%2F${process.env.ip_adress}%2Fcall%2F&response_type=code`,
         permanent: true,
         basePath: false,
       },
