@@ -17,6 +17,8 @@ RUN apt-get update && \
     postgresql-client && \
     rm -rf /var/lib/apt/lists/*
 
+RUN apt-get update && apt-get install -y netcat-traditional
+
 COPY requirements.txt .
 
 RUN pip3 install --no-cache-dir -r requirements.txt

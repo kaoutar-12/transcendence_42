@@ -43,6 +43,12 @@ services:
       - .env
     networks:
       - mynetwork
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "8000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
     
 
@@ -59,7 +65,12 @@ services:
       - .env
     networks:
       - mynetwork
-    
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "3000"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
     
   nginx:
     build:
