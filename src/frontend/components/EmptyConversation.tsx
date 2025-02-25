@@ -6,6 +6,7 @@ import axios from "axios";
 import { User } from "@/app/chat/[room_id]/page";
 import Image from "next/image";
 import api from "@/app/utils/api";
+import { toast } from "react-toastify";
 
 type Props = {};
 
@@ -22,11 +23,10 @@ const EmptyConversation = (props: Props) => {
         withCredentials: true,
       });
       const friends = response.data.friends;
-      setContacts(friends.slice(0, 4)); // First 4 friends
-      setAllFriends(friends); // All friends
-      console.log("Contacts:", friends);
+      setContacts(friends.slice(0, 4));
+      setAllFriends(friends);
     } catch (error) {
-      console.error("Error fetching contacts:", error);
+      toast.error("Error fetching contacts");
     }
   };
 
@@ -44,7 +44,7 @@ const EmptyConversation = (props: Props) => {
       );
       router.push(`/chat/${response.data.room_id}`);
     } catch (error) {
-      console.error(error);
+      toast.error("Error creating conversation");
     }
   };
 

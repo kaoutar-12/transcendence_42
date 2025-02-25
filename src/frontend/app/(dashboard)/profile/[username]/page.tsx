@@ -59,7 +59,6 @@ export default function Home() {
 
   React.useEffect(() => {
     const handleBlockUpdate = (data: any) => {
-      console.log("SCKET DATA ==> ", data);
       setUser((prev) =>
         prev !== null ? { ...prev, is_blocked: data.block_status } : prev
       );
@@ -72,17 +71,13 @@ export default function Home() {
     };
   }, [on, off]);
 
-
   const fetchMatchHistory = async () => {
     try {
-      console.log("Fetching match history...");
       const response = await api.get(`game/history/${user?.id}/`);
       const winRateResponse = await api.get(
         `game/history/${user?.id}/winrate/`
       );
-      console.log("Match History:", response.data);
       setMatchHistory(response.data.matches);
-      console.log("Win Rate:", winRateResponse.data);
       setWinRate((prev) => ({
         ...prev,
         losses: winRateResponse.data.losses,
@@ -90,7 +85,7 @@ export default function Home() {
         wins: winRateResponse.data.wins,
       }));
     } catch (error) {
-      console.error("Error fetching match history:", error);
+      toast.error("Error fetching match history");
     }
   };
 
@@ -101,17 +96,15 @@ export default function Home() {
       setUserOk(true);
 
       if (response.data.error === "can't search your self") {
-        router.push('/home');
-      }
-      else if (response.data.error) {
+        router.push("/home");
+      } else if (response.data.error) {
         setUserOk(false);
         return;
       }
 
-      console.log(response.data);
       setUser(response.data);
     } catch (error) {
-      console.error("Error fetching user:", error);
+      toast.error("Error fetching user");
     }
   };
 
@@ -137,7 +130,7 @@ export default function Home() {
       });
       router.push(`/chat/${response.data.room_id}`);
     } catch (error) {
-      console.error("Error creating room:", error);
+      toast.error("Error creating room");
     }
   };
 
@@ -159,7 +152,7 @@ export default function Home() {
       })
     );
   };
-  
+
   React.useEffect(() => {
     if (user) {
       fetchMatchHistory();
@@ -184,7 +177,19 @@ export default function Home() {
       </div>
       <section>
         <div className="profile-info">
-          <div className="avatar">
+          <div className="overflow-hidden">
+            <Image
+              src="/background.png"
+              alt="Profile banner"
+              // className="w-full h-full object-cover"
+              // width={1920}
+              // height={1080}
+              priority
+              fill
+              style={{ objectFit: "cover", borderRadius: "34px" }}
+            />
+          </div>
+          <div className="avatar z-[55]">
             <Image
               src={
                 user?.profile_image
@@ -196,7 +201,7 @@ export default function Home() {
               style={{ objectFit: "cover", borderRadius: "33px" }}
             />
           </div>
-          <div className="w-full flex justify-between items-center h-[30%] rounded-[34px] bg-black text-white self-end px-[120px] text-[20px]">
+          <div className="w-full flex justify-between z-50 items-center h-[30%] rounded-[34px] bg-black text-white self-end px-[120px] text-[20px]">
             <div className="flex gap-[40px] items-center justify-center">
               <div className="friends">Friends</div>
               <div>{user?.friends?.length}</div>
@@ -217,8 +222,8 @@ export default function Home() {
           </div>
         </div>
         {/* <LevelBar level={4} percentage={30} /> */}
-       
-          <div className="buttons">
+
+        <div className="buttons">
           <button
             className="message-button"
             onClick={() => handleCreateRoom(user!.id)}
@@ -294,7 +299,7 @@ export default function Home() {
             <div className="friends-container">
               {user?.friends?.map((friend, index) => (
                 <Link href={`/profile/${friend.username}`} key={index}>
-                  <div  className="friend-avatar">
+                  <div className="friend-avatar">
                     <div className="card">
                       {/* Front side */}
                       <div className="front">
@@ -326,7 +331,8 @@ export default function Home() {
               wins={winRate.wins}
               losses={winRate.losses}
               winRate={winRate.winrate}
-            /></div>
+            />
+          </div>
           <div className="item-3">
             {matchHistory.length > 0 ? (
               <>

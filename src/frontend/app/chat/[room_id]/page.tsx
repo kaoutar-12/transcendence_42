@@ -80,7 +80,6 @@ const Page = () => {
 
   useEffect(() => {
     const handleBlockUpdate = (data: any) => {
-      console.log("SCKET DATA ==> ", data);
       setState((prev) => ({
         ...prev,
         block_status: data.block_status,
@@ -117,7 +116,7 @@ const Page = () => {
         loggedUser: response.data,
       }));
     } catch (error) {
-      console.error("Error fetching user data:", error);
+      toast.error("Error fetching user data");
     }
   };
 
@@ -127,7 +126,6 @@ const Page = () => {
       const response = await api.get(`/chat/rooms/${params.room_id}/`, {
         withCredentials: true,
       });
-      console.log("Other User Data:", response.data.other_user);
 
       setState((prev) => ({
         ...prev,
@@ -137,7 +135,7 @@ const Page = () => {
       }));
     } catch (error) {
       setNotFound(true);
-      console.error("Error fetching user data:", error);
+      toast.error("Error fetching user data");
     }
   };
 
@@ -155,7 +153,7 @@ const Page = () => {
         messagesCount: response.data.count,
       }));
     } catch (error) {
-      console.error("Error fetching messages:", error);
+      toast.error("Error fetching messages");
     }
   };
 
@@ -166,7 +164,6 @@ const Page = () => {
     );
 
     socket.onopen = () => {
-      console.log("Chat room socket connected");
       setState((prev) => ({
         ...prev,
         socket,
@@ -184,7 +181,6 @@ const Page = () => {
     };
 
     socket.onclose = () => {
-      console.log("Chat room socket disconnected");
       setState((prev) => ({
         ...prev,
         socket: null,
@@ -258,7 +254,7 @@ const Page = () => {
         }));
       }
     } catch (error) {
-      console.error("Error sending message:", error);
+      toast.error("Error sending message");
       setState((prev) => ({
         ...prev,
         messages: prev.messages.map((msg) =>
@@ -295,8 +291,6 @@ const Page = () => {
   };
 
   const confirmBlock = () => {
-    // const type = isBlocked ? "block" : "unblock"
-    console.log("STATUS ==> ", state.otherUser?.i_blocked_them);
     blockUser(
       state.otherUser!.id,
       state.otherUser?.i_blocked_them ? "unblock" : "block"
@@ -346,7 +340,11 @@ const Page = () => {
             </div>
           </div>
           <div className="chat-icons">
-            <button className="chat-icon"  disabled={state.block_status} onClick={handleSendInvite}>
+            <button
+              className="chat-icon"
+              disabled={state.block_status}
+              onClick={handleSendInvite}
+            >
               <FaGamepad className="w-[32px] h-[32px]" />
             </button>
 
