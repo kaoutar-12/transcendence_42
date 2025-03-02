@@ -272,7 +272,6 @@ class PongGameConsumer(AsyncWebsocketConsumer):
                     )
                     MemoryStorage.delete_game(self.game_id)
                     self.clear_authorized_players(self.game_id)
-                    # asyncio.create_task(self.handle_disconnect_timeout(disconnect_side, winner_side))
 
         if hasattr(self, 'room_group_name'):
             await self.channel_layer.group_discard(
